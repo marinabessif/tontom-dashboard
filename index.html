@@ -3778,7 +3778,11 @@
         document.getElementById('txtConsolidadoraSheetUrl').value = savedConsolidadoraUrl;
 
         // Apps Script Web App
-        let savedWebAppUrl = localStorage.getItem('tontom_webapp_url') || "https://docs.google.com/spreadsheets/d/1blaDiVHRBXor-T9cG9shnOXkSnPJFIyEU-kXQL_p5hk/edit?gid=832614937#gid=832614937&fvid=454381255";
+        let savedWebAppUrl = localStorage.getItem('tontom_webapp_url');
+        if (!savedWebAppUrl || !savedWebAppUrl.includes("1blaDiVHRBXor-T9cG9shnOXkSnPJFIyEU-kXQL_p5hk")) {
+            savedWebAppUrl = "https://docs.google.com/spreadsheets/d/1blaDiVHRBXor-T9cG9shnOXkSnPJFIyEU-kXQL_p5hk/edit?gid=832614937#gid=832614937&fvid=454381255";
+            localStorage.setItem('tontom_webapp_url', savedWebAppUrl);
+        }
         document.getElementById('txtWebAppUrl').value = savedWebAppUrl;
 
         // Migração em lote para as 11 equipes
