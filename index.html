@@ -771,7 +771,7 @@
             </div>
             <div class="form-group" style="margin-top: 10px;">
                 <label for="txtWebAppUrl">URL do Web App do Google Apps Script (para gravação de dados):</label>
-                <input type="text" class="form-control" id="txtWebAppUrl" value="https://docs.google.com/spreadsheets/d/1blaDiVHRBXor-T9cG9shnOXkSnPJFIyEU-kXQL_p5hk/edit?gid=832614937#gid=832614937&fvid=454381255" placeholder="Cole a URL de implantação do Apps Script (Ex: https://script.google.com/macros/s/.../exec)">
+                <input type="text" class="form-control" id="txtWebAppUrl" value="https://script.google.com/macros/s/AKfycbx8hApOqO1IsuLTBRK75IJsF3Mq-TbAo7hiKgXGGTwKjISYI-8SuFnGuUGFVKOCI_AM/exec" placeholder="Cole a URL de implantação do Apps Script (Ex: https://script.google.com/macros/s/.../exec)">
             </div>
             <div style="display: flex; gap: 15px; margin-top: 15px;">
                 <button class="btn-premium" id="btnSaveSettings" style="flex: 1; padding: 10px; font-size: 13px;">💾 Salvar Configurações</button>
@@ -3779,8 +3779,8 @@
 
         // Apps Script Web App
         let savedWebAppUrl = localStorage.getItem('tontom_webapp_url');
-        if (!savedWebAppUrl || !savedWebAppUrl.includes("1blaDiVHRBXor-T9cG9shnOXkSnPJFIyEU-kXQL_p5hk")) {
-            savedWebAppUrl = "https://docs.google.com/spreadsheets/d/1blaDiVHRBXor-T9cG9shnOXkSnPJFIyEU-kXQL_p5hk/edit?gid=832614937#gid=832614937&fvid=454381255";
+        if (!savedWebAppUrl || !savedWebAppUrl.includes("AKfycbx8hApOqO1IsuLTBRK75IJsF3Mq-TbAo7hiKgXGGTwKjISYI-8SuFnGuUGFVKOCI_AM")) {
+            savedWebAppUrl = "https://script.google.com/macros/s/AKfycbx8hApOqO1IsuLTBRK75IJsF3Mq-TbAo7hiKgXGGTwKjISYI-8SuFnGuUGFVKOCI_AM/exec";
             localStorage.setItem('tontom_webapp_url', savedWebAppUrl);
         }
         document.getElementById('txtWebAppUrl').value = savedWebAppUrl;
