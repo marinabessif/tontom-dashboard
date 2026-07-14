@@ -1045,7 +1045,13 @@
                     <span>🛠️ Migração de Erro de Fluxo & Siscondj (Diretoria)</span>
                     <span id="badgeMigrationCount" style="margin-left:10px; background:var(--accent-primary); color:#fff; font-size:11px; padding:2px 8px; border-radius:10px; font-weight: bold; display: none;">0</span>
                 </div>
-                <button class="btn-theme" id="btnUpdateMigrationSheet" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px;">🔄 Atualizar Planilha Gestores</button>
+                <div style="display:flex; align-items:center; gap: 10px;">
+                    <div style="display:flex; align-items:center; gap: 6px; font-size: 11px; color: var(--text-secondary); margin-right: 5px;">
+                        <span class="status-dot warning" id="migrationStatusDot"></span>
+                        <span id="migrationStatusText">Não carregado</span>
+                    </div>
+                    <button class="btn-theme" id="btnUpdateMigrationSheet" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px;">🔄 Atualizar Planilha Gestores</button>
+                </div>
             </div>
             <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; margin-top: -5px;">Os processos abaixo possuem observações de Erro de Fluxo (com chamado) ou SISCONDJ (vinculação de conta). Selecione-os para migrar automaticamente para a planilha Gestores.</p>
             <div class="table-responsive">
@@ -1067,6 +1073,50 @@
             </div>
             <div style="display:flex; justify-content: flex-end; margin-top: 15px;">
                 <button class="btn-premium" id="btnSubmitMigration" style="padding: 8px 16px; font-size: 12px; width: auto; height: 36px; border-radius: 6px;">🚀 Migrar Selecionados para Planilha Gestores</button>
+            </div>
+        </div>
+
+        <!-- Card de Migração para Controle - SERPREC (Precatório/RPV) -->
+        <div class="panel-card" id="controleSerprecMigrationSection" style="display: block; margin-top: 20px; border: 1px solid var(--accent-info);">
+            <div class="panel-title" style="display:flex; align-items:center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div style="display:flex; align-items:center;">
+                    <span>🛠️ Migração de Precatório / RPV (SERPREC)</span>
+                    <span id="badgeControleSerprecCount" style="margin-left:10px; background:var(--accent-info); color:#fff; font-size:11px; padding:2px 8px; border-radius:10px; font-weight: bold; display: none;">0</span>
+                </div>
+                <div style="display:flex; gap: 10px;">
+                    <a href="https://docs.google.com/spreadsheets/d/1yOAupHFi0ERglZPTJ4yrXHPwBP8oemOfLAKFJ9zT9Po/edit?gid=740976214" target="_blank" class="btn-theme" style="display: flex; align-items: center; justify-content: center; text-decoration: none; padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px; background: rgba(14, 165, 233, 0.1); color: var(--accent-info); border: 1px solid rgba(14, 165, 233, 0.2);">
+                        📊 Planilha de Controle
+                    </a>
+                    <button class="btn-theme" id="btnUpdateControleSerprec" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px;">🔄 Atualizar Controle SERPREC</button>
+                </div>
+            </div>
+            
+            <div id="controleSerprecConnectionStatus" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <span class="status-dot warning" id="controleSerprecStatusDot"></span>
+                <span id="controleSerprecStatusText">Controle SERPREC: Não carregado. Clique em Atualizar.</span>
+            </div>
+
+            <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; margin-top: -5px;">Os processos abaixo possuem observações de PRECATÓRIO ou RPV no SIMAP. Selecione-os para migrar automaticamente para a aba SERPREC da planilha de Controle.</p>
+            
+            <div class="table-responsive">
+                <table class="custom-table" style="text-align: left; font-size: 12px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 30px; text-align: center;"><input type="checkbox" id="chkSelectAllControleSerprec" checked></th>
+                            <th>Vara</th>
+                            <th>Processo (NPU)</th>
+                            <th>Origem</th>
+                            <th>Observação (Precatório/RPV)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyControleSerprec">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="display:flex; justify-content: flex-end; margin-top: 15px;">
+                <button class="btn-premium" id="btnSubmitControleSerprec" style="padding: 8px 16px; font-size: 12px; width: auto; height: 36px; border-radius: 6px; background: var(--accent-info); box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);">🚀 Migrar Selecionados para Controle SERPREC</button>
             </div>
         </div>
     </div>
@@ -1456,6 +1506,8 @@
     // Globais para Migração de Erro e Siscondj
     const MAPA_VARA_DUPLA = new Map();
     let CANDIDATOS_MIGRACAO = [];
+    let CANDIDATOS_CONTROLE_SERPREC = [];
+    let CONTROLE_SERPREC_MASTER_LIST = [];
     let QUEUE_PAGINA_ATUAL = 1;
     const QUEUE_ITENS_POR_PAGINA = 15;
     let allRowsExpanded = false;
@@ -2663,6 +2715,7 @@
         // O filtro de servidores passa a ser carregado dinamicamente dentro de processarDadosGerais()
         processarDadosGerais();
         atualizarPainelMigracaoDiretoria();
+        atualizarPainelControleSerprec();
     }
 
     // Verifica se a data do processo é recente (hoje ou ontem)
@@ -3822,7 +3875,7 @@
 
         // Apps Script Web App
         let savedWebAppUrl = localStorage.getItem('tontom_webapp_url');
-        if (!savedWebAppUrl || savedWebAppUrl.includes("AKfycbx8hApOqO1IsuLTBRK75IJsF3Mq-TbAo7hiKgXGGTwKjISYI-8SuFnGuUGFVKOCI_AM")) {
+        if (!savedWebAppUrl || savedWebAppUrl.includes("AKfycbxKLSDiCIJMSSfc_n4DRxNJcBpmS67Mi4owUeqjzsKsHhjOHOkcrju3ZDx59hRN1pSB")) {
             savedWebAppUrl = "https://script.google.com/macros/s/AKfycbyHV6Ug4oTRybN5Mi1uevDaUS2d5YF6d-G5qBVMAKVQ5qjd0MYrFuCU70Ud3ZTor5jS/exec";
             localStorage.setItem('tontom_webapp_url', savedWebAppUrl);
         }
@@ -3876,6 +3929,11 @@
         // Recarrega conexões com os novos links
         carregarPrioridadesPlanilha();
         carregarResumosPlanilha();
+        carregarListaGestoresServidores();
+        carregarAudienciasCentral();
+        carregarCancelamentosCentral();
+        carregarSerprecCentral();
+        carregarControleSerprecCentral();
     };
 
     document.getElementById('btnSyncNow').onclick = () => {
@@ -4410,10 +4468,19 @@
         const tableContainer = document.getElementById('serprecTableContainer');
         const noData = document.getElementById('serprecNoData');
 
+        const dot3 = document.getElementById('migrationStatusDot');
+        const txt3 = document.getElementById('migrationStatusText');
+
+        function atualizarStatus(classe, texto, texto3) {
+            if (dot) dot.className = "status-dot " + classe;
+            if (txt) txt.innerText = texto;
+            if (dot3) dot3.className = "status-dot " + classe;
+            if (txt3) txt3.innerText = texto3 || texto;
+        }
+
         const url = document.getElementById('txtConsolidadoraSheetUrl').value.trim();
         if (!url) {
-            dot.className = "status-dot warning";
-            txt.innerText = "Erro de fluxo/vinculação: Sem link da Planilha Consolidadora.";
+            atualizarStatus("warning", "Erro de fluxo/vinculação: Sem link da Planilha Consolidadora.", "Sem link da Planilha");
             noData.style.display = 'block';
             tableContainer.style.display = 'none';
             btnSubmit.style.display = 'none';
@@ -4422,16 +4489,14 @@
 
         const parsed = extrairSpreadsheetIdEGid(url);
         if (!parsed || !parsed.id) {
-            dot.className = "status-dot danger";
-            txt.innerText = "Erro de fluxo/vinculação: Link da Consolidadora inválido.";
+            atualizarStatus("danger", "Erro de fluxo/vinculação: Link da Consolidadora inválido.", "Link inválido");
             noData.style.display = 'block';
             tableContainer.style.display = 'none';
             btnSubmit.style.display = 'none';
             return;
         }
 
-        dot.className = "status-dot warning";
-        txt.innerText = "Erro de fluxo/vinculação: Conectando à planilha...";
+        atualizarStatus("warning", "Erro de fluxo/vinculação: Conectando à planilha...", "Conectando...");
         noData.style.display = 'block';
         tableContainer.style.display = 'none';
         btnSubmit.style.display = 'none';
@@ -4441,8 +4506,7 @@
         function processarMatrizSerprec(matriz) {
             SERPREC_MASTER_LIST = [];
             if (matriz.length < 2) {
-                dot.className = "status-dot warning";
-                txt.innerText = "Erro de fluxo/vinculação: Planilha vazia.";
+                atualizarStatus("warning", "Erro de fluxo/vinculação: Planilha vazia.", "Planilha vazia");
                 return;
             }
 
@@ -4499,8 +4563,7 @@
                 });
             }
 
-            dot.className = "status-dot success";
-            txt.innerText = "Erro de fluxo/vinculação carregado com sucesso";
+            atualizarStatus("success", "Erro de fluxo/vinculação carregado com sucesso", "Carregado com sucesso");
             logDebug("Total de registros Serprec carregados: " + SERPREC_MASTER_LIST.length);
             atualizarExibicaoSerprec();
             atualizarPainelMigracaoDiretoria();
@@ -4515,13 +4578,11 @@
                     const matriz = converterGvizParaMatriz(data);
                     processarMatrizSerprec(matriz);
                 } catch (err) {
-                    dot.className = "status-dot danger";
-                    txt.innerText = "Erro de fluxo/vinculação: Erro ao processar.";
+                    atualizarStatus("danger", "Erro de fluxo/vinculação: Erro ao processar.", "Erro ao processar");
                     logDebug("Erro Serprec GViz: " + err.message);
                 }
             }, function() {
-                dot.className = "status-dot danger";
-                txt.innerText = "Erro de fluxo/vinculação: Erro CORS ou Link privado.";
+                atualizarStatus("danger", "Erro de fluxo/vinculação: Erro CORS ou Link privado.", "Erro CORS / Link privado");
                 logDebug("Erro de rede/CORS ao buscar Serprec.");
             });
         }
@@ -4545,6 +4606,74 @@
         } else {
             carregarSerprecViaGviz();
         }
+    }
+
+    // ===== MIGRACAO CONTROLE - SERPREC (PRECATÓRIO/RPV) =====
+
+    function carregarControleSerprecCentral() {
+        const dot = document.getElementById('controleSerprecStatusDot');
+        const txt = document.getElementById('controleSerprecStatusText');
+        
+        if (!dot || !txt) return;
+
+        dot.className = "status-dot warning";
+        txt.innerText = "Controle SERPREC: Conectando à planilha...";
+
+        const spreadsheetId = "1yOAupHFi0ERglZPTJ4yrXHPwBP8oemOfLAKFJ9zT9Po";
+        const jsonpUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=responseHandler:cbControleSerprec&sheet=SERPREC`;
+
+        carregarJsonp(jsonpUrl, "cbControleSerprec", function(data) {
+            try {
+                if (data.status !== "ok") throw new Error(data.errors?.[0]?.message || data.status);
+                const matriz = converterGvizParaMatriz(data);
+                processarMatrizControleSerprec(matriz);
+            } catch (err) {
+                dot.className = "status-dot danger";
+                txt.innerText = "Controle SERPREC: Erro ao processar.";
+                logDebug("Erro Controle SERPREC GViz: " + err.message);
+            }
+        }, function() {
+            dot.className = "status-dot danger";
+            txt.innerText = "Controle SERPREC: Erro CORS ou Link privado.";
+            logDebug("Erro de rede/CORS ao buscar Controle SERPREC.");
+        });
+    }
+
+    function processarMatrizControleSerprec(matriz) {
+        CONTROLE_SERPREC_MASTER_LIST = [];
+        if (matriz.length < 2) {
+            const dot = document.getElementById('controleSerprecStatusDot');
+            const txt = document.getElementById('controleSerprecStatusText');
+            if (dot && txt) {
+                dot.className = "status-dot warning";
+                txt.innerText = "Controle SERPREC: Planilha vazia.";
+            }
+            return;
+        }
+
+        const header = matriz[0].map(h => String(h || "").toUpperCase().trim());
+        let idxProcesso = header.findIndex(h => h.includes("PROCESSO") || h === "NPU" || h.includes("N.º"));
+        if (idxProcesso < 0) idxProcesso = 1; // Fallback para coluna B
+
+        for (let i = 1; i < matriz.length; i++) {
+            const r = matriz[i];
+            const processo = String(r[idxProcesso] || "").trim();
+            if (!processo || processo.toUpperCase() === "NPU" || processo.toUpperCase() === "PROCESSO") continue;
+            CONTROLE_SERPREC_MASTER_LIST.push({
+                processo: processo,
+                linhaOriginal: i
+            });
+        }
+
+        const dot = document.getElementById('controleSerprecStatusDot');
+        const txt = document.getElementById('controleSerprecStatusText');
+        if (dot && txt) {
+            dot.className = "status-dot success";
+            txt.innerText = "Controle SERPREC: Carregado com sucesso.";
+        }
+        logDebug("Total de registros Controle SERPREC carregados: " + CONTROLE_SERPREC_MASTER_LIST.length);
+        
+        atualizarPainelControleSerprec();
     }
 
     function atualizarExibicaoSerprec() {
@@ -5296,19 +5425,37 @@
 
             const spanDupla = `<span id="spanDupla_${idx}" style="font-weight: 500;">${cand.duplaGestores}</span>`;
 
-            // Verifica se o processo já está na planilha gestores (comparando apenas números do NPU)
+            // Verifica se o processo já está na planilha gestores ou de controle (base de 13 dígitos para evitar divergência de formatação de comarca)
             const cleanCandNpu = cand.processo.replace(/\D/g, "");
-            const registrosExistentes = SERPREC_MASTER_LIST.filter(item => String(item.processo || "").replace(/\D/g, "") === cleanCandNpu);
-            const jaExiste = registrosExistentes.length > 0;
+            const baseCandNpu = cleanCandNpu.substring(0, 13);
+            
+            const registrosExistentesSerprec = baseCandNpu.length >= 13 ? SERPREC_MASTER_LIST.filter(item => {
+                const cleanItemNpu = String(item.processo || "").replace(/\D/g, "");
+                return cleanItemNpu.substring(0, 13) === baseCandNpu;
+            }) : [];
+            
+            const registrosExistentesControle = baseCandNpu.length >= 13 ? CONTROLE_SERPREC_MASTER_LIST.filter(item => {
+                const cleanItemNpu = String(item.processo || "").replace(/\D/g, "");
+                return cleanItemNpu.substring(0, 13) === baseCandNpu;
+            }) : [];
+
+            const jaExiste = registrosExistentesSerprec.length > 0 || registrosExistentesControle.length > 0;
             let badgeExistente = "";
             if (jaExiste) {
-                const tiposUnicos = [...new Set(registrosExistentes.map(item => {
-                    const orig = String(item.origem || "").toUpperCase();
-                    if (orig.includes("ERRO DE FLUXO")) return "ERRO DE FLUXO";
-                    if (orig.includes("SISCONDJ")) return "SISCONDJ";
-                    return "Outro";
-                }))];
-                badgeExistente = `<br><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Já migrado anteriormente">⚠️ Já na planilha Gestores (${tiposUnicos.join(', ')})</span>`;
+                const fontes = [];
+                if (registrosExistentesSerprec.length > 0) {
+                    const tiposUnicos = [...new Set(registrosExistentesSerprec.map(item => {
+                        const orig = String(item.origem || "").toUpperCase();
+                        if (orig.includes("ERRO DE FLUXO")) return "ERRO DE FLUXO";
+                        if (orig.includes("SISCONDJ")) return "SISCONDJ";
+                        return "Outro";
+                    }))];
+                    fontes.push(`Gestores (ERRO/VINC: ${tiposUnicos.join(', ')})`);
+                }
+                if (registrosExistentesControle.length > 0) {
+                    fontes.push(`Controle (SERPREC)`);
+                }
+                badgeExistente = `<br><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Já migrado anteriormente">⚠️ Já na planilha: ${fontes.join(' / ')}</span>`;
             }
 
             tr.innerHTML = `
@@ -5324,6 +5471,77 @@
                 </td>
                 <td>${inputServidor}</td>
                 <td>${spanDupla}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function atualizarPainelControleSerprec() {
+        const tbody = document.getElementById('tbodyControleSerprec');
+        const badge = document.getElementById('badgeControleSerprecCount');
+        if (!tbody || !badge) return;
+
+        tbody.innerHTML = "";
+        CANDIDATOS_CONTROLE_SERPREC = [];
+
+        SIMAP_PROCESS_LIST.forEach(p => {
+            if (!p.obs || !p.servidor) return;
+            const obsNorm = normalizar(p.obs);
+            const ehPrecatorioRpv = obsNorm.includes("PRECATORIO/RPV") || obsNorm.includes("PRECATÓRIO/RPV");
+
+            if (ehPrecatorioRpv) {
+                // Mantém apenas a(s) linha(s) de Precatório/RPV
+                const linhasObs = p.obs.split('\n').filter(line => {
+                    const norm = normalizar(line);
+                    return norm.includes("PRECATORIO/RPV") || norm.includes("PRECATÓRIO/RPV");
+                });
+                const obsFiltrada = linhasObs.join('\n');
+
+                CANDIDATOS_CONTROLE_SERPREC.push({
+                    vara: p.vara || "Não informada",
+                    processo: p.npu,
+                    origem: p.servidor, // inside Simap, this is the servant
+                    observacao: obsFiltrada,
+                    npuChave: p.chave
+                });
+            }
+        });
+
+        badge.innerText = CANDIDATOS_CONTROLE_SERPREC.length;
+        if (CANDIDATOS_CONTROLE_SERPREC.length === 0) {
+            badge.style.display = 'none';
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 20px;">Nenhum processo candidato a migração de Precatório/RPV encontrado na fila atual do SIMAP.</td></tr>`;
+            return;
+        }
+
+        badge.style.display = 'inline-block';
+        CANDIDATOS_CONTROLE_SERPREC.forEach((cand, idx) => {
+            const tr = document.createElement('tr');
+            
+            // Verifica se o processo já está na planilha de controle (base de 13 dígitos para evitar divergência de formatação de comarca)
+            const cleanCandNpu = cand.processo.replace(/\D/g, "");
+            const baseCandNpu = cleanCandNpu.substring(0, 13);
+            const jaExiste = baseCandNpu.length >= 13 && CONTROLE_SERPREC_MASTER_LIST.some(item => {
+                const cleanItemNpu = String(item.processo || "").replace(/\D/g, "");
+                return cleanItemNpu.substring(0, 13) === baseCandNpu;
+            });
+            let badgeExistente = "";
+            if (jaExiste) {
+                badgeExistente = `<br><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Já migrado anteriormente">⚠️ Já no Controle SERPREC</span>`;
+            }
+
+            tr.innerHTML = `
+                <td style="text-align: center;"><input type="checkbox" class="chk-controle-serprec-item" data-idx="${idx}" ${jaExiste ? "" : "checked"}></td>
+                <td>${cand.vara}</td>
+                <td style="font-weight: 600;">
+                    <a href="#" onclick="event.preventDefault(); navigator.clipboard.writeText('${cleanCandNpu}'); mostrarToastNPU('${cleanCandNpu}'); window.open('https://simap.svc.tjpe.jus.br/historico-servidor-processo#npu=${cleanCandNpu}', '_blank');" style="color: var(--accent-info); text-decoration: underline; font-weight: 600; cursor: pointer;">${cand.processo}</a>
+                    ${badgeExistente}
+                </td>
+                <td>${cand.origem}</td>
+                <td>
+                    <span class="badge" style="background: rgba(14, 165, 233, 0.15); color: var(--accent-info); font-size:10px; margin-right:5px; padding:1px 4px; border-radius:3px;">SERPREC</span>
+                    ${cand.observacao}
+                </td>
             `;
             tbody.appendChild(tr);
         });
@@ -5413,6 +5631,75 @@
         });
     };
 
+    document.getElementById('chkSelectAllControleSerprec').onclick = function() {
+        const checkboxes = document.querySelectorAll('.chk-controle-serprec-item');
+        checkboxes.forEach(chk => chk.checked = this.checked);
+    };
+
+    document.getElementById('btnUpdateControleSerprec').onclick = () => {
+        carregarControleSerprecCentral();
+    };
+
+    document.getElementById('btnSubmitControleSerprec').onclick = () => {
+        const webAppUrl = document.getElementById('txtWebAppUrl').value.trim();
+        if (!webAppUrl) {
+            alert("Por favor, configure a URL do Web App nas Configurações.");
+            return;
+        }
+
+        const chksChecked = document.querySelectorAll('.chk-controle-serprec-item:checked');
+        if (chksChecked.length === 0) {
+            alert("Nenhum processo selecionado para migração.");
+            return;
+        }
+
+        if (!confirm(`Deseja migrar ${chksChecked.length} processo(s) selecionado(s) para a aba SERPREC da planilha de Controle?`)) {
+            return;
+        }
+
+        const btn = document.getElementById('btnSubmitControleSerprec');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳ Migrando...";
+        btn.disabled = true;
+
+        const payload = [];
+        const npusRemover = [];
+
+        chksChecked.forEach(chk => {
+            const idx = parseInt(chk.getAttribute('data-idx'), 10);
+            const cand = CANDIDATOS_CONTROLE_SERPREC[idx];
+
+            payload.push({
+                vara: cand.vara,
+                processo: cand.processo,
+                observacao: cand.observacao
+            });
+
+            npusRemover.push(cand.npuChave);
+        });
+
+        const encodedData = encodeURIComponent(JSON.stringify(payload));
+        const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=migrarControleSerprec&data=${encodedData}&callback=cbControleSerprecWrite`;
+
+        carregarJsonp(url, "cbControleSerprecWrite", function(response) {
+            btn.innerText = originalText;
+            btn.disabled = false;
+
+            if (response && response.status === "success") {
+                alert("Processos migrados com sucesso para a planilha de Controle SERPREC!");
+                SIMAP_PROCESS_LIST = SIMAP_PROCESS_LIST.filter(p => !npusRemover.includes(p.chave));
+                processarDadosGerais();
+                atualizarPainelControleSerprec();
+            } else {
+                alert("Erro ao migrar: " + (response ? response.message : "Resposta inválida"));
+            }
+        }, function() {
+            btn.innerText = originalText;
+            btn.disabled = false;
+            alert("Erro de rede ou no Web App.");
+        });
+    };
+
     // Executa no carregamento da página
     inicializarUrls();
     document.getElementById('imgTontomMascot').src = TONTOM_MOUTH_B64;
@@ -5422,7 +5709,9 @@
     carregarAudienciasCentral();
     carregarCancelamentosCentral();
     carregarSerprecCentral();
+    carregarControleSerprecCentral();
     atualizarPainelMigracaoDiretoria();
+    atualizarPainelControleSerprec();
 </script>
 </body>
 </html>
