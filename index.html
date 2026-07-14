@@ -751,6 +751,7 @@
     <div class="tabs-container">
         <button class="tab-button active" id="tabSimap">😸 SIMAP Supervisão</button>
         <button class="tab-button" id="tabGestores">😸 Análise planilha gestores</button>
+        <button class="tab-button" id="tabMigrationControle">😸 Migração Controle</button>
     </div>
 
     <!-- Settings Panel (Collapsible) -->
@@ -771,7 +772,7 @@
             </div>
             <div class="form-group" style="margin-top: 10px;">
                 <label for="txtWebAppUrl">URL do Web App do Google Apps Script (para gravação de dados):</label>
-                <input type="text" class="form-control" id="txtWebAppUrl" value="https://script.google.com/macros/s/AKfycbx8hApOqO1IsuLTBRK75IJsF3Mq-TbAo7hiKgXGGTwKjISYI-8SuFnGuUGFVKOCI_AM/exec" placeholder="Cole a URL de implantação do Apps Script (Ex: https://script.google.com/macros/s/.../exec)">
+                <input type="text" class="form-control" id="txtWebAppUrl" value="https://script.google.com/macros/s/AKfycbyHV6Ug4oTRybN5Mi1uevDaUS2d5YF6d-G5qBVMAKVQ5qjd0MYrFuCU70Ud3ZTor5jS/exec" placeholder="Cole a URL de implantação do Apps Script (Ex: https://script.google.com/macros/s/.../exec)">
             </div>
             <div style="display: flex; gap: 15px; margin-top: 15px;">
                 <button class="btn-premium" id="btnSaveSettings" style="flex: 1; padding: 10px; font-size: 13px;">💾 Salvar Configurações</button>
@@ -925,6 +926,8 @@
         </div>
     </div>
 
+
+
     <!-- Consolidada Work Queue Section -->
     <div class="panel-card" id="consolidatedQueueSection" style="display: none; margin-top: 30px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
@@ -1032,6 +1035,41 @@
 
 
     </div> <!-- /#viewSimap -->
+
+    <!-- Tab 3 View: Migração Controle -->
+    <div id="viewMigration" style="display: none;">
+        <!-- Card de Migração de Erros e Vinculações (Direção) -->
+        <div class="panel-card" id="directionMigrationSection" style="display: block; margin-top: 10px; border: 1px solid var(--accent-primary);">
+            <div class="panel-title" style="display:flex; align-items:center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div style="display:flex; align-items:center;">
+                    <span>🛠️ Migração de Erro de Fluxo & Siscondj (Diretoria)</span>
+                    <span id="badgeMigrationCount" style="margin-left:10px; background:var(--accent-primary); color:#fff; font-size:11px; padding:2px 8px; border-radius:10px; font-weight: bold; display: none;">0</span>
+                </div>
+                <button class="btn-theme" id="btnUpdateMigrationSheet" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px;">🔄 Atualizar Planilha Gestores</button>
+            </div>
+            <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; margin-top: -5px;">Os processos abaixo possuem observações de Erro de Fluxo (com chamado) ou SISCONDJ (vinculação de conta). Selecione-os para migrar automaticamente para a planilha Gestores.</p>
+            <div class="table-responsive">
+                <table class="custom-table" style="text-align: left; font-size: 12px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 30px; text-align: center;"><input type="checkbox" id="chkSelectAllMigration" checked></th>
+                            <th>Vara</th>
+                            <th>Processo (NPU)</th>
+                            <th>Origem (Observação)</th>
+                            <th>Servidor</th>
+                            <th>Dupla Gestores</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyMigration">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+            <div style="display:flex; justify-content: flex-end; margin-top: 15px;">
+                <button class="btn-premium" id="btnSubmitMigration" style="padding: 8px 16px; font-size: 12px; width: auto; height: 36px; border-radius: 6px;">🚀 Migrar Selecionados para Planilha Gestores</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Tab 2 View: Análise planilha gestores -->
     <div id="viewGestores" style="display: none;">
@@ -1236,7 +1274,7 @@
             <!-- Interactive Table panel -->
             <div class="panel-card" style="margin-top: 20px;">
                 <div class="panel-title" style="display:flex; align-items:center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <span>🛠️ Detalhes Vinculação / Erro (Serprec)</span>
+                    <span>🛠️ Detalhes Vinculação / Erro</span>
                     <div style="display:flex; gap: 10px;">
                         <button class="btn-theme" id="btnUpdateSerprec" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px;">🔄 Atualizar Erro/Vinc</button>
                         <button class="btn-premium" id="btnSubmitSerprec" style="padding: 6px 15px; font-size: 12px; width: auto; height: 32px; border-radius: 6px; box-shadow: none;" disabled>💾 Enviar Dados</button>
@@ -1245,7 +1283,7 @@
 
                 <div id="serprecConnectionStatus" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
                     <span class="status-dot warning" id="serprecStatusDot"></span>
-                    <span id="serprecStatusText">Serprec: Não carregado. Clique em Atualizar.</span>
+                    <span id="serprecStatusText">Erro de fluxo/vinculação: Não carregado. Clique em Atualizar.</span>
                 </div>
 
                 <div id="serprecNoData" class="no-data-msg" style="padding: 40px 10px;">
@@ -1414,6 +1452,10 @@
     const BANCO_PRIORIDADES = new Map();
     let SIMAP_PROCESS_LIST = [];
     let DADOS_SUPERVISAO_SERVIDORES = [];
+
+    // Globais para Migração de Erro e Siscondj
+    const MAPA_VARA_DUPLA = new Map();
+    let CANDIDATOS_MIGRACAO = [];
     let QUEUE_PAGINA_ATUAL = 1;
     const QUEUE_ITENS_POR_PAGINA = 15;
     let allRowsExpanded = false;
@@ -2620,6 +2662,7 @@
 
         // O filtro de servidores passa a ser carregado dinamicamente dentro de processarDadosGerais()
         processarDadosGerais();
+        atualizarPainelMigracaoDiretoria();
     }
 
     // Verifica se a data do processo é recente (hoje ou ontem)
@@ -3779,8 +3822,8 @@
 
         // Apps Script Web App
         let savedWebAppUrl = localStorage.getItem('tontom_webapp_url');
-        if (!savedWebAppUrl || !savedWebAppUrl.includes("AKfycbx8hApOqO1IsuLTBRK75IJsF3Mq-TbAo7hiKgXGGTwKjISYI-8SuFnGuUGFVKOCI_AM")) {
-            savedWebAppUrl = "https://script.google.com/macros/s/AKfycbx8hApOqO1IsuLTBRK75IJsF3Mq-TbAo7hiKgXGGTwKjISYI-8SuFnGuUGFVKOCI_AM/exec";
+        if (!savedWebAppUrl || savedWebAppUrl.includes("AKfycbx8hApOqO1IsuLTBRK75IJsF3Mq-TbAo7hiKgXGGTwKjISYI-8SuFnGuUGFVKOCI_AM")) {
+            savedWebAppUrl = "https://script.google.com/macros/s/AKfycbyHV6Ug4oTRybN5Mi1uevDaUS2d5YF6d-G5qBVMAKVQ5qjd0MYrFuCU70Ud3ZTor5jS/exec";
             localStorage.setItem('tontom_webapp_url', savedWebAppUrl);
         }
         document.getElementById('txtWebAppUrl').value = savedWebAppUrl;
@@ -3888,21 +3931,27 @@
     // Tab switching event handlers
     const tabSimap = document.getElementById('tabSimap');
     const tabGestores = document.getElementById('tabGestores');
+    const tabMigrationControle = document.getElementById('tabMigrationControle');
     const viewSimap = document.getElementById('viewSimap');
     const viewGestores = document.getElementById('viewGestores');
+    const viewMigration = document.getElementById('viewMigration');
 
     tabSimap.onclick = () => {
         tabSimap.classList.add('active');
         tabGestores.classList.remove('active');
+        tabMigrationControle.classList.remove('active');
         viewSimap.style.display = 'block';
         viewGestores.style.display = 'none';
+        viewMigration.style.display = 'none';
     };
 
     tabGestores.onclick = () => {
         tabGestores.classList.add('active');
         tabSimap.classList.remove('active');
+        tabMigrationControle.classList.remove('active');
         viewSimap.style.display = 'none';
         viewGestores.style.display = 'block';
+        viewMigration.style.display = 'none';
         // Auto-refresh when entering the tab if master list is empty
         if (AUDIENCIAS_MASTER_LIST.length === 0) {
             carregarAudienciasCentral();
@@ -3921,6 +3970,15 @@
         } else {
             atualizarExibicaoSerprec();
         }
+    };
+
+    tabMigrationControle.onclick = () => {
+        tabMigrationControle.classList.add('active');
+        tabSimap.classList.remove('active');
+        tabGestores.classList.remove('active');
+        viewSimap.style.display = 'none';
+        viewGestores.style.display = 'none';
+        viewMigration.style.display = 'block';
     };
 
     // Audiencias Control Actions
@@ -4345,6 +4403,7 @@
     // ===== ERRO E VINCULAÇÃO (SERPREC) - LÓGICA =====
 
     function carregarSerprecCentral() {
+        carregarListaGestoresServidores();
         const dot = document.getElementById('serprecStatusDot');
         const txt = document.getElementById('serprecStatusText');
         const btnSubmit = document.getElementById('btnSubmitSerprec');
@@ -4354,7 +4413,7 @@
         const url = document.getElementById('txtConsolidadoraSheetUrl').value.trim();
         if (!url) {
             dot.className = "status-dot warning";
-            txt.innerText = "Serprec: Sem link da Planilha Consolidadora.";
+            txt.innerText = "Erro de fluxo/vinculação: Sem link da Planilha Consolidadora.";
             noData.style.display = 'block';
             tableContainer.style.display = 'none';
             btnSubmit.style.display = 'none';
@@ -4364,7 +4423,7 @@
         const parsed = extrairSpreadsheetIdEGid(url);
         if (!parsed || !parsed.id) {
             dot.className = "status-dot danger";
-            txt.innerText = "Serprec: Link da Consolidadora inválido.";
+            txt.innerText = "Erro de fluxo/vinculação: Link da Consolidadora inválido.";
             noData.style.display = 'block';
             tableContainer.style.display = 'none';
             btnSubmit.style.display = 'none';
@@ -4372,7 +4431,7 @@
         }
 
         dot.className = "status-dot warning";
-        txt.innerText = "Serprec: Conectando à planilha...";
+        txt.innerText = "Erro de fluxo/vinculação: Conectando à planilha...";
         noData.style.display = 'block';
         tableContainer.style.display = 'none';
         btnSubmit.style.display = 'none';
@@ -4383,7 +4442,7 @@
             SERPREC_MASTER_LIST = [];
             if (matriz.length < 2) {
                 dot.className = "status-dot warning";
-                txt.innerText = "Serprec: Planilha vazia.";
+                txt.innerText = "Erro de fluxo/vinculação: Planilha vazia.";
                 return;
             }
 
@@ -4441,9 +4500,10 @@
             }
 
             dot.className = "status-dot success";
-            txt.innerText = "Serprec: Carregado com sucesso.";
+            txt.innerText = "Erro de fluxo/vinculação carregado com sucesso";
             logDebug("Total de registros Serprec carregados: " + SERPREC_MASTER_LIST.length);
             atualizarExibicaoSerprec();
+            atualizarPainelMigracaoDiretoria();
         }
 
         function carregarSerprecViaGviz() {
@@ -4456,12 +4516,12 @@
                     processarMatrizSerprec(matriz);
                 } catch (err) {
                     dot.className = "status-dot danger";
-                    txt.innerText = "Serprec: Erro ao processar.";
+                    txt.innerText = "Erro de fluxo/vinculação: Erro ao processar.";
                     logDebug("Erro Serprec GViz: " + err.message);
                 }
             }, function() {
                 dot.className = "status-dot danger";
-                txt.innerText = "Serprec: Erro CORS ou Link privado.";
+                txt.innerText = "Erro de fluxo/vinculação: Erro CORS ou Link privado.";
                 logDebug("Erro de rede/CORS ao buscar Serprec.");
             });
         }
@@ -4782,6 +4842,22 @@
         carregarSerprecCentral();
     };
 
+    const btnUpdateMigrationSheet = document.getElementById('btnUpdateMigrationSheet');
+    if (btnUpdateMigrationSheet) {
+        btnUpdateMigrationSheet.onclick = () => {
+            const origText = btnUpdateMigrationSheet.innerHTML;
+            btnUpdateMigrationSheet.innerHTML = "🔄 Carregando...";
+            btnUpdateMigrationSheet.disabled = true;
+            
+            carregarSerprecCentral();
+            
+            setTimeout(() => {
+                btnUpdateMigrationSheet.innerHTML = origText;
+                btnUpdateMigrationSheet.disabled = false;
+            }, 2000);
+        };
+    }
+
     document.getElementById('btnSubmitSerprec').onclick = () => {
         const webAppUrl = document.getElementById('txtWebAppUrl').value.trim();
         if (!webAppUrl) {
@@ -4841,14 +4917,512 @@
         carregarSerprecCentral();
     };
 
+    // =========================================================================
+    // MIGRATION OF ERRO DE FLUXO & SISCONDJ (DIRETORIA)
+    // =========================================================================
+
+    const CORRELACAO_SERVIDORES_FALLBACK = {
+        // Equipe 1
+        "ELIANE MARIA SANTOS RODARTE ANDRADE": "Eliane Maria",
+        "FABIO BORGES GONCALVES": "Fábio Gonçalves",
+        "HI MEET SHIUE": "Hi Meet",
+        "MARIA LUCIANA DA SILVA": "Maria Luciana",
+        "MARCELLE SÁ CARNEIRO MENDONÇA": "Marcelle Sá",
+        "MARCELLE SA CARNEIRO MENDONCA": "Marcelle Sá",
+        "MARTA MARIA BARBOSA": "Marta Barbosa",
+        "MOYSA MARIA DE SOUZA LEAO SALES": "Moysa Maria",
+        "TAYSSA MAYARA PEDERNEIRAS PAZ": "Tayssa Mayara",
+        "MARIANA PORTO GOMES DE CARVALHO": "Mariana Porto",
+
+        // Equipe 2
+        "MARINA BESSI FERNANDES": "Marina Bessi",
+        "ANA ELIZABETH AGUIAR CAVALCANTI": "Ana Elizabeth Aguiar",
+        "ANE VICTOR ALVES CARDOSO": "Ane Victor",
+        "BLANIA LEUCHTEMBERG DE OLIVEIRA": "Blania de Oliveira",
+        "DIANA GONCALVES BOTELHO": "Diana Gonçalves",
+        "ISOLDA MARIA AZEVEDO DE LYRA": "Isolda Azevedo",
+        "MARIA INEZ MENEZES DOS SANTOS": "Maria Inez",
+        "SABRINA SERRANO BARBOSA": "Sabrina Serrano",
+        "SAMARA OLIVEIRA DE MELO": "Samara Melo",
+        "JULIANA SABRINA CABRAL RODRIGUES": "Juliana Sabrina",
+
+        // Equipe 3
+        "ADRIANA MINDELO CAVALCANTI DE ALBUQUERQUE": "Adriana Mindelo",
+        "CARLOS EDUARDO GOMES DE MELO": "Carlos Eduardo",
+        "EVERSON PAULO DO NASCIMENTO": "Everson Paulo",
+        "LUCIANA TEIXEIRA DE MAGALHAES": "Luciana Magalhães",
+        "MICHELE ELIAS SANTOS SOUZA": "Michele Elias",
+        "RAQUEL FERREIRA DOS SANTOS NIPPO": "Raquel Nippo",
+        "ROBERTA CORTEZ DE CARVALHO": "Roberta Cortez",
+        "SIDNEY PEDROSA DE MELO": "Sidney Pedrosa",
+        "JOAO VICTOR SARAIVA WENCESLAU": "João Victor",
+
+        // Equipe 4
+        "ANA ELISABETE PROCOPIO DE ALMEIDA": "Ana Elisabete Procópio",
+        "CAROLINA JORDAN": "Carolina Jordan",
+        "CLAUDIA LOBO DA COSTA CARVALHO AMORIM": "Claudia Amorim",
+        "EUDALIA MARIA ALVES FONSECA": "Eudália Maria",
+        "GESLAINE DA SILVA FERREIRA": "Geslaine Ferreira",
+        "JOSE AUGUSTO BRAGA": "José Augusto",
+        "JULIANA DE SOUSA AMORIM": "Juliana Amorim",
+        "KAREN SAVANNA BRILHANTE ALVES MIYAKAWA": "Karen Brilhante",
+        "LUCIANA CARMONA BOTELHO": "Luciana Carmona",
+
+        // Equipe 5
+        "ADALBERTO DA SOLEDADE SILVA FILHO": "Adalberto Filho",
+        "JANAINA FERRO DE SOUSA PORFIRIO LIMA": "Janaina Ferro",
+        "JULIANA CARNEIRO DA MOTTA": "Juliana Motta",
+        "JULIANA PONTES A DE A LOPES TAVARES": "Juliana Pontes",
+        "LIDIA SERRANO BARBOSA SANTOS": "Lídia Serrano",
+        "MAYARA SIMONI LAET DE ANDRADE": "Mayara Laet",
+        "PATRICIA VIEIRA DE L ALBUQUERQUE NOVAES": "Patrícia Vieira",
+        "SIMONE NANES VILELA": "Simone Nanes",
+        "LARISSA NOGUEIRA BESSA": "Larissa Bessa",
+
+        // Equipe 6
+        "BERGSON DANTAS DE MOURA BARBOSA": "Bergson Dantas",
+        "FERNANDA ALVES DA SILVA": "Fernanda Alves",
+        "IAMANDA LEUSE CAMPOS DE LIMA": "Iamanda Leuse",
+        "ITALO JORGE CAVALCANTI DE A NUNES": "Ítalo Jorge",
+        "NATALIA MARIA CATÃO VILELA": "Natália Vilela",
+        "NATALIA MARIA CATAO VILELA": "Natália Vilela",
+        "ROBERTO FERREIRA DA SILVA": "Roberto Ferreira",
+        "SILVANA MARIA ROCHA PEREIRA FRAGOSO": "Silvana Fragoso",
+        "TASSIA REBECA RATIS DA SILVA": "Tássia Rebeca",
+        "TERCIA VANESSA MATIAS DE OLIVEIRA": "Tércia Vanessa",
+
+        // Equipe 7
+        "ANA CLAUDIA DE MELO MARQUES LUZ": "Ana Cláudia",
+        "CARLOS DE LIMA RIBEIRO JUNIOR": "Carlos Lima",
+        "CHARLES TONY DE OLIVEIRA LIRA": "Charles Tony",
+        "FRANCIELLE MARIA DA SILVA MACEDO DE ANDRADE": "Francielle Maria",
+        "IRACY CABRAL DAS NEVES": "Iracy Neves",
+        "JULIANA TAVARES CORDEIRO GALVÃO": "Juliana Tavares",
+        "JULIANA TAVARES CORDEIRO GALVAO": "Juliana Tavares",
+        "LADJANE FERREIRA GUIMARAES": "Ladjane Guimarães",
+        "POLLYHANE MAYUMI ALMEIDA": "Pollyhane Mayumi",
+        "THAMYRIS FERREIRA SANTOS": "Thamyris Ferreira",
+
+        // Equipe 8
+        "ANDRE DA SILVA CORDOVILE": "André Cordovile",
+        "CAIO LUIZ NEVES MAIA": "Caio Luiz",
+        "CHRISTIANE O DE ALMEIDA G MOTA BARRETO": "Christiane Mota",
+        "LUCIANA FLÁVIA DO NASCIMENTO": "Luciana Flávia",
+        "LUCIANA FLAVIA DO NASCIMENTO": "Luciana Flávia",
+        "MUNIK LUCIENE DE FONTES": "Munik Fontes",
+        "ROSEANE SANTOS DE ANDRADE": "Roseane Andrade",
+        "SHEILA CRISTINA RODRIGUES DE L ARAUJO": "Sheila Araújo",
+        "TARCISIO BATISTA DA SILVA JUNIOR": "Tarcísio Batista",
+        "THALLES SIZENANDO AZEVEDO DIAS": "Thalles Dias",
+
+        // Equipe 9
+        "ALUSKA SUYANNE MARQUES DA SILVA": "Aluska Suyanne",
+        "ELISA CARLA CAMPOS TAVARES": "Elisa Carla",
+        "ERICKSON MOURA DE QUEIROZ": "Erickson Moura",
+        "FRANCISCO ELTOMAR MARTINS FERREIRA": "Francisco Eltomar",
+        "LILIAN AVELINO DE MORAIS": "Lilian Avelino",
+        "OTIMAR ANTÔNIO DA SILVA": "Otimar Silva",
+        "OTIMAR ANTONIO DA SILVA": "Otimar Silva",
+        "SIMONE DE MEDEIROS TORRES": "Simone Medeiros",
+        "SIMONE DOS PASSOS E SILVA LEITE": "Simone dos Passos",
+        "TACIANA MARTINS AMORIM BARBOSA BARROS": "Taciana Martins",
+
+        // Equipe 10
+        "ALEXANDRE LINDOSO DE ARAÚJO": "Alexandre Lindoso",
+        "ALEXANDRE LINDOSO DE ARAUJO": "Alexandre Lindoso",
+        "DAYANE FERNANDES MESSIAS": "Dayane Fernandes",
+        "FABIO COSTA TAVARES DA SILVA": "Fábio Costa",
+        "KALENNE FRANMARRY B ALVES MIYAKAWA": "Kalenne Brilhante",
+        "MARILIA DOHERTY AYRES": "Marília Doherty",
+        "SILVIO MUCIO DE MACEDO FILHO": "Sílvio Múcio",
+        "WAGNER JEFFERSON MEIRA FILHO": "Wagner Jefferson",
+
+        // Equipe 11
+        "CAMILLA RODRIGUES MARQUES CARNEIRO": "Camilla Marques",
+        "DIEGO MOURA DA SILVA LOPES": "Diego Lopes",
+        "ELBA MARIA BARROS GALIZA PINHEIRO": "Elba Pinheiro",
+        "GUILHERME ALBERTI LUPCHINSKI": "Guilherme Lupchinski",
+        "JAQUELINE GONDIM SOTERO SIQUEIRA": "Jaqueline Gondim",
+        "LAURA BUARQUE INACIO DE BARROS": "Laura Buarque",
+        "NILSON JOSE GONCALVES DOS SANTOS SILVA": "Nilson Silva",
+        "ROSELYNE BEZERRA SMITH": "Roselyne Smith",
+        "MICHELLE MARIA NASCIMENTO FILGUEIRAS": "Michelle Filgueiras"
+    };
+
+    let LISTA_SERVIDORES_RESUMIDOS = [];
+    const MAPA_SERVIDOR_DUPLA = new Map();
+
+    function carregarListaGestoresServidores() {
+        const webAppUrl = document.getElementById('txtWebAppUrl').value.trim();
+        
+        function processarMatrizGestores(matriz) {
+            if (!matriz || matriz.length === 0) return;
+            LISTA_SERVIDORES_RESUMIDOS = [];
+            MAPA_SERVIDOR_DUPLA.clear();
+
+            const startIdx = (String(matriz[0][0]).toUpperCase().includes("SERVIDOR") || String(matriz[0][0]).toUpperCase().includes("RESUMIDO")) ? 1 : 0;
+
+            for (let i = startIdx; i < matriz.length; i++) {
+                const row = matriz[i];
+                if (!row || row.length === 0) continue;
+                const servResumido = String(row[0] || "").trim();
+                const duplaVal = String(row[1] || "").trim();
+
+                if (servResumido) {
+                    LISTA_SERVIDORES_RESUMIDOS.push(servResumido);
+                    if (duplaVal) {
+                        MAPA_SERVIDOR_DUPLA.set(normalizar(servResumido), duplaVal);
+                    }
+                }
+            }
+
+            logDebug("Lista Gestores Servidores carregada. Total: " + LISTA_SERVIDORES_RESUMIDOS.length + " servidores.");
+            LISTA_SERVIDORES_RESUMIDOS.sort((a, b) => b.length - a.length);
+
+            if (SIMAP_PROCESS_LIST.length > 0) {
+                atualizarPainelMigracaoDiretoria();
+            }
+        }
+
+        function carregarListaViaGviz() {
+            const url = "https://docs.google.com/spreadsheets/d/1Rq_FIlUmpXyDK0alQ21_Z5b1bHMT_HlzU66QUGdr1LQ/gviz/tq?tqx=responseHandler:cbListaGestoresServidores&gid=91340608";
+            logDebug("Buscando Lista de Gestores e Servidores via GViz...");
+            carregarJsonp(url, "cbListaGestoresServidores", function(data) {
+                try {
+                    if (!data || data.status !== "ok" || !data.table) {
+                        throw new Error("Estrutura inválida ou erro");
+                    }
+                    const rows = data.table.rows;
+                    const matriz = rows.map(r => {
+                        return [
+                            r.c && r.c[0] ? (r.c[0].v ?? "") : "",
+                            r.c && r.c[1] ? (r.c[1].v ?? "") : ""
+                        ];
+                    });
+                    processarMatrizGestores(matriz);
+                } catch (e) {
+                    logDebug("Erro Lista Gestores Servidores GViz: " + e.message);
+                }
+            }, function() {
+                logDebug("Erro CORS/Link privado ao carregar Lista de Gestores e Servidores via GViz.");
+            });
+        }
+
+        if (webAppUrl) {
+            let jsonpUrl = webAppUrl + (webAppUrl.includes('?') ? '&' : '?') + "action=readGestoresServidores&callback=cbListaGestoresServidores";
+            logDebug("Buscando Lista de Gestores e Servidores via Web App...");
+            carregarJsonp(jsonpUrl, "cbListaGestoresServidores", function(data) {
+                try {
+                    if (data.status !== "ok" && data.status !== "success") throw new Error(data.message || "Erro Web App");
+                    if (!data.data || data.data.length === 0) throw new Error("Dados vazios");
+                    processarMatrizGestores(data.data);
+                } catch (err) {
+                    logDebug("Erro Lista Gestores Servidores Web App: " + err.message + ". Fallback GViz...");
+                    carregarListaViaGviz();
+                }
+            }, function() {
+                logDebug("Erro rede Web App Lista Gestores Servidores. Fallback GViz...");
+                carregarListaViaGviz();
+            });
+        } else {
+            carregarListaViaGviz();
+        }
+    }
+
+    function encontrarNomeResumido(nomeCompleto) {
+        if (!nomeCompleto) return "";
+        const completoNorm = normalizar(nomeCompleto);
+
+        // 1. Tenta correspondência exata no fallback primeiro
+        if (CORRELACAO_SERVIDORES_FALLBACK[completoNorm]) {
+            return CORRELACAO_SERVIDORES_FALLBACK[completoNorm];
+        }
+
+        // 2. Se a lista dinâmica estiver carregada, faz busca inteligente por pontuação de palavras
+        if (LISTA_SERVIDORES_RESUMIDOS.length > 0) {
+            let melhorServidor = "";
+            let maxScore = 0;
+
+            for (let serv of LISTA_SERVIDORES_RESUMIDOS) {
+                const servNorm = normalizar(serv);
+                // Divide em palavras e remove preposições curtas (de, da, do, etc.)
+                const servWords = servNorm.split(/\s+/).filter(w => w.length > 2);
+                if (servWords.length === 0) continue;
+
+                // Conta quantas palavras do nome curto estão presentes no nome completo
+                let score = 0;
+                for (let w of servWords) {
+                    if (completoNorm.includes(w)) {
+                        score++;
+                    }
+                }
+
+                // Considera match se todas as palavras significativas do nome curto estiverem no completo
+                if (score > 0 && score === servWords.length) {
+                    if (score > maxScore) {
+                        maxScore = score;
+                        melhorServidor = serv;
+                    }
+                }
+            }
+
+            if (melhorServidor) {
+                return melhorServidor;
+            }
+        }
+
+        // 3. Fallback inteligente: retorna primeiro e segundo nome para reduzir homônimos
+        const partes = nomeCompleto.trim().split(/\s+/);
+        if (partes.length > 1) {
+            return partes[0] + " " + partes[1];
+        } else if (partes.length > 0) {
+            return partes[0];
+        }
+
+        return nomeCompleto;
+    }
+
+    function obterDuplaSupervisor(servidorNome) {
+        if (!servidorNome) return "Não localizada no banco de dados";
+        const nomeNorm = normalizar(servidorNome);
+
+        // 1. Tenta buscar no mapa dinâmico carregado do Google Sheets primeiro
+        if (MAPA_SERVIDOR_DUPLA.size > 0 && MAPA_SERVIDOR_DUPLA.has(nomeNorm)) {
+            return MAPA_SERVIDOR_DUPLA.get(nomeNorm);
+        }
+
+        // 2. Fallback: procura nas equipes estáticas
+        for (const [equipeNome, membros] of Object.entries(equipes)) {
+            if (equipeNome === "Todas") continue;
+            for (const membroCompleto of membros) {
+                const membroCompletoNorm = normalizar(membroCompleto);
+                if (membroCompletoNorm === nomeNorm) {
+                    return supervisoresMap[equipeNome] || "Não localizada no banco de dados";
+                }
+                const shortFallback = CORRELACAO_SERVIDORES_FALLBACK[membroCompleto];
+                if (shortFallback && normalizar(shortFallback) === nomeNorm) {
+                    return supervisoresMap[equipeNome] || "Não localizada no banco de dados";
+                }
+            }
+        }
+        return "Não localizada no banco de dados";
+    }
+
+    function atualizarPainelMigracaoDiretoria() {
+        const section = document.getElementById('directionMigrationSection');
+        const tbody = document.getElementById('tbodyMigration');
+        const badge = document.getElementById('badgeMigrationCount');
+        if (!section || !tbody || !badge) return;
+
+        tbody.innerHTML = "";
+        CANDIDATOS_MIGRACAO = [];
+
+        SIMAP_PROCESS_LIST.forEach(p => {
+            if (!p.obs || !p.servidor) return;
+            const obsNorm = normalizar(p.obs);
+            const ehErroFluxo = obsNorm.includes("ERRO DE FLUXO");
+
+            if (ehErroFluxo) {
+                // Mantém apenas a(s) linha(s) de Erro de Fluxo
+                const linhasObs = p.obs.split('\n').filter(line => normalizar(line).includes("ERRO DE FLUXO"));
+                const obsFiltrada = linhasObs.join('\n');
+                const matchChamado = obsFiltrada.match(/\b\d{4,9}\b/);
+                if (matchChamado) {
+                    const numChamado = matchChamado[0];
+                    const servResumido = encontrarNomeResumido(p.servidor);
+                    const dupla = obterDuplaSupervisor(servResumido).replace(/\s*\/\s*/g, " & ");
+
+                    CANDIDATOS_MIGRACAO.push({
+                        vara: p.vara,
+                        processo: p.npu,
+                        origem: obsFiltrada,
+                        duplaGestores: dupla,
+                        servidor: servResumido,
+                        obsDestino: numChamado,
+                        tipo: "ERRO DE FLUXO",
+                        npuChave: p.chave
+                    });
+                }
+            }
+
+            const ehSiscondj = obsNorm.includes("SISCONDJ") || obsNorm.includes("VINCULACAO DE CONTA");
+            const temAlvara = obsNorm.includes("ALVARA");
+            if (ehSiscondj && !temAlvara) {
+                // Mantém apenas a(s) linha(s) de Siscondj / Vinculação
+                const linhasObs = p.obs.split('\n').filter(line => {
+                    const normLine = normalizar(line);
+                    return normLine.includes("SISCONDJ") || normLine.includes("VINCULACAO DE CONTA");
+                });
+                const obsFiltrada = linhasObs.join('\n');
+                const servResumido = encontrarNomeResumido(p.servidor);
+                const dupla = obterDuplaSupervisor(servResumido).replace(/\s*\/\s*/g, " & ");
+
+                CANDIDATOS_MIGRACAO.push({
+                    vara: p.vara,
+                    processo: p.npu,
+                    origem: obsFiltrada,
+                    duplaGestores: dupla,
+                    servidor: servResumido,
+                    obsDestino: "",
+                    tipo: "SISCONDJ",
+                    npuChave: p.chave
+                });
+            }
+        });
+
+        badge.innerText = CANDIDATOS_MIGRACAO.length;
+        if (CANDIDATOS_MIGRACAO.length === 0) {
+            badge.style.display = 'none';
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 20px;">Nenhum processo candidato a migração encontrado na fila atual do SIMAP.</td></tr>`;
+            return;
+        }
+
+        badge.style.display = 'inline-block';
+        CANDIDATOS_MIGRACAO.forEach((cand, idx) => {
+            const tr = document.createElement('tr');
+            
+            const datalistId = `dlServidores_${idx}`;
+            let datalistOptions = "";
+            LISTA_SERVIDORES_RESUMIDOS.forEach(s => {
+                datalistOptions += `<option value="${s}">`;
+            });
+
+            const inputServidor = `
+                <input type="text" list="${datalistId}" class="form-control" style="font-size:11px; padding:2px 5px; height:auto; width:100%; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-card); color: var(--text-primary);" id="txtServResumido_${idx}" value="${cand.servidor}" oninput="window.onServidorResumidoChange(${idx}, this.value)">
+                <datalist id="${datalistId}">
+                    ${datalistOptions}
+                </datalist>
+            `;
+
+            const spanDupla = `<span id="spanDupla_${idx}" style="font-weight: 500;">${cand.duplaGestores}</span>`;
+
+            // Verifica se o processo já está na planilha gestores (comparando apenas números do NPU)
+            const cleanCandNpu = cand.processo.replace(/\D/g, "");
+            const registrosExistentes = SERPREC_MASTER_LIST.filter(item => String(item.processo || "").replace(/\D/g, "") === cleanCandNpu);
+            const jaExiste = registrosExistentes.length > 0;
+            let badgeExistente = "";
+            if (jaExiste) {
+                const tiposUnicos = [...new Set(registrosExistentes.map(item => {
+                    const orig = String(item.origem || "").toUpperCase();
+                    if (orig.includes("ERRO DE FLUXO")) return "ERRO DE FLUXO";
+                    if (orig.includes("SISCONDJ")) return "SISCONDJ";
+                    return "Outro";
+                }))];
+                badgeExistente = `<br><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Já migrado anteriormente">⚠️ Já na planilha Gestores (${tiposUnicos.join(', ')})</span>`;
+            }
+
+            tr.innerHTML = `
+                <td style="text-align: center;"><input type="checkbox" class="chk-migration-item" data-idx="${idx}" ${jaExiste ? "" : "checked"}></td>
+                <td>${cand.vara || "Não informada"}</td>
+                <td style="font-weight: 600;">
+                    ${cand.processo}
+                    ${badgeExistente}
+                </td>
+                <td>
+                    <span class="badge" style="background:${cand.tipo === 'ERRO DE FLUXO' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(59, 130, 246, 0.15)'}; color:${cand.tipo === 'ERRO DE FLUXO' ? '#f87171' : '#60a5fa'}; font-size:10px; margin-right:5px; padding:1px 4px; border-radius:3px;">${cand.tipo}</span>
+                    ${cand.origem}
+                </td>
+                <td>${inputServidor}</td>
+                <td>${spanDupla}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    window.onServidorResumidoChange = function(idx, val) {
+        const spanDupla = document.getElementById(`spanDupla_${idx}`);
+        if (!spanDupla) return;
+
+        let dupla = obterDuplaSupervisor(val).replace(/\s*\/\s*/g, " & ");
+        spanDupla.innerText = dupla;
+        
+        if (CANDIDATOS_MIGRACAO[idx]) {
+            CANDIDATOS_MIGRACAO[idx].servidor = val;
+            CANDIDATOS_MIGRACAO[idx].duplaGestores = dupla;
+        }
+    };
+
+    document.getElementById('chkSelectAllMigration').onclick = function() {
+        const checkboxes = document.querySelectorAll('.chk-migration-item');
+        checkboxes.forEach(chk => chk.checked = this.checked);
+    };
+
+    document.getElementById('btnSubmitMigration').onclick = () => {
+        const webAppUrl = document.getElementById('txtWebAppUrl').value.trim();
+        if (!webAppUrl) {
+            alert("Por favor, configure a URL do Web App nas Configurações.");
+            return;
+        }
+
+        const chksChecked = document.querySelectorAll('.chk-migration-item:checked');
+        if (chksChecked.length === 0) {
+            alert("Nenhum processo selecionado para migração.");
+            return;
+        }
+
+        if (!confirm(`Deseja migrar ${chksChecked.length} processo(s) selecionado(s) para a aba ERRO / VINC. da Planilha Gestores?`)) {
+            return;
+        }
+
+        const btn = document.getElementById('btnSubmitMigration');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳ Migrando...";
+        btn.disabled = true;
+
+        const payload = [];
+        const npusRemover = [];
+        const hojeStr = new Date().toLocaleDateString('pt-BR');
+
+        chksChecked.forEach(chk => {
+            const idx = parseInt(chk.getAttribute('data-idx'), 10);
+            const cand = CANDIDATOS_MIGRACAO[idx];
+
+            payload.push({
+                vara: cand.vara,
+                processo: cand.processo,
+                origem: cand.origem,
+                duplaGestores: cand.duplaGestores,
+                servidor: cand.servidor,
+                obsDestino: cand.obsDestino,
+                tipo: cand.tipo,
+                dataInclusao: hojeStr
+            });
+
+            npusRemover.push(cand.npuChave);
+        });
+
+        const encodedData = encodeURIComponent(JSON.stringify(payload));
+        const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=migrarErroVinculacao&data=${encodedData}&callback=cbMigrateWrite`;
+
+        carregarJsonp(url, "cbMigrateWrite", function(response) {
+            btn.innerText = originalText;
+            btn.disabled = false;
+
+            if (response && response.status === "success") {
+                alert("Processos migrados com sucesso para a planilha gestores!");
+                SIMAP_PROCESS_LIST = SIMAP_PROCESS_LIST.filter(p => !npusRemover.includes(p.chave));
+                processarDadosGerais();
+                atualizarPainelMigracaoDiretoria();
+            } else {
+                alert("Erro ao migrar: " + (response ? response.message : "Resposta inválida"));
+            }
+        }, function() {
+            btn.innerText = originalText;
+            btn.disabled = false;
+            alert("Erro de rede ou no Web App.");
+        });
+    };
+
     // Executa no carregamento da página
     inicializarUrls();
     document.getElementById('imgTontomMascot').src = TONTOM_MOUTH_B64;
+    carregarListaGestoresServidores();
     carregarPrioridadesPlanilha();
     carregarResumosPlanilha();
     carregarAudienciasCentral();
     carregarCancelamentosCentral();
     carregarSerprecCentral();
+    atualizarPainelMigracaoDiretoria();
 </script>
 </body>
 </html>
