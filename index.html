@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -2073,9 +2073,13 @@
             const npu = getVal(i + 1, 'C');
             const vara = getVal(i + 1, 'B');
             const dataAg = getVal(i + 1, 'A');
+            const justificativa = getVal(i + 1, 'F');
             
             // Ignora o próprio cabeçalho que pode ser repetido ou ter texto
             if (situacao !== "" && npu !== "" && npu.toUpperCase() !== "NPU" && !npu.toUpperCase().includes("PROCESSO") && !npu.toUpperCase().includes("VARA")) {
+                if (normalizar(justificativa).includes("RESOLVIDO")) {
+                    continue;
+                }
                 temPendentesAud = true;
                 let dataFormatada = dataAg;
                 if (/^\d+(\.\d+)?$/.test(dataAg)) {
@@ -2400,7 +2404,7 @@
             const normJust = normalizar(justificativa);
             const normSit = normalizar(situacao);
 
-            return normJust === "RESOLVIDO" || 
+            return normJust.includes("RESOLVIDO") || 
                    normSit.includes("REMETIDO") || 
                    normSit.includes("RETIRADA");
         }).length;
@@ -2429,7 +2433,7 @@
             const origJust = normalizar(a.enviarJustificativa);
             const origSit = normalizar(a.enviarSituacao);
 
-            if (origJust === "RESOLVIDO") return false;
+            if (origJust.includes("RESOLVIDO")) return false;
 
             if (origSit.includes("REMETIDO") || origSit.includes("RETIRADA")) {
                 return false;
@@ -2484,7 +2488,7 @@
             const situacaoVal = edit.situacao !== undefined ? edit.situacao : a.enviarSituacao;
             const justificativaVal = edit.justificativa !== undefined ? edit.justificativa : a.enviarJustificativa;
 
-            const isLocalResolved = normalizar(justificativaVal) === "RESOLVIDO" || 
+            const isLocalResolved = normalizar(justificativaVal).includes("RESOLVIDO") || 
                                     normalizar(situacaoVal).includes("REMETIDO") || 
                                     normalizar(situacaoVal).includes("RETIRADA");
 
