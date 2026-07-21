@@ -1010,6 +1010,7 @@
                 <option value="pendente">Mostrar todas as pendências</option>
                 <option value="pendente_extensao">Mostrar pendências de atualização</option>
                 <option value="pendente_complemento">Mostrar pendências de complemento</option>
+                <option value="pendente_status">Mostrar pendências de status</option>
             </select>
 
             <button class="btn-notif-filter" id="queueFilterNotif">
@@ -2490,6 +2491,27 @@
             txt.innerText = "Prioridades: Erro CORS/Link privado. Use Colar Manual.";
             logDebug("Erro de rede/CORS ao buscar Prioridades via JSONP. Verifique se o link está público.");
         });
+    }
+
+    // Auxiliar para detectar pendências de status incorreto no SIMAP
+    function verificarPendenciaStatus(p) {
+        if (!p || !p.obs || p.status === "Finalizado") return false;
+        
+        const obsUpper = p.obs.toUpperCase().trim();
+        
+        // 1. "ERRO DE FLUXO/SISTEMA (informar nº do chamado)"
+        const erroKeywords = ["ERRO DE FLUXO", "ERRO FLUXO", "ERRO DE FLUXO/SISTEMA"];
+        const contemErro = erroKeywords.some(kw => obsUpper.includes(kw));
+        
+        // 2. "integralmente cumprido por outro servidor"
+        const cumpridoKeywords = ["INTEGRALMENTE CUMPRIDO POR OUTRO SERVIDOR", "CUMPRIDO POR OUTRO SERVIDOR", "CUMPRIDO OUTRO SERVIDOR"];
+        const contemCumpridoOutro = cumpridoKeywords.some(kw => obsUpper.includes(kw));
+        
+        // 3. "CENTRAL DE AGILIZAÇÃO (SEM FLUXO)"
+        const centralKeywords = ["CENTRAL DE AGILIZAÇÃO (SEM FLUXO)", "CENTRAL DE AGILIZACAO (SEM FLUXO)", "CENTRAL DE AGILIZAÇÃO", "CENTRAL DE AGILIZACAO"];
+        const contemCentralSemFluxo = centralKeywords.some(kw => obsUpper.includes(kw));
+        
+        return contemErro || contemCumpridoOutro || contemCentralSemFluxo;
     }
 
     // Auxiliar para converter número de data do Excel
@@ -4296,12 +4318,16 @@
         if (obsPendingFiltro !== "todos") {
             filtrados = filtrados.filter(p => {
                 const analises = analisarObservacaoCompleta(p.obs);
+                const temStatusPrio = verificarPendenciaStatus(p);
+                
                 if (obsPendingFiltro === "pendente") {
-                    return analises.some(a => a.pendente || a.extensaoDesatualizada);
+                    return analises.some(a => a.pendente || a.extensaoDesatualizada) || temStatusPrio;
                 } else if (obsPendingFiltro === "pendente_complemento") {
                     return analises.some(a => a.pendente);
                 } else if (obsPendingFiltro === "pendente_extensao") {
                     return analises.some(a => a.extensaoDesatualizada);
+                } else if (obsPendingFiltro === "pendente_status") {
+                    return temStatusPrio;
                 }
                 return true;
             });
@@ -4369,6 +4395,8 @@
 
             // Analisa observação para formatar badges e pendências
             const analises = analisarObservacaoCompleta(p.obs);
+            const temPendStatus = verificarPendenciaStatus(p);
+
             let obsHtml = "-";
             if (analises && analises.length > 0) {
                 obsHtml = analises.map(analise => {
@@ -4417,6 +4445,21 @@
                 }).join("");
             }
 
+            if (temPendStatus) {
+                const statusBadgeHtml = `<div style="margin-top: 6px; border-top: 1px dashed rgba(239,68,68,0.25); padding-top: 6px;">
+                    <span style="background: rgba(239, 68, 68, 0.15); color: #f87171; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; display: inline-block; margin-right: 5px; border: 1px solid rgba(239, 68, 68, 0.35);">⚠️ STATUS INCORRETO</span>
+                    <span style="color: #f87171; font-weight: bold;" title="Esta observação exige que o status do processo seja alterado para Finalizado!">Deveria estar Finalizado</span>
+                </div>`;
+                if (obsHtml === "-") {
+                    obsHtml = statusBadgeHtml;
+                } else {
+                    obsHtml += statusBadgeHtml;
+                }
+            }
+
+            const displayStatusText = temPendStatus ? `${p.status} ⚠️` : p.status;
+            const displayStatusColor = temPendStatus ? "var(--accent-danger)" : statusCor;
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td style="text-align:center;"><span style="${tagEstilo}">P${p.prioridade}</span></td>
@@ -4425,7 +4468,7 @@
                     <button class="btn-action-small" onclick="navigator.clipboard.writeText('${p.npu}')" style="margin-left:8px;" title="Copiar NPU">📋 Copiar</button>
                 </td>
                 <td>${p.servidor}</td>
-                <td style="text-align:center; color:${statusCor}; font-weight:bold;">${p.status}</td>
+                <td style="text-align:center; color:${displayStatusColor}; font-weight:bold;">${displayStatusText}</td>
                 <td style="text-align:center; color:var(--text-secondary);">${p.data || '-'}</td>
                 <td style="text-align:center; color:var(--accent-danger); font-weight:bold;">
                     ${p.notif > 0 ? `⚠️ ${p.notif}` : '-'}
