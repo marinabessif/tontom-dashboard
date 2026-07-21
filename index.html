@@ -805,12 +805,27 @@
                         <option value="Equipe 9">Equipe 9</option>
                         <option value="Equipe 10">Equipe 10</option>
                         <option value="Equipe 11">Equipe 11</option>
+                        <option value="Equipe SCGA (GT)">Equipe SCGA (GT)</option>
                         <option value="Todas">Todas as Equipes</option>
                     </select>
                 </div>
                 <div class="form-group" style="flex: 1;">
-                    <label for="txtSupervisor">Nome do(a) Supervisor(a):</label>
-                    <input type="text" class="form-control" id="txtSupervisor" placeholder="Digite seu nome (salva automaticamente)">
+                    <label for="txtSupervisor">Dupla de Supervisão:</label>
+                    <select class="form-control" id="txtSupervisor">
+                        <option value="Ana Angélica / Ricardo Dias">Ana Angélica / Ricardo Dias (Equipe 1)</option>
+                        <option value="Roberto Gonçalves / Marina Bessi" selected>Roberto Gonçalves / Marina Bessi (Equipe 2)</option>
+                        <option value="Suziane Muniz / Janaina Freitas">Suziane Muniz / Janaina Freitas (Equipe 3)</option>
+                        <option value="Andrea Freitas / Luciana Ferraz">Andrea Freitas / Luciana Ferraz (Equipe 4)</option>
+                        <option value="Danielle Lucena / Denise Farache">Danielle Lucena / Denise Farache (Equipe 5)</option>
+                        <option value="Carolina Passos / Wilma França">Carolina Passos / Wilma França (Equipe 6)</option>
+                        <option value="Niumízia Alves / Marcello Novo">Niumízia Alves / Marcello Novo (Equipe 7)</option>
+                        <option value="Arnaldo Sabino / Saulo Melo">Arnaldo Sabino / Saulo Melo (Equipe 8)</option>
+                        <option value="Amanda Campos / Priscila Cysneiros">Amanda Campos / Priscila Cysneiros (Equipe 9)</option>
+                        <option value="Taciana Martins / Napoleão Tavares">Taciana Martins / Napoleão Tavares (Equipe 10)</option>
+                        <option value="Rianne Torres / Lígia Ribeiro">Rianne Torres / Lígia Ribeiro (Equipe 11)</option>
+                        <option value="Jary Barros">Jary Barros (Equipe SCGA GT)</option>
+                        <option value="Todos os Supervisores">Todos os Supervisores (Todas as Equipes)</option>
+                    </select>
                 </div>
             </div>
             
@@ -974,7 +989,9 @@
                 <option value="todas" selected>Observação: Todas</option>
                 <option value="DÚVIDA">Observação: DÚVIDA / SUPERVISÃO</option>
                 <option value="SERVIDOR">Observação: SERVIDOR</option>
-                <option value="SISCONDJ">Observação: SISCONDJ</option>
+                <option value="SISCONDJ (Alvará gravado)">Observação: SISCONDJ (Alvará gravado)</option>
+                <option value="SISCONDJ (Vinculação de Conta)">Observação: SISCONDJ (Vinculação de Conta)</option>
+                <option value="SISCONDJ (Alvará ou Vinculação)">Observação: SISCONDJ (Versão Antiga)</option>
                 <option value="PRAZO ABERTO FORA DO SISTEMA">Observação: PRAZO ABERTO</option>
                 <option value="PRAZO EM CURSO NO SISTEMA">Observação: PRAZO EM CURSO</option>
                 <option value="PROCESSO SUSPENSO">Observação: PROCESSO SUSPENSO</option>
@@ -989,8 +1006,10 @@
             </select>
 
             <select class="form-control queue-filter" id="queueFilterObsPending">
-                <option value="todos" selected>Complemento: Todos</option>
-                <option value="pendente">Complemento: Pendentes</option>
+                <option value="todos" selected>Todos os processos (com e sem pendências)</option>
+                <option value="pendente">Mostrar todas as pendências</option>
+                <option value="pendente_extensao">Mostrar pendências de atualização</option>
+                <option value="pendente_complemento">Mostrar pendências de complemento</option>
             </select>
 
             <button class="btn-notif-filter" id="queueFilterNotif">
@@ -1042,11 +1061,42 @@
 
     <!-- Tab 3 View: Migração Controle -->
     <div id="viewMigration" style="display: none;">
+        <!-- Índice / Barra de Atalhos para os 4 Cards de Migração -->
+        <div class="migration-nav-index" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px; position: sticky; top: 10px; z-index: 100; background: var(--bg-card); padding: 12px; border-radius: 10px; border: 1px solid var(--border-glass); backdrop-filter: blur(10px); box-shadow: 0 8px 20px rgba(0,0,0,0.25);">
+            <div onclick="document.getElementById('directionMigrationSection').scrollIntoView({ behavior: 'smooth', block: 'start' })" style="cursor: pointer; padding: 10px 14px; background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;" onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--accent-primary)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(168, 85, 247, 0.3)';">
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-primary);">
+                    <span>🛠️ Erro de Fluxo &amp; Vinc.</span>
+                </div>
+                <span id="navBadge_Diretoria" style="background: var(--accent-primary); color: #fff; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px;">0</span>
+            </div>
+
+            <div onclick="document.getElementById('controleSerprecMigrationSection').scrollIntoView({ behavior: 'smooth', block: 'start' })" style="cursor: pointer; padding: 10px 14px; background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;" onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--accent-info)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(14, 165, 233, 0.3)';">
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-primary);">
+                    <span>🛠️ Precatório / RPV (SERPREC)</span>
+                </div>
+                <span id="navBadge_Serprec" style="background: var(--accent-info); color: #fff; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px;">0</span>
+            </div>
+
+            <div onclick="document.getElementById('recjudLeilaoMigrationSection').scrollIntoView({ behavior: 'smooth', block: 'start' })" style="cursor: pointer; padding: 10px 14px; background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: 8px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;" onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--accent-warning)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(249, 115, 22, 0.3)';">
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-primary);">
+                    <span>🛠️ RECJUD / LEILÃO</span>
+                </div>
+                <span id="navBadge_Recjud" style="background: var(--accent-warning); color: #fff; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px;">0</span>
+            </div>
+
+            <div onclick="document.getElementById('centralAgilizacaoSuspensosMigrationSection').scrollIntoView({ behavior: 'smooth', block: 'start' })" style="cursor: pointer; padding: 10px 14px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;" onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--accent-success)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(16, 185, 129, 0.3)';">
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-primary);">
+                    <span>🛠️ Agilização / Suspensos</span>
+                </div>
+                <span id="navBadge_CentralSuspensos" style="background: var(--accent-success); color: #fff; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px;">0</span>
+            </div>
+        </div>
+
         <!-- Card de Migração de Erros e Vinculações (Direção) -->
         <div class="panel-card" id="directionMigrationSection" style="display: block; margin-top: 10px; border: 1px solid var(--accent-primary);">
             <div class="panel-title" style="display:flex; align-items:center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                 <div style="display:flex; align-items:center;">
-                    <span>🛠️ Migração de Erro de Fluxo & Siscondj (Diretoria)</span>
+                    <span>🛠️ Migração de Erro de Fluxo & Vinculação de Conta</span>
                     <span id="badgeMigrationCount" style="margin-left:10px; background:var(--accent-primary); color:#fff; font-size:11px; padding:2px 8px; border-radius:10px; font-weight: bold; display: none;">0</span>
                 </div>
                 <div style="display:flex; align-items:center; gap: 10px;">
@@ -1058,6 +1108,27 @@
                 </div>
             </div>
             <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; margin-top: -5px;">Os processos abaixo possuem observações de Erro de Fluxo (com chamado) ou SISCONDJ (vinculação de conta). Selecione-os para migrar automaticamente para a planilha Gestores.</p>
+            
+            <div class="migration-filters-bar" style="display:flex; align-items:center; justify-content:space-between; background: rgba(0,0,0,0.15); padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; font-size: 11px;">
+                <div style="display:flex; align-items:center; gap: 15px; flex-wrap: wrap;">
+                    <label style="display:flex; align-items:center; gap: 4px; cursor: pointer;">
+                        <input type="checkbox" id="chkFilterHideMigrated_Diretoria" checked onchange="atualizarPainelMigracaoDiretoria()">
+                        <span>Ocultar já migrados anteriormente</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap: 4px; cursor: pointer;">
+                        <input type="checkbox" id="chkFilterHideIgnored_Diretoria" checked onchange="atualizarPainelMigracaoDiretoria()">
+                        <span>Ocultar marcados como "Não Migrar"</span>
+                    </label>
+                    <div style="display:flex; align-items:center; gap: 5px; margin-left: 10px;">
+                        <span style="font-weight: 500;">🔍 Buscar:</span>
+                        <input type="text" id="txtSearch_Diretoria" placeholder="Processo, Vara, Origem, Servidor..." class="form-control" style="width: 200px; font-size: 11px; height: 26px; padding: 2px 8px; border-radius: 4px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-glass);" oninput="atualizarPainelMigracaoDiretoria()">
+                    </div>
+                </div>
+                <div style="color: var(--text-secondary); font-size: 10px;" id="lblSummaryFilter_Diretoria">
+                    Exibindo 0 de 0 processos
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="custom-table" style="text-align: left; font-size: 12px;">
                     <thead>
@@ -1068,6 +1139,7 @@
                             <th>Origem (Observação)</th>
                             <th>Servidor</th>
                             <th>Dupla Gestores</th>
+                            <th style="text-align: center;">Ação / Decisão</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyMigration">
@@ -1102,6 +1174,26 @@
 
             <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; margin-top: -5px;">Os processos abaixo possuem observações de PRECATÓRIO ou RPV no SIMAP. Selecione-os para migrar automaticamente para a aba SERPREC da planilha de Controle.</p>
             
+            <div class="migration-filters-bar" style="display:flex; align-items:center; justify-content:space-between; background: rgba(0,0,0,0.15); padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; font-size: 11px;">
+                <div style="display:flex; align-items:center; gap: 15px; flex-wrap: wrap;">
+                    <label style="display:flex; align-items:center; gap: 4px; cursor: pointer;">
+                        <input type="checkbox" id="chkFilterHideMigrated_Serprec" checked onchange="atualizarPainelControleSerprec()">
+                        <span>Ocultar já migrados anteriormente</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap: 4px; cursor: pointer;">
+                        <input type="checkbox" id="chkFilterHideIgnored_Serprec" checked onchange="atualizarPainelControleSerprec()">
+                        <span>Ocultar marcados como "Não Migrar"</span>
+                    </label>
+                    <div style="display:flex; align-items:center; gap: 5px; margin-left: 10px;">
+                        <span style="font-weight: 500;">🔍 Buscar:</span>
+                        <input type="text" id="txtSearch_Serprec" placeholder="Processo, Vara, Origem, Obs..." class="form-control" style="width: 200px; font-size: 11px; height: 26px; padding: 2px 8px; border-radius: 4px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-glass);" oninput="atualizarPainelControleSerprec()">
+                    </div>
+                </div>
+                <div style="color: var(--text-secondary); font-size: 10px;" id="lblSummaryFilter_Serprec">
+                    Exibindo 0 de 0 processos
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="custom-table" style="text-align: left; font-size: 12px;">
                     <thead>
@@ -1111,6 +1203,7 @@
                             <th>Processo (NPU)</th>
                             <th>Origem</th>
                             <th>Observação (Precatório/RPV)</th>
+                            <th style="text-align: center;">Ação / Decisão</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyControleSerprec">
@@ -1146,6 +1239,26 @@
 
             <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; margin-top: -5px;">Os processos abaixo possuem observações de *LEILÃO ou *REC. JUD./FALÊNCIA no SIMAP. Selecione-os para migrar automaticamente para as abas Leilão ou Recjud da planilha.</p>
             
+            <div class="migration-filters-bar" style="display:flex; align-items:center; justify-content:space-between; background: rgba(0,0,0,0.15); padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; font-size: 11px;">
+                <div style="display:flex; align-items:center; gap: 15px; flex-wrap: wrap;">
+                    <label style="display:flex; align-items:center; gap: 4px; cursor: pointer;">
+                        <input type="checkbox" id="chkFilterHideMigrated_Recjud" checked onchange="atualizarPainelRecjudLeilao()">
+                        <span>Ocultar já migrados anteriormente</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap: 4px; cursor: pointer;">
+                        <input type="checkbox" id="chkFilterHideIgnored_Recjud" checked onchange="atualizarPainelRecjudLeilao()">
+                        <span>Ocultar marcados como "Não Migrar"</span>
+                    </label>
+                    <div style="display:flex; align-items:center; gap: 5px; margin-left: 10px;">
+                        <span style="font-weight: 500;">🔍 Buscar:</span>
+                        <input type="text" id="txtSearch_Recjud" placeholder="Processo, Vara, Servidor, Obs..." class="form-control" style="width: 200px; font-size: 11px; height: 26px; padding: 2px 8px; border-radius: 4px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-glass);" oninput="atualizarPainelRecjudLeilao()">
+                    </div>
+                </div>
+                <div style="color: var(--text-secondary); font-size: 10px;" id="lblSummaryFilter_Recjud">
+                    Exibindo 0 de 0 processos
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="custom-table" style="text-align: left; font-size: 12px;">
                     <thead>
@@ -1155,6 +1268,7 @@
                             <th>Processo (NPU)</th>
                             <th>Servidor (Origem)</th>
                             <th>Observação (RECJUD/LEILÃO)</th>
+                            <th style="text-align: center;">Ação / Decisão</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyRecjudLeilao">
@@ -1167,10 +1281,99 @@
                 <button class="btn-premium" id="btnSubmitRecjudLeilao" style="padding: 8px 16px; font-size: 12px; width: auto; height: 36px; border-radius: 6px; background: var(--accent-warning); box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);">🚀 Migrar Selecionados para Planilha RECJUD/LEILÃO</button>
             </div>
         </div>
+
+        <!-- Card de Migração de Central de Agilização sem fluxo, Prazo aberto, Suspenso & Arquivo provisório -->
+        <div class="panel-card" id="centralAgilizacaoSuspensosMigrationSection" style="display: block; margin-top: 20px; border: 1px solid var(--accent-success);">
+            <div class="panel-title" style="display:flex; align-items:center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div style="display:flex; align-items:center;">
+                    <span>🛠️ Migração de Central de Agilização sem fluxo, Prazo aberto (Data de Retorno), Suspenso, &amp; Arquivo provisório</span>
+                    <span id="badgeCentralAgilizacaoSuspensosCount" style="margin-left:10px; background:var(--accent-success); color:#fff; font-size:11px; padding:2px 8px; border-radius:10px; font-weight: bold; display: none;">0</span>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <a href="https://docs.google.com/spreadsheets/d/1yOAupHFi0ERglZPTJ4yrXHPwBP8oemOfLAKFJ9zT9Po/edit?gid=153664156#gid=153664156" target="_blank" class="btn-theme" style="display: flex; align-items: center; justify-content: center; text-decoration: none; padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px; background: rgba(16, 185, 129, 0.1); color: var(--accent-success); border: 1px solid rgba(16, 185, 129, 0.2);">
+                        📊 Planilha Controle
+                    </a>
+                    <button class="btn-theme" id="btnUpdateCentralAgilizacaoSuspensos" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px;">🔄 Atualizar planilha Controle</button>
+                </div>
+            </div>
+            
+            <div id="centralAgilizacaoSuspensosConnectionStatus" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <span class="status-dot warning" id="centralAgilizacaoSuspensosStatusDot"></span>
+                <span id="centralAgilizacaoSuspensosStatusText">Planilha Controle: Clique em Atualizar.</span>
+            </div>
+
+            <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; margin-top: -5px;">Os processos abaixo possuem observações de Central de Agilização sem fluxo, Prazo Aberto, Suspensos ou Arquivo Provisório no SIMAP. Selecione-os para migrar para a planilha de Controle.</p>
+            
+            <div class="migration-filters-bar" style="display:flex; align-items:center; justify-content:space-between; background: rgba(0,0,0,0.15); padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; font-size: 11px;">
+                <div style="display:flex; align-items:center; gap: 15px; flex-wrap: wrap;">
+                    <label style="display:flex; align-items:center; gap: 4px; cursor: pointer;">
+                        <input type="checkbox" id="chkFilterHideMigrated_CentralSuspensos" checked onchange="atualizarPainelCentralAgilizacaoSuspensos()">
+                        <span>Ocultar já migrados anteriormente</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap: 4px; cursor: pointer;">
+                        <input type="checkbox" id="chkFilterHideIgnored_CentralSuspensos" checked onchange="atualizarPainelCentralAgilizacaoSuspensos()">
+                        <span>Ocultar marcados como "Não Migrar"</span>
+                    </label>
+                    <div style="display:flex; align-items:center; gap: 5px; margin-left: 10px;">
+                        <span style="font-weight: 500;">🔍 Buscar:</span>
+                        <input type="text" id="txtSearch_CentralSuspensos" placeholder="Processo, Vara, Situação, Obs, Data..." class="form-control" style="width: 200px; font-size: 11px; height: 26px; padding: 2px 8px; border-radius: 4px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-glass);" oninput="atualizarPainelCentralAgilizacaoSuspensos()">
+                    </div>
+                </div>
+                <div style="color: var(--text-secondary); font-size: 10px;" id="lblSummaryFilter_CentralSuspensos">
+                    Exibindo 0 de 0 processos
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="custom-table" style="text-align: left; font-size: 12px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 30px; text-align: center;"><input type="checkbox" id="chkSelectAllCentralAgilizacaoSuspensos" checked></th>
+                            <th>Vara</th>
+                            <th>Processo (NPU)</th>
+                            <th>Servidor (Origem)</th>
+                            <th>Observação</th>
+                            <th>Data de retorno</th>
+                            <th style="text-align: center;">Ação / Decisão</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyCentralAgilizacaoSuspensos">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="display:flex; justify-content: flex-end; margin-top: 15px;">
+                <button class="btn-premium" id="btnSubmitCentralAgilizacaoSuspensos" style="padding: 8px 16px; font-size: 12px; width: auto; height: 36px; border-radius: 6px; background: var(--accent-success); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);">🚀 Migrar Selecionados para Controle</button>
+            </div>
+        </div>
     </div>
 
     <!-- Tab 2 View: Análise planilha gestores -->
     <div id="viewGestores" style="display: none;">
+        <!-- Índice / Barra de Atalhos para os Cards do Gestores -->
+        <div class="gestores-nav-index" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px; position: sticky; top: 10px; z-index: 100; background: var(--bg-card); padding: 12px; border-radius: 10px; border: 1px solid var(--border-glass); backdrop-filter: blur(10px); box-shadow: 0 8px 20px rgba(0,0,0,0.25);">
+            <div onclick="document.getElementById('cardAudSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' })" style="cursor: pointer; padding: 10px 14px; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-primary);">
+                    <span>📅 Audiências</span>
+                </div>
+                <span id="navBadge_GestoresAud" style="background: var(--accent-color); color: #fff; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px;">0</span>
+            </div>
+
+            <div onclick="document.getElementById('cardCancSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' })" style="cursor: pointer; padding: 10px 14px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-primary);">
+                    <span>🔄 Cancelamentos</span>
+                </div>
+                <span id="navBadge_GestoresCanc" style="background: var(--accent-info); color: #fff; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px;">0</span>
+            </div>
+
+            <div onclick="document.getElementById('cardResumoSerprecSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' })" style="cursor: pointer; padding: 10px 14px; background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: 8px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-primary);">
+                    <span>📊 Erro de fluxo / Vinculação</span>
+                </div>
+                <span id="navBadge_GestoresResumo" style="background: var(--accent-warning); color: #fff; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px;">0</span>
+            </div>
+        </div>
         
         <!-- Global Gestores Refresh Header -->
         <div class="panel-card" style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.2);">
@@ -1183,8 +1386,8 @@
             </button>
         </div>
 
-        <!-- Gestores Stats Grid -->
-        <div class="stats-grid" id="gestoresStatsGrid">
+        <!-- Gestores Stats Grid (Audiências) -->
+        <div class="stats-grid" id="cardAudSection">
             <div class="stat-card">
                 <div class="stat-icon">📋</div>
                 <div class="stat-info">
@@ -1256,7 +1459,7 @@
         </div>
 
         <!-- ===== CANCELAMENTO DE CONCLUSÕES ===== -->
-        <div style="margin-top: 35px; border-top: 2px solid var(--border-glass); padding-top: 25px;">
+        <div id="cardCancSection" style="margin-top: 35px; border-top: 2px solid var(--border-glass); padding-top: 25px;">
             <div class="stats-grid" id="cancStatsGrid">
                 <div class="stat-card">
                     <div class="stat-icon">📋</div>
@@ -1327,7 +1530,7 @@
         </div>
 
         <!-- ===== ERRO E VINCULAÇÃO (SERPREC) ===== -->
-        <div style="margin-top: 35px; border-top: 2px solid var(--border-glass); padding-top: 25px;">
+        <div id="cardResumoSerprecSection" style="margin-top: 35px; border-top: 2px solid var(--border-glass); padding-top: 25px;">
             <!-- Stats Table (Vinculação / Erro summary) -->
             <div class="panel-card" style="margin-bottom: 25px;">
                 <div class="panel-title">📊 Resumo Vinculação / Erro</div>
@@ -1370,18 +1573,33 @@
             </div>
 
             <!-- Interactive Table panel -->
-            <div class="panel-card" style="margin-top: 20px;">
+            <div class="panel-card" id="cardDetalhesSerprecSection" style="margin-top: 20px;">
                 <div class="panel-title" style="display:flex; align-items:center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                     <span>🛠️ Detalhes Vinculação / Erro</span>
-                    <div style="display:flex; gap: 10px;">
+                    <div style="display:flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <button class="btn-theme" id="btnApagarAnalisados" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);">🗑️ Apagar Analisados (nova semana)</button>
                         <button class="btn-theme" id="btnUpdateSerprec" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px;">🔄 Atualizar Erro/Vinc</button>
                         <button class="btn-premium" id="btnSubmitSerprec" style="padding: 6px 15px; font-size: 12px; width: auto; height: 32px; border-radius: 6px; box-shadow: none;" disabled>💾 Enviar Dados</button>
                     </div>
                 </div>
 
-                <div id="serprecConnectionStatus" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <div id="serprecConnectionStatus" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                     <span class="status-dot warning" id="serprecStatusDot"></span>
                     <span id="serprecStatusText">Erro de fluxo/vinculação: Não carregado. Clique em Atualizar.</span>
+                </div>
+
+                <div class="gestores-filter-bar" style="display:flex; align-items:center; justify-content:space-between; background: rgba(0,0,0,0.15); padding: 10px 14px; border-radius: 6px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; font-size: 11px; border: 1px solid var(--border-glass);">
+                    <div style="display:flex; align-items:center; gap: 10px;">
+                        <span style="font-weight: 600; color: var(--text-primary);">📌 Filtrar Origem:</span>
+                        <select id="selectFiltroOrigemSerprec" class="form-control" style="width: auto; font-size: 11px; height: 28px; padding: 2px 10px; border-radius: 4px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-glass);" onchange="atualizarExibicaoSerprec()">
+                            <option value="TODOS" selected>Todos os Registros</option>
+                            <option value="VINCULACAO">Apenas Vinculação de Conta (SISCONDJ)</option>
+                            <option value="ERRO">Apenas Erro de Fluxo / Sistema</option>
+                        </select>
+                    </div>
+                    <div style="color: var(--text-secondary); font-size: 11px; font-weight: 500;" id="lblSummaryFilter_GestoresDetalhes">
+                        Exibindo 0 de 0 processos
+                    </div>
                 </div>
 
                 <div id="serprecNoData" class="no-data-msg" style="padding: 40px 10px;">
@@ -1396,7 +1614,10 @@
                                 <th>Origem</th>
                                 <th>Processo (NPU)</th>
                                 <th>Unidade Judiciária</th>
-                                <th>Observação</th>
+                                <th style="min-width: 180px;">
+                                    OBSERVAÇÃO<br>
+                                    <button type="button" id="btnToggleAllSerprecObs" class="btn-theme" style="padding: 3px 8px; font-size: 10px; margin-top: 4px; border-radius: 4px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: var(--text-primary); cursor: pointer;">↕️ Expandir / Recolher Todas</button>
+                                </th>
                                 <th style="width: 250px;">Situação</th>
                                 <th style="width: 200px;">Analisado</th>
                                 <th style="width: 180px;">Adicionar Obs.</th>
@@ -1503,17 +1724,19 @@
     // Configurações das Equipes estáticas
     const equipes = {
         "Todas": [],
-        "Equipe 1": ["ELIANE MARIA SANTOS RODARTE ANDRADE", "FABIO BORGES GONCALVES", "HI MEET SHIUE", "MARIA LUCIANA DA SILVA", "MARCELLE SÁ CARNEIRO MENDONÇA", "MARTA MARIA BARBOSA", "MOYSA MARIA DE SOUZA LEAO SALES", "TAYSSA MAYARA PEDERNEIRAS PAZ", "MARIANA PORTO GOMES DE CARVALHO"],
+        "Equipe 1": ["ELIANE MARIA SANTOS RODARTE ANDRADE", "FABIO BORGES GONCALVES", "HI MEET SHIUE", "MARIA LUCIANA DA SILVA", "MARCELLE SÁ CARNEIRO MENDONÇA", "MARCIA RODRIGUES DE OLIVEIRA", "MARTA MARIA BARBOSA", "MOYSA MARIA DE SOUZA LEAO SALES", "TAYSSA MAYARA PEDERNEIRAS PAZ", "MARIANA PORTO GOMES DE CARVALHO"],
         "Equipe 2": ["MARINA BESSI FERNANDES", "ANA ELIZABETH AGUIAR CAVALCANTI", "ANE VICTOR ALVES CARDOSO", "BLANIA LEUCHTEMBERG DE OLIVEIRA", "DIANA GONCALVES BOTELHO", "ISOLDA MARIA AZEVEDO DE LYRA", "MARIA INEZ MENEZES DOS SANTOS", "SABRINA SERRANO BARBOSA", "SAMARA OLIVEIRA DE MELO", "JULIANA SABRINA CABRAL RODRIGUES"],
-        "Equipe 3": ["ADRIANA MINDELO CAVALCANTI DE ALBUQUERQUE", "CARLOS EDUARDO GOMES DE MELO", "EVERSON PAULO DO NASCIMENTO", "LUCIANA TEIXEIRA DE MAGALHAES", "MICHELE ELIAS SANTOS SOUZA", "RAQUEL FERREIRA DOS SANTOS NIPPO", "ROBERTA CORTEZ DE CARVALHO", "SIDNEY PEDROSA DE MELO", "JOAO VICTOR SARAIVA WENCESLAU"],
+        "Equipe 3": ["ADRIANA MINDELO CAVALCANTI DE ALBUQUERQUE", "BIANCA ARAUJO DA SILVA", "CARLOS EDUARDO GOMES DE MELO", "EVERSON PAULO DO NASCIMENTO", "LUCIANA TEIXEIRA DE MAGALHAES", "MICHELE ELIAS SANTOS SOUZA", "RAQUEL FERREIRA DOS SANTOS NIPPO", "ROBERTA CORTEZ DE CARVALHO", "SIDNEY PEDROSA DE MELO", "JOAO VICTOR SARAIVA WENCESLAU"],
         "Equipe 4": ["ANA ELISABETE PROCOPIO DE ALMEIDA", "CAROLINA JORDAN", "CLAUDIA LOBO DA COSTA CARVALHO AMORIM", "EUDALIA MARIA ALVES FONSECA", "GESLAINE DA SILVA FERREIRA", "JOSE AUGUSTO BRAGA", "JULIANA DE SOUSA AMORIM", "KAREN SAVANNA BRILHANTE ALVES MIYAKAWA", "LUCIANA CARMONA BOTELHO"],
         "Equipe 5": ["ADALBERTO DA SOLEDADE SILVA FILHO", "JANAINA FERRO DE SOUSA PORFIRIO LIMA", "JULIANA CARNEIRO DA MOTTA", "JULIANA PONTES A DE A LOPES TAVARES", "LIDIA SERRANO BARBOSA SANTOS", "MAYARA SIMONI LAET DE ANDRADE", "PATRICIA VIEIRA DE L ALBUQUERQUE NOVAES", "SIMONE NANES VILELA", "LARISSA NOGUEIRA BESSA"],
         "Equipe 6": ["BERGSON DANTAS DE MOURA BARBOSA", "FERNANDA ALVES DA SILVA", "IAMANDA LEUSE CAMPOS DE LIMA", "ITALO JORGE CAVALCANTI DE A NUNES", "NATALIA MARIA CATÃO VILELA", "ROBERTO FERREIRA DA SILVA", "SILVANA MARIA ROCHA PEREIRA FRAGOSO", "TASSIA REBECA RATIS DA SILVA", "TERCIA VANESSA MATIAS DE OLIVEIRA"],
-        "Equipe 7": ["ANA CLAUDIA DE MELO MARQUES LUZ", "CARLOS DE LIMA RIBEIRO JUNIOR", "CHARLES TONY DE OLIVEIRA LIRA", "FRANCIELLE MARIA DA SILVA MACEDO DE ANDRADE", "IRACY CABRAL DAS NEVES", "JULIANA TAVARES CORDEIRO GALVÃO", "LADJANE FERREIRA GUIMARAES", "POLLYHANE MAYUMI ALMEIDA", "THAMYRIS FERREIRA SANTOS"],
+        "Equipe 7": ["ANA CLAUDIA DE MELO MARQUES LUZ", "CARLOS DE LIMA RIBEIRO JUNIOR", "CHARLES TONY DE OLIVEIRA LIRA", "FRANCIELLE MARIA DA SILVA M DE ANDRADE", "IRACY CABRAL DAS NEVES", "JULIANA TAVARES CORDEIRO GALVÃO", "LADJANE FERREIRA GUIMARAES", "POLLYHANE MAYUMI ALMEIDA", "THAMYRIS FERREIRA SANTOS"],
         "Equipe 8": ["ANDRE DA SILVA CORDOVILE", "CAIO LUIZ NEVES MAIA", "CHRISTIANE O DE ALMEIDA G MOTA BARRETO", "LUCIANA FLÁVIA DO NASCIMENTO", "MUNIK LUCIENE DE FONTES", "ROSEANE SANTOS DE ANDRADE", "SHEILA CRISTINA RODRIGUES DE L ARAUJO", "TARCISIO BATISTA DA SILVA JUNIOR", "THALLES SIZENANDO AZEVEDO DIAS"],
-        "Equipe 9": ["ALUSKA SUYANNE MARQUES DA SILVA", "ELISA CARLA CAMPOS TAVARES", "ERICKSON MOURA DE QUEIROZ", "FRANCISCO ELTOMAR MARTINS FERREIRA", "LILIAN AVELINO DE MORAIS", "OTIMAR ANTÔNIO DA SILVA", "SIMONE DE MEDEIROS TORRES", "SIMONE DOS PASSOS E SILVA LEITE", "TACIANA MARTINS AMORIM BARBOSA BARROS"],
+        "Equipe 9": ["ANA CRISTINA PEDROSA FREIRE DE SA","ALUSKA SUYANNE MARQUES DA SILVA", "ELISA CARLA CAMPOS TAVARES", "ERICKSON MOURA DE QUEIROZ", "FRANCISCO ELTOMAR MARTINS FERREIRA", "LILIAN AVELINO DE MORAIS", "OTIMAR ANTÔNIO DA SILVA", "SIMONE DE MEDEIROS TORRES", "SIMONE DOS PASSOS E SILVA LEITE", "TACIANA MARTINS AMORIM BARBOSA BARROS"],
         "Equipe 10": ["ALEXANDRE LINDOSO DE ARAÚJO", "DAYANE FERNANDES MESSIAS", "FABIO COSTA TAVARES DA SILVA", "KALENNE FRANMARRY B ALVES MIYAKAWA", "MARILIA DOHERTY AYRES", "SILVIO MUCIO DE MACEDO FILHO", "WAGNER JEFFERSON MEIRA FILHO"],
-        "Equipe 11": ["CAMILLA RODRIGUES MARQUES CARNEIRO", "DIEGO MOURA DA SILVA LOPES", "ELBA MARIA BARROS GALIZA PINHEIRO", "GUILHERME ALBERTI LUPCHINSKI", "JAQUELINE GONDIM SOTERO SIQUEIRA", "LAURA BUARQUE INACIO DE BARROS", "NILSON JOSE GONCALVES DOS SANTOS SILVA", "ROSELYNE BEZERRA SMITH", "MICHELLE MARIA NASCIMENTO FILGUEIRAS"]
+        "Equipe 11": ["CAMILLA RODRIGUES MARQUES CARNEIRO", "DIEGO MOURA DA SILVA LOPES", "ELBA MARIA BARROS GALIZA PINHEIRO", "GUILHERME ALBERTI LUPCHINSKI", "GEMMA GONCALVES DE ARAUJO GONDIM", "JAQUELINE GONDIM SOTERO SIQUEIRA", "LAURA BUARQUE INACIO DE BARROS", "NILSON JOSE GONCALVES DOS SANTOS SILVA", "ROSELYNE BEZERRA SMITH", "MICHELLE MARIA NASCIMENTO FILGUEIRAS"],
+        "Equipe SCGA (GT)": ["GUSTAVO GOMES DE OLIVEIRA", "MANOEL PORFIRIO DE ARAUJO FILHO", "BRENDA CRISTINE PACHECO DE OLIVEIRA", "NAYRA CELLE BELTRAO AGUIAR"],
+        "SCGA (GT)": ["GUSTAVO GOMES DE OLIVEIRA", "MANOEL PORFIRIO DE ARAUJO FILHO", "BRENDA CRISTINE PACHECO DE OLIVEIRA", "NAYRA CELLE BELTRAO AGUIAR"]
     };
 
     // Mapeamento oficial de Duplas de Supervisores por Equipe (Conforme arquivo da Diretoria Civel)
@@ -1529,6 +1752,8 @@
         "Equipe 9": "Amanda Campos / Priscila Cysneiros",
         "Equipe 10": "Taciana Martins / Napoleão Tavares",
         "Equipe 11": "Rianne Torres / Lígia Ribeiro",
+        "Equipe SCGA (GT)": "Jary Barros",
+
         "Todas": "Todos os Supervisores"
     };
 
@@ -1558,10 +1783,133 @@
     let CONTROLE_SERPREC_MASTER_LIST = [];
     let CANDIDATOS_RECJUD_LEILAO = [];
     let RECJUD_LEILAO_MASTER_LIST = [];
+    let CANDIDATOS_CENTRAL_AGILIZACAO_SUSPENSOS = [];
+    let CENTRAL_AGILIZACAO_SUSPENSOS_MASTER_LIST = [];
     let QUEUE_PAGINA_ATUAL = 1;
     const QUEUE_ITENS_POR_PAGINA = 15;
     let allRowsExpanded = false;
     let GESTORES_CSV_DADOS = ""; // Resumo formatado de gestores da planilha externa
+
+    // Map para decisões salvas de migração/dispensa: NPU (13 dígitos) -> { npu13, acao: 'NAO_MIGRAR'|'MIGRADO', data, card }
+    const HISTORICO_DECISOES_MAP = new Map();
+
+    function carregarHistoricoDecisoesLocal() {
+        try {
+            const json = localStorage.getItem('tontom_historico_decisoes');
+            if (json) {
+                const arr = JSON.parse(json);
+                arr.forEach(item => {
+                    if (item && item.npu13) {
+                        HISTORICO_DECISOES_MAP.set(item.npu13, item);
+                    }
+                });
+            }
+        } catch (e) {
+            console.error("Erro ao carregar histórico local de decisões:", e);
+        }
+    }
+
+    function salvarHistoricoDecisoesLocal() {
+        try {
+            const arr = Array.from(HISTORICO_DECISOES_MAP.values());
+            localStorage.setItem('tontom_historico_decisoes', JSON.stringify(arr));
+        } catch (e) {
+            console.error("Erro ao salvar histórico local de decisões:", e);
+        }
+    }
+
+    function extrairBaseNpu13(processoStr) {
+        if (!processoStr) return "";
+        const limpo = String(processoStr).replace(/\D/g, "");
+        return limpo.length >= 13 ? limpo.substring(0, 13) : limpo;
+    }
+
+    window.marcarDecisaoNaoMigrar = function(npu13, cardTipo) {
+        if (!npu13) return;
+        const hojeStr = new Date().toLocaleDateString('pt-BR');
+        HISTORICO_DECISOES_MAP.set(npu13, {
+            npu13: npu13,
+            acao: 'NAO_MIGRAR',
+            data: hojeStr,
+            card: cardTipo
+        });
+        salvarHistoricoDecisoesLocal();
+
+        const webAppUrl = document.getElementById('txtWebAppUrl')?.value?.trim();
+        if (webAppUrl) {
+            const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=registrarDecisaoDispensa&npu=${npu13}&card=${cardTipo}&data=${hojeStr}&callback=cbDispensaResp`;
+            carregarJsonp(url, "cbDispensaResp", function(){}, function(){});
+        }
+
+        atualizarPainelMigracaoDiretoria();
+        atualizarPainelControleSerprec();
+        atualizarPainelRecjudLeilao();
+        atualizarPainelCentralAgilizacaoSuspensos();
+    };
+
+    window.reativarDecisaoNaoMigrar = function(npu13, cardTipo) {
+        if (!npu13) return;
+        HISTORICO_DECISOES_MAP.delete(npu13);
+        salvarHistoricoDecisoesLocal();
+
+        const webAppUrl = document.getElementById('txtWebAppUrl')?.value?.trim();
+        if (webAppUrl) {
+            const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=removerDecisaoDispensa&npu=${npu13}&callback=cbRemoverDispensaResp`;
+            carregarJsonp(url, "cbRemoverDispensaResp", function(){}, function(){});
+        }
+
+        atualizarPainelMigracaoDiretoria();
+        atualizarPainelControleSerprec();
+        atualizarPainelRecjudLeilao();
+        atualizarPainelCentralAgilizacaoSuspensos();
+    };
+
+    function registrarMigracaoSucesso(npusArray, cardTipo) {
+        const hojeStr = new Date().toLocaleDateString('pt-BR');
+        const webAppUrl = document.getElementById('txtWebAppUrl')?.value?.trim();
+        if (Array.isArray(npusArray)) {
+            npusArray.forEach(npu => {
+                const npu13 = extrairBaseNpu13(npu);
+                if (npu13) {
+                    HISTORICO_DECISOES_MAP.set(npu13, {
+                        npu13: npu13,
+                        acao: 'MIGRADO',
+                        data: hojeStr,
+                        card: cardTipo
+                    });
+                    if (webAppUrl) {
+                        const cbName = `cbMig_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+                        const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=registrarDecisaoDispensa&npu=${npu13}&card=${cardTipo}&data=${hojeStr}&acao=MIGRADO&callback=${cbName}`;
+                        carregarJsonp(url, cbName, function(){}, function(){});
+                    }
+                }
+            });
+            salvarHistoricoDecisoesLocal();
+        }
+    }
+
+    function carregarDecisoesNuvem() {
+        const webAppUrl = document.getElementById('txtWebAppUrl')?.value?.trim();
+        if (!webAppUrl) return;
+        const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=lerDecisoesDispensa&callback=cbLerDecisoes`;
+        carregarJsonp(url, "cbLerDecisoes", function(resp) {
+            if (resp && (resp.status === "success" || resp.status === "ok") && Array.isArray(resp.data)) {
+                resp.data.forEach(item => {
+                    if (item.npu13) {
+                        HISTORICO_DECISOES_MAP.set(item.npu13, item);
+                    }
+                });
+                salvarHistoricoDecisoesLocal();
+                atualizarPainelMigracaoDiretoria();
+                atualizarPainelControleSerprec();
+                atualizarPainelRecjudLeilao();
+                atualizarPainelCentralAgilizacaoSuspensos();
+            }
+        }, function(){});
+    }
+
+    // Inicializa decisões locais
+    carregarHistoricoDecisoesLocal();
 
     // Elementos DOM
     const dropzone = document.getElementById('dropzoneExcel');
@@ -1670,14 +2018,50 @@
     }
     inicializarMetas();
 
-    // Configurando supervisor inicial e persistência da equipe
+    // Configurando supervisor inicial e persistência da equipe com sincronização bidirecional
+    function sincronizarAbasEEquipes() {
+        if (SIMAP_PROCESS_LIST.length > 0) {
+            processarDadosGerais();
+        } else if (typeof gerarPreviewTeams === 'function') {
+            gerarPreviewTeams();
+        }
+        if (typeof carregarResumosPlanilha === 'function') carregarResumosPlanilha();
+        if (typeof atualizarExibicaoSerprec === 'function') atualizarExibicaoSerprec();
+        if (typeof carregarCancelamentosCentral === 'function') carregarCancelamentosCentral();
+        if (typeof atualizarPainelMigracaoDiretoria === 'function') atualizarPainelMigracaoDiretoria();
+        if (typeof atualizarPainelControleSerprec === 'function') atualizarPainelControleSerprec();
+        if (typeof atualizarPainelRecjudLeilao === 'function') atualizarPainelRecjudLeilao();
+        if (typeof atualizarPainelCentralAgilizacaoSuspensos === 'function') atualizarPainelCentralAgilizacaoSuspensos();
+    }
+
     const savedEquipe = localStorage.getItem('tontom_selected_equipe') || "Equipe 2";
     selectEquipe.value = savedEquipe;
     
-    txtSupervisor.value = localStorage.getItem('tontom_supervisor_name') || supervisoresMap[savedEquipe] || "";
-    txtSupervisor.oninput = () => {
-        localStorage.setItem('tontom_supervisor_name', txtSupervisor.value);
-        if (SIMAP_PROCESS_LIST.length > 0) gerarPreviewTeams();
+    const savedSupervisor = localStorage.getItem('tontom_supervisor_name') || supervisoresMap[savedEquipe] || "Roberto Gonçalves / Marina Bessi";
+    txtSupervisor.value = savedSupervisor;
+
+    selectEquipe.onchange = () => {
+        const eqVal = selectEquipe.value;
+        const supVal = supervisoresMap[eqVal] || "Todos os Supervisores";
+        txtSupervisor.value = supVal;
+        localStorage.setItem('tontom_selected_equipe', eqVal);
+        localStorage.setItem('tontom_supervisor_name', supVal);
+        sincronizarAbasEEquipes();
+    };
+
+    txtSupervisor.onchange = () => {
+        const supVal = txtSupervisor.value;
+        let foundEquipe = "Todas";
+        for (let eq in supervisoresMap) {
+            if (supervisoresMap[eq] === supVal) {
+                foundEquipe = eq;
+                break;
+            }
+        }
+        selectEquipe.value = foundEquipe;
+        localStorage.setItem('tontom_selected_equipe', foundEquipe);
+        localStorage.setItem('tontom_supervisor_name', supVal);
+        sincronizarAbasEEquipes();
     };
 
     // Toggle Manual CSV
@@ -1949,6 +2333,86 @@
             try { delete window[callbackName]; } catch(e) {}
         };
         document.body.appendChild(script);
+    }
+
+    function sanitizarTextoPayload(txt) {
+        if (!txt) return "";
+        return String(txt)
+            .replace(/[\r\n]+/g, " | ")
+            .replace(/#/g, "º")
+            .replace(/[\"\']/g, "`")
+            .trim();
+    }
+
+    function enviarMigracaoChunked(options) {
+        const webAppUrl = options.webAppUrl;
+        const action = options.action;
+        const extraParamsObj = options.extraParamsObj || {};
+        const fullPayload = options.payload || [];
+        const chunkSize = options.chunkSize || 3;
+        const btn = options.btnElement;
+        const originalBtnText = options.originalBtnText;
+        
+        const sanitizedPayload = fullPayload.map(item => {
+            const copy = { ...item };
+            for (let k in copy) {
+                if (typeof copy[k] === 'string') {
+                    copy[k] = sanitizarTextoPayload(copy[k]);
+                }
+            }
+            return copy;
+        });
+
+        const totalItems = sanitizedPayload.length;
+        let itemsConcluidos = 0;
+        
+        function processarChunk(index) {
+            if (index >= totalItems) {
+                if (btn) {
+                    btn.innerText = originalBtnText;
+                    btn.disabled = false;
+                }
+                alert(options.successMessage || `${totalItems} processo(s) migrado(s) com sucesso!`);
+                if (options.onDone) options.onDone();
+                return;
+            }
+
+            const chunk = sanitizedPayload.slice(index, index + chunkSize);
+            if (btn) {
+                btn.innerText = `⏳ Migrando (${index + chunk.length}/${totalItems})...`;
+            }
+
+            const encodedData = encodeURIComponent(JSON.stringify(chunk));
+            
+            let extraQuery = "";
+            for (let k in extraParamsObj) {
+                extraQuery += `&${k}=${encodeURIComponent(extraParamsObj[k])}`;
+            }
+
+            const callbackName = `cbChunk_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+            const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=${action}${extraQuery}&data=${encodedData}&callback=${callbackName}`;
+
+            carregarJsonp(url, callbackName, function(response) {
+                if (response && (response.status === "success" || response.status === "ok")) {
+                    itemsConcluidos += chunk.length;
+                    processarChunk(index + chunkSize);
+                } else {
+                    if (btn) {
+                        btn.innerText = originalBtnText;
+                        btn.disabled = false;
+                    }
+                    alert("Erro ao migrar lote: " + (response ? (response.message || response.error) : "Resposta inválida"));
+                }
+            }, function() {
+                if (btn) {
+                    btn.innerText = originalBtnText;
+                    btn.disabled = false;
+                }
+                alert(`Erro de rede ou Web App ao migrar item ${index + 1} de ${totalItems}. Verifique se a URL do Web App está correta.`);
+            });
+        }
+
+        processarChunk(0);
     }
 
     // Auxiliar: Converte retorno JSON do Google Visualization API para Matriz 2D de Strings (agora prepende a linha de cabeçalhos das colunas como linha 0)
@@ -2783,6 +3247,7 @@
         atualizarPainelMigracaoDiretoria();
         atualizarPainelControleSerprec();
         atualizarPainelRecjudLeilao();
+        atualizarPainelCentralAgilizacaoSuspensos();
     }
 
     // Verifica se a data do processo é recente (hoje ou ontem)
@@ -3264,11 +3729,20 @@
                 label: "SERVIDOR"
             },
             {
+                key: "SISCONDJ (Alvará gravado OU Vinculação de Conta)",
+                aliases: [
+                    "SISCONDJ (Alvará gravado OU Vinculação de Conta)",
+                    "SISCONDJ (Alvara gravado OU Vinculacao de Conta)",
+                    "*SISCONDJ (Alvará gravado OU Vinculação de Conta)"
+                ],
+                exigeExtra: false,
+                extensaoDesatualizada: true,
+                label: "SISCONDJ (Versão Antiga)"
+            },
+            {
                 key: "SISCONDJ (Alvará gravado)",
                 aliases: [
-                    "*SISCONDJ (Alvará gravado)", "SISCONDJ (Alvará gravado)",
-                    "SISCONDJ (Alvará gravado OU Vinculação de Conta)", "SISCONDJ (Alvara gravado OU Vinculacao de Conta)",
-                    "SISCONDJ"
+                    "*SISCONDJ (Alvará gravado)", "SISCONDJ (Alvará gravado)", "SISCONDJ (Alvara gravado)"
                 ],
                 exigeExtra: false,
                 label: "SISCONDJ (Alvará gravado)"
@@ -3276,7 +3750,7 @@
             {
                 key: "SISCONDJ (Vinculação de Conta)",
                 aliases: [
-                    "*SISCONDJ (Vinculação de Conta)", "SISCONDJ (Vinculação de Conta)"
+                    "*SISCONDJ (Vinculação de Conta)", "SISCONDJ (Vinculação de Conta)", "SISCONDJ (Vinculacao de Conta)"
                 ],
                 exigeExtra: false,
                 label: "SISCONDJ (Vinculação de Conta)"
@@ -3457,9 +3931,10 @@
                         
                         results.push({
                             tipo: pat.label,
-                            faltaLabel: obterLabelFaltante(pat.label, pat.tipoExigido),
+                            faltaLabel: pat.extensaoDesatualizada ? "Atualizar versão da extensão" : obterLabelFaltante(pat.label, pat.tipoExigido),
                             complemento: complement,
                             pendente: pendente,
+                            extensaoDesatualizada: pat.extensaoDesatualizada || false,
                             original: line
                         });
                         break;
@@ -3668,10 +4143,13 @@
         });
 
         const pendentesComplemento = [];
+        const desatualizadosExtensao = [];
 
         todosProcsEquipe.forEach(p => {
             const analises = analisarObservacaoCompleta(p.obs);
             const pendentes = analises.filter(a => a.pendente);
+            const desat = analises.filter(a => a.extensaoDesatualizada);
+
             if (pendentes.length > 0) {
                 const tiposFalta = pendentes.map(a => a.faltaLabel || a.tipo).join(", ");
                 pendentesComplemento.push({
@@ -3682,10 +4160,19 @@
                     falta: tiposFalta
                 });
             }
+
+            if (desat.length > 0) {
+                desatualizadosExtensao.push({
+                    servidor: p.servidor,
+                    npu: p.npu,
+                    vara: p.vara || "Não informada",
+                    obs: p.obs
+                });
+            }
         });
 
         texto += `--------------------------------------------------\n`;
-        texto += `📌 VERIFICAÇÃO DE DATAS / TEMAS / COMPLEMENTOS\n`;
+        texto += `📌 VERIFICAÇÃO DE DATAS / TEMAS / COMPLEMENTOS / EXTENSÃO\n`;
         texto += `--------------------------------------------------\n\n`;
 
         if (pendentesComplemento.length > 0) {
@@ -3693,8 +4180,17 @@
             pendentesComplemento.forEach(item => {
                 texto += `❌ Servidor: ${item.servidor} / NPU: ${item.npu} / Vara: ${item.vara} / Observação: ${item.obs} / Falta preencher: ${item.falta}\n`;
             });
+            texto += `\n`;
         } else {
-            texto += `✅ Datas/TEMAS/complementos devidamente preenchidos.\n`;
+            texto += `✅ Datas/TEMAS/complementos devidamente preenchidos.\n\n`;
+        }
+
+        if (desatualizadosExtensao.length > 0) {
+            texto += `🚨 ATENÇÃO (EXTENSÃO DESATUALIZADA): Orientar servidores a atualizar a extensão do SIMAP:\n`;
+            desatualizadosExtensao.forEach(item => {
+                texto += `⚠️ Servidor: ${item.servidor} / NPU: ${item.npu} / Observação: ${item.obs} (Versão Antiga SISCONDJ)\n`;
+            });
+            texto += `\n`;
         }
         texto += `\n`;
 
@@ -3795,12 +4291,19 @@
             });
         }
 
-        // Filtro por Pendência de Observação
+        // Filtro por Pendência de Observação / Extensão
         const obsPendingFiltro = document.getElementById('queueFilterObsPending').value;
-        if (obsPendingFiltro === "pendente") {
+        if (obsPendingFiltro !== "todos") {
             filtrados = filtrados.filter(p => {
                 const analises = analisarObservacaoCompleta(p.obs);
-                return analises.some(a => a.pendente);
+                if (obsPendingFiltro === "pendente") {
+                    return analises.some(a => a.pendente || a.extensaoDesatualizada);
+                } else if (obsPendingFiltro === "pendente_complemento") {
+                    return analises.some(a => a.pendente);
+                } else if (obsPendingFiltro === "pendente_extensao") {
+                    return analises.some(a => a.extensaoDesatualizada);
+                }
+                return true;
             });
         }
 
@@ -3875,6 +4378,9 @@
                     if (analise.tipo.includes("DÚVIDA") || analise.tipo.includes("SUPERVISÃO")) {
                         badgeCor = "rgba(239, 68, 68, 0.15)";
                         badgeTextoCor = "#f87171";
+                    } else if (analise.extensaoDesatualizada || analise.tipo.includes("Versão Antiga") || analise.tipo.includes("Alvará ou Vinculação")) {
+                        badgeCor = "rgba(239, 68, 68, 0.15)";
+                        badgeTextoCor = "#f87171";
                     } else if (analise.tipo.includes("SUSPENSO")) {
                         badgeCor = "rgba(59, 130, 246, 0.15)";
                         badgeTextoCor = "#60a5fa";
@@ -3896,11 +4402,15 @@
                     
                     let alertaPendencia = "";
                     if (analise.pendente) {
-                        alertaPendencia = `<span style="color: var(--accent-warning); font-weight: bold; margin-left: 5px;" title="Complemento pendente ou incorreto!">⚠️ PENDENTE</span>`;
+                        alertaPendencia = `<span style="color: var(--accent-warning); font-weight: bold; margin-left: 5px;" title="Complemento pendente ou incorreto!">⚠️ PENDENTE COMPLEMENTO</span>`;
+                    }
+                    let alertaExtensao = "";
+                    if (analise.extensaoDesatualizada) {
+                        alertaExtensao = `<span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-left: 5px; display: inline-block;" title="Aviso para o Supervisor: orientar o servidor a atualizar a versão da extensão do SIMAP">⚠️ Orientar servidor a atualizar extensão</span>`;
                     }
                     
                     if (analise.tipo !== "Outra / Personalizada") {
-                        return `<div style="margin-bottom: 4px;"><span style="${badgeStyle}">${analise.tipo}</span> ${analise.complemento ? `<span style="opacity:0.85;">${analise.complemento}</span>` : ""}${alertaPendencia}</div>`;
+                        return `<div style="margin-bottom: 4px;"><span style="${badgeStyle}">${analise.tipo}</span> ${analise.complemento ? `<span style="opacity:0.85;">${analise.complemento}</span>` : ""}${alertaExtensao}${alertaPendencia}</div>`;
                     } else {
                         return `<div style="margin-bottom: 4px;"><span style="font-style: italic; opacity: 0.7;">${analise.original}</span></div>`;
                     }
@@ -4824,13 +5334,16 @@
         const header = matriz[0].map(h => String(h || "").toUpperCase().trim());
         let idxProcesso = header.findIndex(h => h.includes("PROCESSO") || h === "NPU" || h.includes("N.º"));
         if (idxProcesso < 0) idxProcesso = 1; // Fallback para coluna B
+        let idxData = header.findIndex(h => h.includes("DATA") || h.includes("RETORNO") || h.includes("INCLUSÃO") || h.includes("INCLUSAO"));
 
         for (let i = 1; i < matriz.length; i++) {
             const r = matriz[i];
             const processo = String(r[idxProcesso] || "").trim();
             if (!processo || processo.toUpperCase() === "NPU" || processo.toUpperCase() === "PROCESSO") continue;
+            let dataItem = idxData >= 0 ? String(r[idxData] || "").trim() : "";
             CONTROLE_SERPREC_MASTER_LIST.push({
                 processo: processo,
+                data: dataItem,
                 linhaOriginal: i
             });
         }
@@ -4938,14 +5451,17 @@
             const header = matriz[0].map(h => String(h || "").toUpperCase().trim());
             let idxProcesso = header.findIndex(h => h.includes("PROCESSO") || h === "NPU" || h.includes("N.º"));
             if (idxProcesso < 0) idxProcesso = 1; // Coluna B como fallback
+            let idxData = header.findIndex(h => h.includes("DATA") || h.includes("RETORNO") || h.includes("INCLUSÃO") || h.includes("INCLUSAO"));
             
             for (let i = 1; i < matriz.length; i++) {
                 const r = matriz[i];
                 const processo = String(r[idxProcesso] || "").trim();
                 if (!processo || processo.toUpperCase() === "NPU" || processo.toUpperCase() === "PROCESSO") continue;
+                let dataItem = idxData >= 0 ? String(r[idxData] || "").trim() : "";
                 RECJUD_LEILAO_MASTER_LIST.push({
                     processo: processo,
                     aba: nomeAba,
+                    data: dataItem,
                     linhaOriginal: i
                 });
             }
@@ -4999,6 +5515,71 @@
 
         logDebug("Serprec filtrados para supervisor '" + supervisorSel + "': " + SERPREC_FILTRADAS.length);
 
+        // Atualiza Badges do Índice do Gestores
+        const bAud = document.getElementById('navBadge_GestoresAud');
+        const bCanc = document.getElementById('navBadge_GestoresCanc');
+        const bRes = document.getElementById('navBadge_GestoresResumo');
+        const bDet = document.getElementById('navBadge_GestoresDetalhes');
+        if (bAud) bAud.innerText = typeof AUDIENCIAS_FILTRADAS !== 'undefined' ? AUDIENCIAS_FILTRADAS.length : 0;
+        if (bCanc) bCanc.innerText = typeof CANCELAMENTOS_FILTRADOS !== 'undefined' ? CANCELAMENTOS_FILTRADOS.length : 0;
+        if (bRes) bRes.innerText = SERPREC_FILTRADAS.length;
+        if (bDet) bDet.innerText = SERPREC_FILTRADAS.length;
+
+        // Listener para botão Apagar Analisados
+        const btnApagarAnalisados = document.getElementById('btnApagarAnalisados');
+        if (btnApagarAnalisados && !btnApagarAnalisados.dataset.bound) {
+            btnApagarAnalisados.dataset.bound = "true";
+            btnApagarAnalisados.onclick = () => {
+                const supSel = txtSupervisor.value || selectEquipe.value;
+                if (!confirm('😸 Pense bem! deseja apagar as informações contidas da coluna "analisados"? Serão apagadas tanto no painel Tontom e quanto na planilha gestores')) return;
+
+                const webAppUrl = document.getElementById('txtWebAppUrl').value.trim();
+                if (!webAppUrl) {
+                    alert("Configure a URL do Web App nas Configurações para realizar a limpeza na planilha.");
+                    return;
+                }
+
+                const btn = btnApagarAnalisados;
+                const origText = btn.innerText;
+                btn.innerText = "⏳ Apagando...";
+                btn.disabled = true;
+
+                const npusToClear = SERPREC_FILTRADAS.map(s => s.processo.replace(/\D/g, ""));
+                const encodedNpus = encodeURIComponent(JSON.stringify(npusToClear));
+                const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=apagarAnalisados&supervisor=${encodeURIComponent(supSel)}&data=${encodedNpus}&callback=cbApagarAnalisados`;
+
+                carregarJsonp(url, "cbApagarAnalisados", function(res) {
+                    btn.innerText = origText;
+                    btn.disabled = false;
+                    if (res && res.status === "success") {
+                        alert("Análises zeradas com sucesso! As pendências da semana foram reiniciadas.");
+                        SERPREC_FILTRADAS.forEach(s => {
+                            s.analisado = "";
+                            if (SERPREC_MODIFIED[s.processo]) delete SERPREC_MODIFIED[s.processo].analisado;
+                        });
+                        atualizarExibicaoSerprec();
+                    } else {
+                        alert("Erro ao zerar análises: " + (res ? res.message : "Erro desconhecido"));
+                    }
+                }, function() {
+                    btn.innerText = origText;
+                    btn.disabled = false;
+                    alert("Erro de rede ao conectar com o Web App.");
+                });
+            };
+        }
+
+        // Listener para botão Expandir/Recolher Observações
+        const btnToggleAllObs = document.getElementById('btnToggleAllSerprecObs');
+        if (btnToggleAllObs && !btnToggleAllObs.dataset.bound) {
+            btnToggleAllObs.dataset.bound = "true";
+            btnToggleAllObs.onclick = () => {
+                window.serprecAllObsExpanded = !window.serprecAllObsExpanded;
+                btnToggleAllObs.innerText = window.serprecAllObsExpanded ? "▲ Recolher Obs" : "↕️ Expandir/Recolher Obs";
+                atualizarExibicaoSerprec();
+            };
+        }
+
         // Separação das situações em "VINCULAÇÃO DE CONTA" e "ERRO DE FLUXO/SISTEMA"
         let vincItems = SERPREC_FILTRADAS.filter(s => s.origem.toUpperCase().includes("VINCULA") || s.origem.toUpperCase().includes("CONTA"));
         let erroItems = SERPREC_FILTRADAS.filter(s => s.origem.toUpperCase().includes("ERRO") || s.origem.toUpperCase().includes("FLUXO") || s.origem.toUpperCase().includes("SISTEMA"));
@@ -5010,8 +5591,10 @@
                 const sitVal = edit ? edit.situacao : s.situacao;
                 const anaVal = edit ? edit.analisado : s.analisado;
                 
-                return (sitVal && (sitVal.toUpperCase().includes("RESOLVIDO") || sitVal.toUpperCase().includes("SISCON - NÃO É"))) ||
-                       (anaVal && (anaVal === "Sim" || anaVal === "Excluir ABA GESTORES"));
+                const temAnalise = (anaVal && anaVal.trim() !== "" && anaVal !== "APAGAR");
+                const temSituacaoResolvida = (sitVal && (sitVal.toUpperCase().includes("RESOLVIDO") || sitVal.toUpperCase().includes("SISCON - NÃO É")));
+                
+                return temAnalise || temSituacaoResolvida;
             }).length;
             let saldo = total - cumpridos;
             return { total, cumpridos, saldo };
@@ -5056,13 +5639,27 @@
         document.getElementById('valSerprecCumprido').innerText = totalCumpridos;
         document.getElementById('valSerprecSaldo').innerText = totalSaldo;
 
+        // Filtro por Origem na Tabela de Detalhes
+        const filtroOrigem = document.getElementById('selectFiltroOrigemSerprec')?.value || "TODOS";
+        let listaExibicao = SERPREC_FILTRADAS;
+        if (filtroOrigem === "VINCULACAO") {
+            listaExibicao = SERPREC_FILTRADAS.filter(s => s.origem.toUpperCase().includes("VINCULA") || s.origem.toUpperCase().includes("CONTA"));
+        } else if (filtroOrigem === "ERRO") {
+            listaExibicao = SERPREC_FILTRADAS.filter(s => s.origem.toUpperCase().includes("ERRO") || s.origem.toUpperCase().includes("FLUXO") || s.origem.toUpperCase().includes("SISTEMA"));
+        }
+
+        const lblSummary = document.getElementById('lblSummaryFilter_GestoresDetalhes');
+        if (lblSummary) {
+            lblSummary.innerText = `Exibindo ${listaExibicao.length} de ${SERPREC_FILTRADAS.length} processos`;
+        }
+
         const tbody = document.getElementById('tbodySerprec');
         tbody.innerHTML = "";
 
         const btnSubmit = document.getElementById('btnSubmitSerprec');
         const hasChanges = Object.keys(SERPREC_MODIFIED).length > 0;
 
-        if (SERPREC_FILTRADAS.length === 0) {
+        if (listaExibicao.length === 0) {
             document.getElementById('serprecNoData').style.display = 'block';
             document.getElementById('serprecTableContainer').style.display = 'none';
             btnSubmit.style.display = 'none';
@@ -5098,24 +5695,15 @@
             "Manter nas duas"
         ];
 
-        SERPREC_FILTRADAS.forEach(s => {
+        listaExibicao.forEach(s => {
             const edit = SERPREC_MODIFIED[s.processo] || {};
             const sitVal = edit.situacao !== undefined ? edit.situacao : s.situacao;
-            
-            // Regra do início da semana (segunda-feira = 1): se for segunda-feira e a coluna "analisado" carregada da planilha for "Sim", força a exibição em branco na UI para nova avaliação.
-            const hoje = new Date();
-            const isSegundaFeira = hoje.getDay() === 1;
-            let loadedAnalisado = s.analisado;
-            if (isSegundaFeira && loadedAnalisado === "Sim") {
-                loadedAnalisado = "";
-            }
-            
-            const anaVal = edit.analisado !== undefined ? edit.analisado : loadedAnalisado;
+            const anaVal = edit.analisado !== undefined ? edit.analisado : s.analisado;
             const addObsVal = edit.adicionarObs !== undefined ? edit.adicionarObs : "";
             const retVal = edit.dataRetorno !== undefined ? edit.dataRetorno : s.dataRetorno;
 
             const isLocalResolved = (sitVal && (sitVal.toUpperCase().includes("RESOLVIDO") || sitVal.toUpperCase().includes("SISCON - NÃO É"))) ||
-                                   (anaVal && (anaVal === "Sim" || anaVal === "Excluir ABA GESTORES"));
+                                   (anaVal && anaVal.trim() !== "" && anaVal !== "APAGAR");
 
             const tr = document.createElement('tr');
             if (isLocalResolved) {
@@ -5139,14 +5727,37 @@
             tdUnidade.innerText = s.unidadeJudiciaria || "-";
             tr.appendChild(tdUnidade);
 
-            // Coluna Observação Existente
+            // Coluna Observação Existente (Com suporte a expandir/recolher individual e global)
             const tdObs = document.createElement('td');
-            tdObs.innerText = s.observacao || "-";
             tdObs.style.fontSize = "11px";
-            tdObs.style.maxWidth = "200px";
-            tdObs.style.overflow = "hidden";
-            tdObs.style.textOverflow = "ellipsis";
-            tdObs.title = s.observacao || "";
+            tdObs.style.maxWidth = "240px";
+            tdObs.style.wordBreak = "break-word";
+
+            const obsText = s.observacao || "-";
+            if (obsText.length > 70 || obsText.includes("\n")) {
+                const truncatedText = obsText.substring(0, 70) + "...";
+                const spanText = document.createElement('span');
+                spanText.className = "obs-content";
+                spanText.innerText = window.serprecAllObsExpanded ? obsText : truncatedText;
+                
+                const btnToggleSingle = document.createElement('button');
+                btnToggleSingle.type = "button";
+                btnToggleSingle.className = "btn-link-obs";
+                btnToggleSingle.style.cssText = "display: block; margin-top: 4px; border: none; background: none; color: var(--accent-info); font-size: 10px; cursor: pointer; text-decoration: underline; padding: 0;";
+                btnToggleSingle.innerText = window.serprecAllObsExpanded ? "▲ Recolher" : "👁️ Ver mais";
+                
+                let isRowExpanded = window.serprecAllObsExpanded;
+                btnToggleSingle.onclick = () => {
+                    isRowExpanded = !isRowExpanded;
+                    spanText.innerText = isRowExpanded ? obsText : truncatedText;
+                    btnToggleSingle.innerText = isRowExpanded ? "▲ Recolher" : "👁️ Ver mais";
+                };
+                
+                tdObs.appendChild(spanText);
+                tdObs.appendChild(btnToggleSingle);
+            } else {
+                tdObs.innerText = obsText;
+            }
             tr.appendChild(tdObs);
 
             // Coluna Dropdown Situação
@@ -5357,6 +5968,7 @@
         "MARIA LUCIANA DA SILVA": "Maria Luciana",
         "MARCELLE SÁ CARNEIRO MENDONÇA": "Marcelle Sá",
         "MARCELLE SA CARNEIRO MENDONCA": "Marcelle Sá",
+        "MARCIA RODRIGUES DE OLIVEIRA": "Márcia Rodrigues",
         "MARTA MARIA BARBOSA": "Marta Barbosa",
         "MOYSA MARIA DE SOUZA LEAO SALES": "Moysa Maria",
         "TAYSSA MAYARA PEDERNEIRAS PAZ": "Tayssa Mayara",
@@ -5376,6 +5988,7 @@
 
         // Equipe 3
         "ADRIANA MINDELO CAVALCANTI DE ALBUQUERQUE": "Adriana Mindelo",
+        "BIANCA ARAUJO DA SILVA": "BIANCA ARAUJO ",
         "CARLOS EDUARDO GOMES DE MELO": "Carlos Eduardo",
         "EVERSON PAULO DO NASCIMENTO": "Everson Paulo",
         "LUCIANA TEIXEIRA DE MAGALHAES": "Luciana Magalhães",
@@ -5444,6 +6057,7 @@
         "THALLES SIZENANDO AZEVEDO DIAS": "Thalles Dias",
 
         // Equipe 9
+        "ANA CRISTINA PEDROSA FREIRE DE SA": "ANA CRISTINA",
         "ALUSKA SUYANNE MARQUES DA SILVA": "Aluska Suyanne",
         "ELISA CARLA CAMPOS TAVARES": "Elisa Carla",
         "ERICKSON MOURA DE QUEIROZ": "Erickson Moura",
@@ -5470,11 +6084,18 @@
         "DIEGO MOURA DA SILVA LOPES": "Diego Lopes",
         "ELBA MARIA BARROS GALIZA PINHEIRO": "Elba Pinheiro",
         "GUILHERME ALBERTI LUPCHINSKI": "Guilherme Lupchinski",
+        "GEMMA GONCALVES DE ARAUJO GONDIM": "GEMMA GONCALVES ",
         "JAQUELINE GONDIM SOTERO SIQUEIRA": "Jaqueline Gondim",
         "LAURA BUARQUE INACIO DE BARROS": "Laura Buarque",
         "NILSON JOSE GONCALVES DOS SANTOS SILVA": "Nilson Silva",
         "ROSELYNE BEZERRA SMITH": "Roselyne Smith",
-        "MICHELLE MARIA NASCIMENTO FILGUEIRAS": "Michelle Filgueiras"
+        "MICHELLE MARIA NASCIMENTO FILGUEIRAS": "Michelle Filgueiras",
+
+        // SCGA (GT)
+        "GUSTAVO GOMES DE OLIVEIRA": "GUSTAVO GOMES", 
+        "MANOEL PORFIRIO DE ARAUJO FILHO": "MANOEL FILHO", 
+        "BRENDA CRISTINE PACHECO DE OLIVEIRA": "BRENDA CRISTINE", 
+        "NAYRA CELLE BELTRAO AGUIAR": "NAYRA CELLE"
     };
 
     let LISTA_SERVIDORES_RESUMIDOS = [];
@@ -5640,6 +6261,7 @@
         const section = document.getElementById('directionMigrationSection');
         const tbody = document.getElementById('tbodyMigration');
         const badge = document.getElementById('badgeMigrationCount');
+        const lblSummary = document.getElementById('lblSummaryFilter_Diretoria');
         if (!section || !tbody || !badge) return;
 
         tbody.innerHTML = "";
@@ -5651,7 +6273,6 @@
             const ehErroFluxo = obsNorm.includes("ERRO DE FLUXO");
 
             if (ehErroFluxo) {
-                // Mantém apenas a(s) linha(s) de Erro de Fluxo
                 const linhasObs = p.obs.split('\n').filter(line => normalizar(line).includes("ERRO DE FLUXO"));
                 const obsFiltrada = linhasObs.join('\n');
                 const matchChamado = obsFiltrada.match(/\b\d{4,9}\b/);
@@ -5673,13 +6294,11 @@
                 }
             }
 
-            const ehSiscondj = obsNorm.includes("SISCONDJ") || obsNorm.includes("VINCULACAO DE CONTA");
-            const temAlvara = obsNorm.includes("ALVARA");
-            if (ehSiscondj && !temAlvara) {
-                // Mantém apenas a(s) linha(s) de Siscondj / Vinculação
+            const ehSiscondj = obsNorm.includes("VINCULACAO DE CONTA") || (obsNorm.includes("SISCONDJ") && obsNorm.includes("VINCULACAO"));
+            if (ehSiscondj) {
                 const linhasObs = p.obs.split('\n').filter(line => {
                     const normLine = normalizar(line);
-                    return normLine.includes("SISCONDJ") || normLine.includes("VINCULACAO DE CONTA");
+                    return normLine.includes("VINCULACAO DE CONTA") || (normLine.includes("SISCONDJ") && normLine.includes("VINCULACAO"));
                 });
                 const obsFiltrada = linhasObs.join('\n');
                 const servResumido = encontrarNomeResumido(p.servidor);
@@ -5699,16 +6318,91 @@
         });
 
         badge.innerText = CANDIDATOS_MIGRACAO.length;
+        const navBadgeDiretoria = document.getElementById('navBadge_Diretoria');
+        if (navBadgeDiretoria) navBadgeDiretoria.innerText = CANDIDATOS_MIGRACAO.length;
+
         if (CANDIDATOS_MIGRACAO.length === 0) {
             badge.style.display = 'none';
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 20px;">Nenhum processo candidato a migração encontrado na fila atual do SIMAP.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 20px;">Nenhum processo candidato a migração encontrado na fila atual do SIMAP.</td></tr>`;
+            if (lblSummary) lblSummary.innerText = "Exibindo 0 de 0 processos";
             return;
         }
 
         badge.style.display = 'inline-block';
+
+        const hideMigrated = document.getElementById('chkFilterHideMigrated_Diretoria')?.checked ?? true;
+        const hideIgnored = document.getElementById('chkFilterHideIgnored_Diretoria')?.checked ?? true;
+        const searchTxt = normalizar(document.getElementById('txtSearch_Diretoria')?.value || "");
+
+        let totalExibidos = 0;
+
         CANDIDATOS_MIGRACAO.forEach((cand, idx) => {
-            const tr = document.createElement('tr');
+            if (searchTxt) {
+                const textoLinha = normalizar(`${cand.vara} ${cand.processo} ${cand.origem} ${cand.servidor||""} ${cand.duplaGestores||""} ${cand.obsDestino||""} ${cand.tipo||""}`);
+                if (!textoLinha.includes(searchTxt)) return;
+            }
+
+            const cleanCandNpu = cand.processo.replace(/\D/g, "");
+            const baseCandNpu = cleanCandNpu.substring(0, 13);
             
+            const decisaoSalva = HISTORICO_DECISOES_MAP.get(baseCandNpu);
+            const ehMigradoLocal = decisaoSalva && decisaoSalva.acao === 'MIGRADO';
+            const ehIgnoradoLocal = decisaoSalva && decisaoSalva.acao === 'NAO_MIGRAR';
+
+            const registrosExistentesSerprec = baseCandNpu.length >= 13 ? SERPREC_MASTER_LIST.filter(item => {
+                const cleanItemNpu = String(item.processo || "").replace(/\D/g, "");
+                return cleanItemNpu.substring(0, 13) === baseCandNpu;
+            }) : [];
+            
+            const registrosExistentesControle = baseCandNpu.length >= 13 ? CONTROLE_SERPREC_MASTER_LIST.filter(item => {
+                const cleanItemNpu = String(item.processo || "").replace(/\D/g, "");
+                return cleanItemNpu.substring(0, 13) === baseCandNpu;
+            }) : [];
+
+            const jaExisteNaPlanilha = registrosExistentesSerprec.length > 0 || registrosExistentesControle.length > 0;
+            const ehJaMigrado = ehMigradoLocal || jaExisteNaPlanilha;
+            
+            let badgeExistente = "";
+            let btnAcaoHtml = "";
+            let isChecked = false;
+
+            if (ehMigradoLocal) {
+                badgeExistente = `<br><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Migrado pelo painel">✅ Migrado em ${decisaoSalva.data || 'recentemente'}</span>`;
+                btnAcaoHtml = `<span style="font-size: 10px; color: var(--text-muted);">Concluído</span>`;
+                isChecked = false;
+            } else if (ehIgnoradoLocal) {
+                badgeExistente = `<br><span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Definido para não migrar">🚫 Análise: NÃO MIGRAR (${decisaoSalva.data || 'Registrado'})</span>`;
+                btnAcaoHtml = `<button type="button" class="btn-theme" style="padding: 2px 6px; font-size: 10px; color: #10b981; border: 1px solid rgba(16,185,129,0.4);" onclick="window.reativarDecisaoNaoMigrar('${baseCandNpu}', 'ErroVinculacao')" title="Reativar candidato a migração">↩️ Reativar</button>`;
+                isChecked = false;
+            } else if (jaExisteNaPlanilha) {
+                const fontes = [];
+                if (registrosExistentesSerprec.length > 0) {
+                    const tiposUnicos = [...new Set(registrosExistentesSerprec.map(item => {
+                        const orig = String(item.origem || "").toUpperCase();
+                        if (orig.includes("ERRO DE FLUXO")) return "ERRO DE FLUXO";
+                        if (orig.includes("SISCONDJ")) return "SISCONDJ";
+                        return "Outro";
+                    }))];
+                    fontes.push(`Gestores (${tiposUnicos.join(', ')})`);
+                }
+                if (registrosExistentesControle.length > 0) {
+                    fontes.push(`Controle (SERPREC)`);
+                }
+                badgeExistente = `<br><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Já consta na planilha de destino">⚠️ Já na planilha: ${fontes.join(' / ')}</span>`;
+                btnAcaoHtml = `<button type="button" class="btn-theme" style="padding: 2px 6px; font-size: 10px; color: #ef4444; border: 1px solid rgba(239,68,68,0.4);" onclick="window.marcarDecisaoNaoMigrar('${baseCandNpu}', 'ErroVinculacao')" title="Marcar que analisou e resolveu NÃO MIGRAR">🚫 Não Migrar</button>`;
+                isChecked = false;
+            } else {
+                btnAcaoHtml = `<button type="button" class="btn-theme" style="padding: 2px 6px; font-size: 10px; color: #94a3b8; border: 1px solid var(--border-glass);" onclick="window.marcarDecisaoNaoMigrar('${baseCandNpu}', 'ErroVinculacao')" title="Marcar para não migrar">🚫 Não Migrar</button>`;
+                isChecked = true;
+            }
+
+            const tr = document.createElement('tr');
+            if ((ehJaMigrado && hideMigrated) || (ehIgnoradoLocal && hideIgnored)) {
+                tr.style.display = 'none';
+            } else {
+                totalExibidos++;
+            }
+
             const datalistId = `dlServidores_${idx}`;
             let datalistOptions = "";
             LISTA_SERVIDORES_RESUMIDOS.forEach(s => {
@@ -5724,41 +6418,8 @@
 
             const spanDupla = `<span id="spanDupla_${idx}" style="font-weight: 500;">${cand.duplaGestores}</span>`;
 
-            // Verifica se o processo já está na planilha gestores ou de controle (base de 13 dígitos para evitar divergência de formatação de comarca)
-            const cleanCandNpu = cand.processo.replace(/\D/g, "");
-            const baseCandNpu = cleanCandNpu.substring(0, 13);
-            
-            const registrosExistentesSerprec = baseCandNpu.length >= 13 ? SERPREC_MASTER_LIST.filter(item => {
-                const cleanItemNpu = String(item.processo || "").replace(/\D/g, "");
-                return cleanItemNpu.substring(0, 13) === baseCandNpu;
-            }) : [];
-            
-            const registrosExistentesControle = baseCandNpu.length >= 13 ? CONTROLE_SERPREC_MASTER_LIST.filter(item => {
-                const cleanItemNpu = String(item.processo || "").replace(/\D/g, "");
-                return cleanItemNpu.substring(0, 13) === baseCandNpu;
-            }) : [];
-
-            const jaExiste = registrosExistentesSerprec.length > 0 || registrosExistentesControle.length > 0;
-            let badgeExistente = "";
-            if (jaExiste) {
-                const fontes = [];
-                if (registrosExistentesSerprec.length > 0) {
-                    const tiposUnicos = [...new Set(registrosExistentesSerprec.map(item => {
-                        const orig = String(item.origem || "").toUpperCase();
-                        if (orig.includes("ERRO DE FLUXO")) return "ERRO DE FLUXO";
-                        if (orig.includes("SISCONDJ")) return "SISCONDJ";
-                        return "Outro";
-                    }))];
-                    fontes.push(`Gestores (ERRO/VINC: ${tiposUnicos.join(', ')})`);
-                }
-                if (registrosExistentesControle.length > 0) {
-                    fontes.push(`Controle (SERPREC)`);
-                }
-                badgeExistente = `<br><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Já migrado anteriormente">⚠️ Já na planilha: ${fontes.join(' / ')}</span>`;
-            }
-
             tr.innerHTML = `
-                <td style="text-align: center;"><input type="checkbox" class="chk-migration-item" data-idx="${idx}" ${jaExiste ? "" : "checked"}></td>
+                <td style="text-align: center;"><input type="checkbox" class="chk-migration-item" data-idx="${idx}" ${isChecked ? "checked" : ""}></td>
                 <td>${cand.vara || "Não informada"}</td>
                 <td style="font-weight: 600;">
                     ${cand.processo}
@@ -5770,14 +6431,20 @@
                 </td>
                 <td>${inputServidor}</td>
                 <td>${spanDupla}</td>
+                <td style="text-align: center;">${btnAcaoHtml}</td>
             `;
             tbody.appendChild(tr);
         });
+
+        if (lblSummary) {
+            lblSummary.innerText = `Exibindo ${totalExibidos} de ${CANDIDATOS_MIGRACAO.length} processos`;
+        }
     }
 
     function atualizarPainelRecjudLeilao() {
         const tbody = document.getElementById('tbodyRecjudLeilao');
         const badge = document.getElementById('badgeRecjudLeilaoCount');
+        const lblSummary = document.getElementById('lblSummaryFilter_Recjud');
         if (!tbody || !badge) return;
 
         tbody.innerHTML = "";
@@ -5786,23 +6453,25 @@
         SIMAP_PROCESS_LIST.forEach(p => {
             if (!p.obs || !p.servidor) return;
             const obsNorm = normalizar(p.obs);
-            const ehRecjud = obsNorm.includes("RECJUD");
-            const ehLeilao = obsNorm.includes("LEILAO") || obsNorm.includes("LEILÃO");
 
-            if (ehRecjud || ehLeilao) {
-                // Mantém apenas a(s) linha(s) relevantes
+            const ehLeilao = obsNorm.includes("*LEILAO") || obsNorm.includes("*LEILÃO");
+            const ehRecJud = obsNorm.includes("*REC. JUD./FALENCIA") || obsNorm.includes("*REC. JUD./FALÊNCIA") || obsNorm.includes("*REC JUD");
+
+            let tipo = "";
+            if (ehLeilao && ehRecJud) {
+                tipo = "AMBOS";
+            } else if (ehLeilao) {
+                tipo = "LEILÃO";
+            } else if (ehRecJud) {
+                tipo = "RECJUD";
+            }
+
+            if (tipo !== "") {
                 const linhasObs = p.obs.split('\n').filter(line => {
                     const norm = normalizar(line);
-                    return norm.includes("RECJUD") || norm.includes("LEILAO") || norm.includes("LEILÃO");
+                    return norm.includes("*LEILAO") || norm.includes("*LEILÃO") || norm.includes("*REC. JUD.") || norm.includes("*REC JUD");
                 });
                 const obsFiltrada = linhasObs.join('\n');
-
-                let tipo = "RECJUD";
-                if (ehLeilao && !ehRecjud) {
-                    tipo = "LEILÃO";
-                } else if (ehRecjud && ehLeilao) {
-                    tipo = "AMBOS";
-                }
 
                 CANDIDATOS_RECJUD_LEILAO.push({
                     vara: p.vara || "Não informada",
@@ -5816,21 +6485,38 @@
         });
 
         badge.innerText = CANDIDATOS_RECJUD_LEILAO.length;
+        const navBadgeRecjud = document.getElementById('navBadge_Recjud');
+        if (navBadgeRecjud) navBadgeRecjud.innerText = CANDIDATOS_RECJUD_LEILAO.length;
+
         if (CANDIDATOS_RECJUD_LEILAO.length === 0) {
             badge.style.display = 'none';
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 20px;">Nenhum processo candidato a migração de RECJUD ou LEILÃO encontrado na fila atual do SIMAP.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 20px;">Nenhum processo candidato a migração de RECJUD ou LEILÃO encontrado na fila atual do SIMAP.</td></tr>`;
+            if (lblSummary) lblSummary.innerText = "Exibindo 0 de 0 processos";
             return;
         }
 
         badge.style.display = 'inline-block';
+
+        const hideMigrated = document.getElementById('chkFilterHideMigrated_Recjud')?.checked ?? true;
+        const hideIgnored = document.getElementById('chkFilterHideIgnored_Recjud')?.checked ?? true;
+        const searchTxt = normalizar(document.getElementById('txtSearch_Recjud')?.value || "");
+
+        let totalExibidos = 0;
+
         CANDIDATOS_RECJUD_LEILAO.forEach((cand, idx) => {
-            const tr = document.createElement('tr');
-            
-            // Verifica se o processo já está na planilha de controle (base de 13 dígitos para evitar divergência de formatação de comarca)
+            if (searchTxt) {
+                const textoLinha = normalizar(`${cand.vara} ${cand.processo} ${cand.origem} ${cand.observacao} ${cand.tipo}`);
+                if (!textoLinha.includes(searchTxt)) return;
+            }
+
             const cleanCandNpu = cand.processo.replace(/\D/g, "");
             const baseCandNpu = cleanCandNpu.substring(0, 13);
-            
-            let jaExiste = false;
+
+            const decisaoSalva = HISTORICO_DECISOES_MAP.get(baseCandNpu);
+            const ehMigradoLocal = decisaoSalva && decisaoSalva.acao === 'MIGRADO';
+            const ehIgnoradoLocal = decisaoSalva && decisaoSalva.acao === 'NAO_MIGRAR';
+
+            let jaExistePlanilha = false;
             let abaExistente = "";
             if (baseCandNpu.length >= 13) {
                 const registroExistente = RECJUD_LEILAO_MASTER_LIST.find(item => {
@@ -5838,28 +6524,53 @@
                     return cleanItemNpu.substring(0, 13) === baseCandNpu;
                 });
                 if (registroExistente) {
-                    jaExiste = true;
+                    jaExistePlanilha = true;
                     abaExistente = registroExistente.aba;
                 }
             }
 
+            const ehJaMigrado = ehMigradoLocal || jaExistePlanilha;
+
             let badgeExistente = "";
-            if (jaExiste) {
-                badgeExistente = `<br><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Já migrado anteriormente">⚠️ Já no RECJUD/LEILÃO (Aba: ${abaExistente})</span>`;
+            let btnAcaoHtml = "";
+            let isChecked = false;
+
+            if (ehMigradoLocal) {
+                badgeExistente = `<br><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Migrado pelo painel">✅ Migrado em ${decisaoSalva.data || 'recentemente'}</span>`;
+                btnAcaoHtml = `<span style="font-size: 10px; color: var(--text-muted);">Concluído</span>`;
+                isChecked = false;
+            } else if (ehIgnoradoLocal) {
+                badgeExistente = `<br><span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Definido para não migrar">🚫 Análise: NÃO MIGRAR (${decisaoSalva.data || 'Registrado'})</span>`;
+                btnAcaoHtml = `<button type="button" class="btn-theme" style="padding: 2px 6px; font-size: 10px; color: #10b981; border: 1px solid rgba(16,185,129,0.4);" onclick="window.reativarDecisaoNaoMigrar('${baseCandNpu}', 'RecjudLeilao')" title="Reativar candidato a migração">↩️ Reativar</button>`;
+                isChecked = false;
+            } else if (jaExistePlanilha) {
+                badgeExistente = `<br><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Já migrado anteriormente">⚠️ Já no RECJUD/LEILÃO (${abaExistente})</span>`;
+                btnAcaoHtml = `<button type="button" class="btn-theme" style="padding: 2px 6px; font-size: 10px; color: #ef4444; border: 1px solid rgba(239,68,68,0.4);" onclick="window.marcarDecisaoNaoMigrar('${baseCandNpu}', 'RecjudLeilao')" title="Marcar que analisou e resolveu NÃO MIGRAR">🚫 Não Migrar</button>`;
+                isChecked = false;
+            } else {
+                btnAcaoHtml = `<button type="button" class="btn-theme" style="padding: 2px 6px; font-size: 10px; color: #94a3b8; border: 1px solid var(--border-glass);" onclick="window.marcarDecisaoNaoMigrar('${baseCandNpu}', 'RecjudLeilao')" title="Marcar para não migrar">🚫 Não Migrar</button>`;
+                isChecked = true;
             }
 
-            let badgeTipoColor = "rgba(168, 85, 247, 0.15)"; // Roxo para RECJUD
+            const tr = document.createElement('tr');
+            if ((ehJaMigrado && hideMigrated) || (ehIgnoradoLocal && hideIgnored)) {
+                tr.style.display = 'none';
+            } else {
+                totalExibidos++;
+            }
+
+            let badgeTipoColor = "rgba(168, 85, 247, 0.15)";
             let badgeTipoText = "RECJUD";
             if (cand.tipo === "LEILÃO") {
-                badgeTipoColor = "rgba(236, 72, 153, 0.15)"; // Rosa para LEILÃO
+                badgeTipoColor = "rgba(236, 72, 153, 0.15)";
                 badgeTipoText = "LEILÃO";
             } else if (cand.tipo === "AMBOS") {
-                badgeTipoColor = "rgba(234, 179, 8, 0.15)"; // Amarelo/Laranja para ambos
+                badgeTipoColor = "rgba(234, 179, 8, 0.15)";
                 badgeTipoText = "RECJUD / LEILÃO";
             }
 
             tr.innerHTML = `
-                <td style="text-align: center;"><input type="checkbox" class="chk-recjud-leilao-item" data-idx="${idx}" ${jaExiste ? "" : "checked"}></td>
+                <td style="text-align: center;"><input type="checkbox" class="chk-recjud-leilao-item" data-idx="${idx}" ${isChecked ? "checked" : ""}></td>
                 <td>${cand.vara}</td>
                 <td style="font-weight: 600;">
                     <a href="#" onclick="event.preventDefault(); navigator.clipboard.writeText('${cleanCandNpu}'); mostrarToastNPU('${cleanCandNpu}'); window.open('https://simap.svc.tjpe.jus.br/historico-servidor-processo#npu=${cleanCandNpu}', '_blank');" style="color: var(--accent-info); text-decoration: underline; font-weight: 600; cursor: pointer;">${cand.processo}</a>
@@ -5870,14 +6581,20 @@
                     <span class="badge" style="background: ${badgeTipoColor}; color: var(--text-primary); font-size:10px; margin-right:5px; padding:1px 4px; border-radius:3px;">${badgeTipoText}</span>
                     ${cand.observacao}
                 </td>
+                <td style="text-align: center;">${btnAcaoHtml}</td>
             `;
             tbody.appendChild(tr);
         });
+
+        if (lblSummary) {
+            lblSummary.innerText = `Exibindo ${totalExibidos} de ${CANDIDATOS_RECJUD_LEILAO.length} processos`;
+        }
     }
 
     function atualizarPainelControleSerprec() {
         const tbody = document.getElementById('tbodyControleSerprec');
         const badge = document.getElementById('badgeControleSerprecCount');
+        const lblSummary = document.getElementById('lblSummaryFilter_Serprec');
         if (!tbody || !badge) return;
 
         tbody.innerHTML = "";
@@ -5889,7 +6606,6 @@
             const ehPrecatorioRpv = obsNorm.includes("PRECATORIO/RPV") || obsNorm.includes("PRECATÓRIO/RPV");
 
             if (ehPrecatorioRpv) {
-                // Mantém apenas a(s) linha(s) de Precatório/RPV
                 const linhasObs = p.obs.split('\n').filter(line => {
                     const norm = normalizar(line);
                     return norm.includes("PRECATORIO/RPV") || norm.includes("PRECATÓRIO/RPV");
@@ -5899,7 +6615,7 @@
                 CANDIDATOS_CONTROLE_SERPREC.push({
                     vara: p.vara || "Não informada",
                     processo: p.npu,
-                    origem: p.servidor, // inside Simap, this is the servant
+                    origem: p.servidor,
                     observacao: obsFiltrada,
                     npuChave: p.chave
                 });
@@ -5907,30 +6623,80 @@
         });
 
         badge.innerText = CANDIDATOS_CONTROLE_SERPREC.length;
+        const navBadgeSerprec = document.getElementById('navBadge_Serprec');
+        if (navBadgeSerprec) navBadgeSerprec.innerText = CANDIDATOS_CONTROLE_SERPREC.length;
+
         if (CANDIDATOS_CONTROLE_SERPREC.length === 0) {
             badge.style.display = 'none';
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 20px;">Nenhum processo candidato a migração de Precatório/RPV encontrado na fila atual do SIMAP.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 20px;">Nenhum processo candidato a migração de Precatório/RPV encontrado na fila atual do SIMAP.</td></tr>`;
+            if (lblSummary) lblSummary.innerText = "Exibindo 0 de 0 processos";
             return;
         }
 
         badge.style.display = 'inline-block';
+
+        const hideMigrated = document.getElementById('chkFilterHideMigrated_Serprec')?.checked ?? true;
+        const hideIgnored = document.getElementById('chkFilterHideIgnored_Serprec')?.checked ?? true;
+        const searchTxt = normalizar(document.getElementById('txtSearch_Serprec')?.value || "");
+
+        let totalExibidos = 0;
+
         CANDIDATOS_CONTROLE_SERPREC.forEach((cand, idx) => {
-            const tr = document.createElement('tr');
-            
-            // Verifica se o processo já está na planilha de controle (base de 13 dígitos para evitar divergência de formatação de comarca)
+            if (searchTxt) {
+                const textoLinha = normalizar(`${cand.vara} ${cand.processo} ${cand.origem} ${cand.observacao}`);
+                if (!textoLinha.includes(searchTxt)) return;
+            }
+
             const cleanCandNpu = cand.processo.replace(/\D/g, "");
             const baseCandNpu = cleanCandNpu.substring(0, 13);
-            const jaExiste = baseCandNpu.length >= 13 && CONTROLE_SERPREC_MASTER_LIST.some(item => {
-                const cleanItemNpu = String(item.processo || "").replace(/\D/g, "");
-                return cleanItemNpu.substring(0, 13) === baseCandNpu;
-            });
+
+            const decisaoSalva = HISTORICO_DECISOES_MAP.get(baseCandNpu);
+            const ehMigradoLocal = decisaoSalva && decisaoSalva.acao === 'MIGRADO';
+            const ehIgnoradoLocal = decisaoSalva && decisaoSalva.acao === 'NAO_MIGRAR';
+
+            let jaExistePlanilha = false;
+            if (baseCandNpu.length >= 13) {
+                const registroExistente = CONTROLE_SERPREC_MASTER_LIST.find(item => {
+                    const cleanItemNpu = String(item.processo || "").replace(/\D/g, "");
+                    return cleanItemNpu.substring(0, 13) === baseCandNpu;
+                });
+                if (registroExistente) {
+                    jaExistePlanilha = true;
+                }
+            }
+
+            const ehJaMigrado = ehMigradoLocal || jaExistePlanilha;
+
             let badgeExistente = "";
-            if (jaExiste) {
+            let btnAcaoHtml = "";
+            let isChecked = false;
+
+            if (ehMigradoLocal) {
+                badgeExistente = `<br><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Migrado pelo painel">✅ Migrado em ${decisaoSalva.data || 'recentemente'}</span>`;
+                btnAcaoHtml = `<span style="font-size: 10px; color: var(--text-muted);">Concluído</span>`;
+                isChecked = false;
+            } else if (ehIgnoradoLocal) {
+                badgeExistente = `<br><span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Definido para não migrar">🚫 Análise: NÃO MIGRAR (${decisaoSalva.data || 'Registrado'})</span>`;
+                btnAcaoHtml = `<button type="button" class="btn-theme" style="padding: 2px 6px; font-size: 10px; color: #10b981; border: 1px solid rgba(16,185,129,0.4);" onclick="window.reativarDecisaoNaoMigrar('${baseCandNpu}', 'ControleSerprec')" title="Reativar candidato a migração">↩️ Reativar</button>`;
+                isChecked = false;
+            } else if (jaExistePlanilha) {
                 badgeExistente = `<br><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Já migrado anteriormente">⚠️ Já no Controle SERPREC</span>`;
+                btnAcaoHtml = `<button type="button" class="btn-theme" style="padding: 2px 6px; font-size: 10px; color: #ef4444; border: 1px solid rgba(239,68,68,0.4);" onclick="window.marcarDecisaoNaoMigrar('${baseCandNpu}', 'ControleSerprec')" title="Marcar que analisou e resolveu NÃO MIGRAR">🚫 Não Migrar</button>`;
+                isChecked = false;
+            } else {
+                btnAcaoHtml = `<button type="button" class="btn-theme" style="padding: 2px 6px; font-size: 10px; color: #94a3b8; border: 1px solid var(--border-glass);" onclick="window.marcarDecisaoNaoMigrar('${baseCandNpu}', 'ControleSerprec')" title="Marcar para não migrar">🚫 Não Migrar</button>`;
+                isChecked = true;
+            }
+
+            const tr = document.createElement('tr');
+            if ((ehMigradoLocal && hideMigrated) || (ehIgnoradoLocal && hideIgnored)) {
+                tr.style.display = 'none';
+            } else {
+                totalExibidos++;
             }
 
             tr.innerHTML = `
-                <td style="text-align: center;"><input type="checkbox" class="chk-controle-serprec-item" data-idx="${idx}" ${jaExiste ? "" : "checked"}></td>
+                <td style="text-align: center;"><input type="checkbox" class="chk-controle-serprec-item" data-idx="${idx}" ${isChecked ? "checked" : ""}></td>
                 <td>${cand.vara}</td>
                 <td style="font-weight: 600;">
                     <a href="#" onclick="event.preventDefault(); navigator.clipboard.writeText('${cleanCandNpu}'); mostrarToastNPU('${cleanCandNpu}'); window.open('https://simap.svc.tjpe.jus.br/historico-servidor-processo#npu=${cleanCandNpu}', '_blank');" style="color: var(--accent-info); text-decoration: underline; font-weight: 600; cursor: pointer;">${cand.processo}</a>
@@ -5941,9 +6707,14 @@
                     <span class="badge" style="background: rgba(14, 165, 233, 0.15); color: var(--accent-info); font-size:10px; margin-right:5px; padding:1px 4px; border-radius:3px;">SERPREC</span>
                     ${cand.observacao}
                 </td>
+                <td style="text-align: center;">${btnAcaoHtml}</td>
             `;
             tbody.appendChild(tr);
         });
+
+        if (lblSummary) {
+            lblSummary.innerText = `Exibindo ${totalExibidos} de ${CANDIDATOS_CONTROLE_SERPREC.length} processos`;
+        }
     }
 
     window.onServidorResumidoChange = function(idx, val) {
@@ -6008,25 +6779,20 @@
             npusRemover.push(cand.npuChave);
         });
 
-        const encodedData = encodeURIComponent(JSON.stringify(payload));
-        const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=migrarErroVinculacao&data=${encodedData}&callback=cbMigrateWrite`;
-
-        carregarJsonp(url, "cbMigrateWrite", function(response) {
-            btn.innerText = originalText;
-            btn.disabled = false;
-
-            if (response && response.status === "success") {
-                alert("Processos migrados com sucesso para a planilha gestores!");
+        enviarMigracaoChunked({
+            webAppUrl: webAppUrl,
+            action: 'migrarErroVinculacao',
+            payload: payload,
+            btnElement: btn,
+            originalBtnText: originalText,
+            successMessage: "Processos migrados com sucesso para a planilha gestores!",
+            onDone: () => {
+                const npusProcessos = payload.map(item => item.processo);
+                registrarMigracaoSucesso(npusProcessos, 'ErroVinculacao');
                 SIMAP_PROCESS_LIST = SIMAP_PROCESS_LIST.filter(p => !npusRemover.includes(p.chave));
                 processarDadosGerais();
                 atualizarPainelMigracaoDiretoria();
-            } else {
-                alert("Erro ao migrar: " + (response ? response.message : "Resposta inválida"));
             }
-        }, function() {
-            btn.innerText = originalText;
-            btn.disabled = false;
-            alert("Erro de rede ou no Web App.");
         });
     };
 
@@ -6077,25 +6843,20 @@
             npusRemover.push(cand.npuChave);
         });
 
-        const encodedData = encodeURIComponent(JSON.stringify(payload));
-        const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=migrarControleSerprec&data=${encodedData}&callback=cbControleSerprecWrite`;
-
-        carregarJsonp(url, "cbControleSerprecWrite", function(response) {
-            btn.innerText = originalText;
-            btn.disabled = false;
-
-            if (response && response.status === "success") {
-                alert("Processos migrados com sucesso para a planilha de Controle SERPREC!");
+        enviarMigracaoChunked({
+            webAppUrl: webAppUrl,
+            action: 'migrarControleSerprec',
+            payload: payload,
+            btnElement: btn,
+            originalBtnText: originalText,
+            successMessage: "Processos migrados com sucesso para a planilha de Controle SERPREC!",
+            onDone: () => {
+                const npusProcessos = payload.map(item => item.processo);
+                registrarMigracaoSucesso(npusProcessos, 'ControleSerprec');
                 SIMAP_PROCESS_LIST = SIMAP_PROCESS_LIST.filter(p => !npusRemover.includes(p.chave));
                 processarDadosGerais();
                 atualizarPainelControleSerprec();
-            } else {
-                alert("Erro ao migrar: " + (response ? response.message : "Resposta inválida"));
             }
-        }, function() {
-            btn.innerText = originalText;
-            btn.disabled = false;
-            alert("Erro de rede ou no Web App.");
         });
     };
 
@@ -6150,25 +6911,403 @@
         const recjudLeilaoUrl = document.getElementById('txtRecjudLeilaoSheetUrl').value.trim();
         const spreadsheetId = extrairSpreadsheetIdEGid(recjudLeilaoUrl).id;
 
-        const encodedData = encodeURIComponent(JSON.stringify(payload));
-        const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=migrarRecjudLeilao&spreadsheetId=${spreadsheetId}&data=${encodedData}&callback=cbRecjudLeilaoWrite`;
-
-        carregarJsonp(url, "cbRecjudLeilaoWrite", function(response) {
-            btn.innerText = originalText;
-            btn.disabled = false;
-
-            if (response && response.status === "success") {
-                alert("Processos migrados com sucesso para a planilha RECJUD/LEILÃO!");
+        enviarMigracaoChunked({
+            webAppUrl: webAppUrl,
+            action: 'migrarRecjudLeilao',
+            extraParamsObj: { spreadsheetId: spreadsheetId },
+            payload: payload,
+            btnElement: btn,
+            originalBtnText: originalText,
+            successMessage: "Processos migrados com sucesso para a planilha RECJUD/LEILÃO!",
+            onDone: () => {
+                const npusProcessos = payload.map(item => item.processo);
+                registrarMigracaoSucesso(npusProcessos, 'RecjudLeilao');
                 SIMAP_PROCESS_LIST = SIMAP_PROCESS_LIST.filter(p => !npusRemover.includes(p.chave));
                 processarDadosGerais();
                 atualizarPainelRecjudLeilao();
-            } else {
-                alert("Erro ao migrar: " + (response ? response.message : "Resposta inválida"));
             }
-        }, function() {
-            btn.innerText = originalText;
-            btn.disabled = false;
-            alert("Erro de rede ou no Web App.");
+        });
+    };
+
+    function carregarCentralAgilizacaoSuspensosMaster() {
+        const dot = document.getElementById('centralAgilizacaoSuspensosStatusDot');
+        const txt = document.getElementById('centralAgilizacaoSuspensosStatusText');
+        if (dot && txt) {
+            dot.className = "status-dot warning";
+            txt.innerText = "Planilha Controle: Conectando...";
+        }
+
+        const spreadsheetId = "1yOAupHFi0ERglZPTJ4yrXHPwBP8oemOfLAKFJ9zT9Po";
+        let cargAguardar = false, cargSuspensos = false;
+        let listAguardar = [], listSuspensos = [];
+
+        function checarFimCarga() {
+            if (cargAguardar && cargSuspensos) {
+                processarMatrizesCentralAgilizacaoSuspensos(listAguardar, listSuspensos);
+            }
+        }
+
+        const urlAguardar = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=responseHandler:cbCentralAguardarMaster&sheet=${encodeURIComponent('AGUARDAR RESP/PERÍCIA')}`;
+        const urlSuspensos = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=responseHandler:cbCentralSuspensosMaster&sheet=${encodeURIComponent('SUSPENSOS / ARQUIVADO PROVISÓRIO')}`;
+
+        carregarJsonp(urlAguardar, "cbCentralAguardarMaster", function(data) {
+            cargAguardar = true;
+            try {
+                if (data.status === "ok") listAguardar = converterGvizParaMatriz(data);
+            } catch(e) {}
+            checarFimCarga();
+        }, function() { cargAguardar = true; checarFimCarga(); });
+
+        carregarJsonp(urlSuspensos, "cbCentralSuspensosMaster", function(data) {
+            cargSuspensos = true;
+            try {
+                if (data.status === "ok") listSuspensos = converterGvizParaMatriz(data);
+            } catch(e) {}
+            checarFimCarga();
+        }, function() { cargSuspensos = true; checarFimCarga(); });
+    }
+
+    function processarMatrizesCentralAgilizacaoSuspensos(matrizAguardar, matrizSuspensos) {
+        CENTRAL_AGILIZACAO_SUSPENSOS_MASTER_LIST = [];
+
+        function parseAba(matriz, nomeAba) {
+            if (!matriz || matriz.length < 2) return;
+            const header = matriz[0].map(h => String(h || "").toUpperCase().trim());
+            let idxProc = header.findIndex(h => h.includes("PROCESSO") || h === "NPU" || h.includes("N.º"));
+            if (idxProc < 0) idxProc = 1;
+            let idxData = header.findIndex(h => h.includes("DATA") || h.includes("RETORNO") || h.includes("INCLUSÃO") || h.includes("INCLUSAO"));
+            if (idxData < 0) idxData = 3;
+
+            for (let i = 1; i < matriz.length; i++) {
+                const r = matriz[i];
+                const proc = String(r[idxProc] || "").trim();
+                if (!proc || proc.toUpperCase() === "NPU" || proc.toUpperCase() === "PROCESSO") continue;
+                let dataItem = idxData >= 0 ? String(r[idxData] || "").trim() : "";
+                CENTRAL_AGILIZACAO_SUSPENSOS_MASTER_LIST.push({
+                    processo: proc,
+                    aba: nomeAba,
+                    data: dataItem
+                });
+            }
+        }
+
+        parseAba(matrizAguardar, "AGUARDAR RESP/PERÍCIA");
+        parseAba(matrizSuspensos, "SUSPENSOS / ARQUIVADO PROVISÓRIO");
+
+        const dot = document.getElementById('centralAgilizacaoSuspensosStatusDot');
+        const txt = document.getElementById('centralAgilizacaoSuspensosStatusText');
+        if (dot && txt) {
+            dot.className = "status-dot success";
+            txt.innerText = "Planilha Controle: Conectada e atualizada com sucesso.";
+        }
+
+        atualizarPainelCentralAgilizacaoSuspensos();
+    }
+
+    function extrairDataValida(obsTexto) {
+        if (!obsTexto) return "";
+        // Remove qualquer padrão de NPU para não confundir dígitos do NPU com data
+        const textWithoutNpu = obsTexto
+            .replace(/\b\d{5,7}[-.]?\d{2}[-.]?\d{4}[-.]?\d[-.]?\d{2}[-.]?\d{4}\b/gi, "")
+            .replace(/\b\d{13,20}\b/g, "");
+
+        const dateMatch = textWithoutNpu.match(/\b(\d{1,2})[\/\.-](\d{1,2})(?:[\/\.-](\d{2,4}))?\b/);
+        if (!dateMatch) return "";
+
+        const diaInt = parseInt(dateMatch[1], 10);
+        const mesInt = parseInt(dateMatch[2], 10);
+        let anoStr = dateMatch[3];
+        let anoInt = anoStr ? parseInt(anoStr.length === 2 ? "20" + anoStr : anoStr, 10) : new Date().getFullYear();
+
+        if (diaInt >= 1 && diaInt <= 31 && mesInt >= 1 && mesInt <= 12 && anoInt >= 2024 && anoInt <= 2035) {
+            const dia = String(diaInt).padStart(2, '0');
+            const mes = String(mesInt).padStart(2, '0');
+            return `${dia}/${mes}/${anoInt}`;
+        }
+
+        return "";
+    }
+
+    function extrairInfoExtraLimpa(obsTexto, dataRetorno) {
+        if (!obsTexto) return "";
+        
+        let extra = "";
+        const extraMatch = obsTexto.match(/(?:\||:\s*)([^|\n]+)$/);
+        if (extraMatch) {
+            extra = extraMatch[1].trim();
+        } else {
+            extra = obsTexto
+                .replace(/\*?CENTRAL DE AGILIZAÇÃO \(SEM FLUXO\)/gi, "")
+                .replace(/\*?PRAZO ABERTO FORA DO SISTEMA/gi, "")
+                .replace(/\*?PROCESSO SUSPENSO \([^)]+\)/gi, "")
+                .replace(/\*?PROCESSO SUSPENSO/gi, "")
+                .replace(/\*?ARQUIVO PROVISÓRIO \([^)]+\)/gi, "")
+                .replace(/\*?ARQUIVO PROVISÓRIO/gi, "")
+                .trim();
+        }
+
+        if (!extra) return "";
+
+        let extraSemData = extra;
+        if (dataRetorno) {
+            extraSemData = extraSemData.replace(dataRetorno, "").trim();
+        }
+        extraSemData = extraSemData.replace(/\b\d{1,2}[\/\.-]\d{1,2}(?:[\/\.-]\d{2,4})?\b/g, "").trim();
+
+        extraSemData = extraSemData
+            .replace(/^(Data de Retorno|Data de retorno|Data|Retorno|Info|Lembrete|Detalhe)\s*[:|-]?\s*/gi, "")
+            .replace(/^[:|-]+\s*/g, "")
+            .replace(/[:|-]\s*$/g, "")
+            .trim();
+
+        if (!extraSemData || extraSemData.match(/^[|:.\s-]+$/)) {
+            return "";
+        }
+
+        return extraSemData;
+    }
+
+    function atualizarPainelCentralAgilizacaoSuspensos() {
+        const tbody = document.getElementById('tbodyCentralAgilizacaoSuspensos');
+        const badge = document.getElementById('badgeCentralAgilizacaoSuspensosCount');
+        const lblSummary = document.getElementById('lblSummaryFilter_CentralSuspensos');
+        if (!tbody || !badge) return;
+
+        tbody.innerHTML = "";
+        CANDIDATOS_CENTRAL_AGILIZACAO_SUSPENSOS = [];
+
+        SIMAP_PROCESS_LIST.forEach(p => {
+            if (!p.obs || !p.servidor) return;
+            const obsNorm = normalizar(p.obs);
+
+            const ehCentralAgilizacao = obsNorm.includes("CENTRAL DE AGILIZACAO (SEM FLUXO)") || obsNorm.includes("CENTRAL DE AGILIZACAO");
+            const ehPrazoAberto = obsNorm.includes("PRAZO ABERTO FORA DO SISTEMA");
+            const ehSuspensoTema = obsNorm.includes("PROCESSO SUSPENSO") && (obsNorm.includes("TEMA") || obsNorm.includes("CONEXA") || obsNorm.includes("OUTRA ACAO"));
+            const ehSuspensoDet = obsNorm.includes("PROCESSO SUSPENSO") && (obsNorm.includes("DETERMINACAO JUDICIAL") || obsNorm.includes("DATA DE RETORNO"));
+            const ehSuspensoResp = obsNorm.includes("PROCESSO SUSPENSO") && (obsNorm.includes("RESPOSTA DE PRECATORIA") || obsNorm.includes("PC 03/2021") || obsNorm.includes("PC 03/21"));
+            const ehSuspensoAgravo = obsNorm.includes("PROCESSO SUSPENSO") && (obsNorm.includes("AGRAVO") || obsNorm.includes("CONFLITO DE COMPETENCIA"));
+            const ehSuspensoGeral = obsNorm.includes("PROCESSO SUSPENSO");
+            const ehArquivoProv = obsNorm.includes("ARQUIVO PROVISORIO");
+
+            const ehCandidato = ehCentralAgilizacao || ehPrazoAberto || ehSuspensoGeral || ehArquivoProv;
+
+            if (ehCandidato) {
+                const linhasObs = p.obs.split('\n').filter(line => {
+                    const norm = normalizar(line);
+                    return norm.includes("CENTRAL DE AGILIZACAO") || 
+                           norm.includes("PRAZO ABERTO FORA DO SISTEMA") || 
+                           norm.includes("PROCESSO SUSPENSO") || 
+                           norm.includes("ARQUIVO PROVISORIO");
+                });
+                const obsTexto = linhasObs.length > 0 ? linhasObs.join('\n') : p.obs;
+
+                let dataRetorno = "";
+                let infoExtra = "";
+                let situacaoDestino = "";
+                let destAba = "";
+
+                dataRetorno = extrairDataValida(obsTexto);
+                infoExtra = extrairInfoExtraLimpa(obsTexto, dataRetorno);
+
+                if (ehCentralAgilizacao || ehPrazoAberto) {
+                    destAba = "AGUARDAR RESP/PERÍCIA";
+                    if (ehCentralAgilizacao) {
+                        situacaoDestino = "GABINETE DA CENTRAL DE AGILIZAÇÃO SEM FLUXO";
+                    } else {
+                        situacaoDestino = "PRAZO ABERTO FORA DO SISTEMA (informar data de retorno) (OFÍCIOS)";
+                    }
+                } else {
+                    destAba = "SUSPENSOS / ARQUIVADO PROVISÓRIO";
+                    if (ehSuspensoTema) {
+                        situacaoDestino = "SUSPENSO - TEMA/AÇÃO CONEXA/OUTRA AÇÃO - (informar nº do tema/ação na obs)";
+                    } else if (ehSuspensoResp) {
+                        situacaoDestino = "SUSPENSO - RESPOSTA DE PRECATÓRIA (PC 03/21)";
+                    } else if (ehSuspensoAgravo) {
+                        situacaoDestino = "SUSPENSO - JULG. AGRAVO/CONFLITO DE COMP. (PC 03/21)";
+                    } else if (ehArquivoProv) {
+                        situacaoDestino = "ARQUIVO PROVISÓRIO (informar data de retorno ou motivo na obs)";
+                        if (!dataRetorno && infoExtra) {
+                            dataRetorno = extrairDataValida(infoExtra);
+                            if (dataRetorno) {
+                                infoExtra = extrairInfoExtraLimpa(infoExtra, dataRetorno);
+                            }
+                        }
+                    } else {
+                        situacaoDestino = "PROCESSO SUSPENSO (Determinação judicial - informar data de retorno)";
+                    }
+                }
+
+                CANDIDATOS_CENTRAL_AGILIZACAO_SUSPENSOS.push({
+                    vara: p.vara || "Não informada",
+                    processo: p.npu,
+                    origem: p.servidor,
+                    observacao: obsTexto,
+                    situacao: situacaoDestino,
+                    dataRetorno: dataRetorno,
+                    obs: infoExtra,
+                    destAba: destAba,
+                    npuChave: p.chave
+                });
+            }
+        });
+
+        badge.innerText = CANDIDATOS_CENTRAL_AGILIZACAO_SUSPENSOS.length;
+        const navBadgeCentralSuspensos = document.getElementById('navBadge_CentralSuspensos');
+        if (navBadgeCentralSuspensos) navBadgeCentralSuspensos.innerText = CANDIDATOS_CENTRAL_AGILIZACAO_SUSPENSOS.length;
+
+        if (CANDIDATOS_CENTRAL_AGILIZACAO_SUSPENSOS.length === 0) {
+            badge.style.display = 'none';
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 20px;">Nenhum processo candidato a migração encontrado na fila atual do SIMAP.</td></tr>`;
+            if (lblSummary) lblSummary.innerText = "Exibindo 0 de 0 processos";
+            return;
+        }
+
+        badge.style.display = 'inline-block';
+
+        const hideMigrated = document.getElementById('chkFilterHideMigrated_CentralSuspensos')?.checked ?? true;
+        const hideIgnored = document.getElementById('chkFilterHideIgnored_CentralSuspensos')?.checked ?? true;
+        const searchTxt = normalizar(document.getElementById('txtSearch_CentralSuspensos')?.value || "");
+
+        let totalExibidos = 0;
+
+        CANDIDATOS_CENTRAL_AGILIZACAO_SUSPENSOS.forEach((cand, idx) => {
+            if (searchTxt) {
+                const textoLinha = normalizar(`${cand.vara} ${cand.processo} ${cand.origem} ${cand.observacao} ${cand.situacao} ${cand.dataRetorno} ${cand.destAba}`);
+                if (!textoLinha.includes(searchTxt)) return;
+            }
+
+            const cleanCandNpu = cand.processo.replace(/\D/g, "");
+            const baseCandNpu = cleanCandNpu.substring(0, 13);
+
+            const decisaoSalva = HISTORICO_DECISOES_MAP.get(baseCandNpu);
+            const ehMigradoLocal = decisaoSalva && decisaoSalva.acao === 'MIGRADO';
+            const ehIgnoradoLocal = decisaoSalva && decisaoSalva.acao === 'NAO_MIGRAR';
+
+            const itemExistente = baseCandNpu.length >= 13 ? CENTRAL_AGILIZACAO_SUSPENSOS_MASTER_LIST.find(item => {
+                const cleanItemNpu = String(item.processo || "").replace(/\D/g, "");
+                return cleanItemNpu.substring(0, 13) === baseCandNpu;
+            }) : null;
+
+            const ehJaMigrado = ehMigradoLocal || (itemExistente !== null);
+
+            let badgeExistente = "";
+            let btnAcaoHtml = "";
+            let isChecked = false;
+
+            if (ehMigradoLocal) {
+                badgeExistente = `<br><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Migrado pelo painel">✅ Migrado em ${decisaoSalva.data || 'recentemente'}</span>`;
+                btnAcaoHtml = `<span style="font-size: 10px; color: var(--text-muted);">Concluído</span>`;
+                isChecked = false;
+            } else if (ehIgnoradoLocal) {
+                badgeExistente = `<br><span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Definido para não migrar">🚫 Análise: NÃO MIGRAR (${decisaoSalva.data || 'Registrado'})</span>`;
+                btnAcaoHtml = `<button type="button" class="btn-theme" style="padding: 2px 6px; font-size: 10px; color: #10b981; border: 1px solid rgba(16,185,129,0.4);" onclick="window.reativarDecisaoNaoMigrar('${baseCandNpu}', 'CentralSuspensos')" title="Reativar candidato a migração">↩️ Reativar</button>`;
+                isChecked = false;
+            } else if (itemExistente) {
+                badgeExistente = `<br><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; margin-top: 3px; display: inline-block;" title="Já consta na planilha de destino">⚠️ Já na planilha: Controle (${itemExistente.aba})</span>`;
+                btnAcaoHtml = `<button type="button" class="btn-theme" style="padding: 2px 6px; font-size: 10px; color: #ef4444; border: 1px solid rgba(239,68,68,0.4);" onclick="window.marcarDecisaoNaoMigrar('${baseCandNpu}', 'CentralSuspensos')" title="Marcar que analisou e resolveu NÃO MIGRAR">🚫 Não Migrar</button>`;
+                isChecked = false;
+            } else {
+                btnAcaoHtml = `<button type="button" class="btn-theme" style="padding: 2px 6px; font-size: 10px; color: #94a3b8; border: 1px solid var(--border-glass);" onclick="window.marcarDecisaoNaoMigrar('${baseCandNpu}', 'CentralSuspensos')" title="Marcar para não migrar">🚫 Não Migrar</button>`;
+                isChecked = true;
+            }
+
+            const tr = document.createElement('tr');
+            if ((ehJaMigrado && hideMigrated) || (ehIgnoradoLocal && hideIgnored)) {
+                tr.style.display = 'none';
+            } else {
+                totalExibidos++;
+            }
+
+            tr.innerHTML = `
+                <td style="text-align: center;"><input type="checkbox" class="chk-central-suspensos-item" data-idx="${idx}" ${isChecked ? "checked" : ""}></td>
+                <td>${cand.vara}</td>
+                <td style="font-weight: 600;">
+                    <a href="#" onclick="event.preventDefault(); navigator.clipboard.writeText('${cleanCandNpu}'); mostrarToastNPU('${cleanCandNpu}'); window.open('https://simap.svc.tjpe.jus.br/historico-servidor-processo#npu=${cleanCandNpu}', '_blank');" style="color: var(--accent-success); text-decoration: underline; font-weight: 600; cursor: pointer;">${cand.processo}</a>
+                    ${badgeExistente}
+                </td>
+                <td>${cand.origem}</td>
+                <td>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-success); font-size:10px; margin-right:5px; padding:1px 4px; border-radius:3px;">${cand.destAba.includes('AGUARDAR') ? 'AGUARDAR' : 'SUSPENSO/ARQ'}</span>
+                    ${cand.observacao}
+                </td>
+                <td style="font-weight: bold; color: var(--accent-success);">${cand.dataRetorno || "-"}</td>
+                <td style="text-align: center;">${btnAcaoHtml}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        if (lblSummary) {
+            lblSummary.innerText = `Exibindo ${totalExibidos} de ${CANDIDATOS_CENTRAL_AGILIZACAO_SUSPENSOS.length} processos`;
+        }
+    }
+
+    document.getElementById('chkSelectAllCentralAgilizacaoSuspensos').onclick = function() {
+        const checkboxes = document.querySelectorAll('.chk-central-suspensos-item');
+        checkboxes.forEach(chk => chk.checked = this.checked);
+    };
+
+    document.getElementById('btnUpdateCentralAgilizacaoSuspensos').onclick = () => {
+        carregarCentralAgilizacaoSuspensosMaster();
+    };
+
+    document.getElementById('btnSubmitCentralAgilizacaoSuspensos').onclick = () => {
+        const webAppUrl = document.getElementById('txtWebAppUrl').value.trim();
+        if (!webAppUrl) {
+            alert("Por favor, configure a URL do Web App nas Configurações.");
+            return;
+        }
+
+        const chksChecked = document.querySelectorAll('.chk-central-suspensos-item:checked');
+        if (chksChecked.length === 0) {
+            alert("Nenhum processo selecionado para migração.");
+            return;
+        }
+
+        if (!confirm(`Deseja migrar ${chksChecked.length} processo(s) selecionado(s) para a planilha de Controle?`)) {
+            return;
+        }
+
+        const btn = document.getElementById('btnSubmitCentralAgilizacaoSuspensos');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳ Migrando...";
+        btn.disabled = true;
+
+        const payload = [];
+        const npusRemover = [];
+
+        chksChecked.forEach(chk => {
+            const idx = parseInt(chk.getAttribute('data-idx'), 10);
+            const cand = CANDIDATOS_CENTRAL_AGILIZACAO_SUSPENSOS[idx];
+
+            payload.push({
+                destAba: cand.destAba,
+                vara: cand.vara,
+                processo: cand.processo,
+                situacao: cand.situacao,
+                dataRetorno: cand.dataRetorno,
+                obs: cand.obs
+            });
+
+            npusRemover.push(cand.npuChave);
+        });
+
+        const spreadsheetId = "1yOAupHFi0ERglZPTJ4yrXHPwBP8oemOfLAKFJ9zT9Po";
+
+        enviarMigracaoChunked({
+            webAppUrl: webAppUrl,
+            action: 'migrarCentralAgilizacaoSuspensos',
+            extraParamsObj: { spreadsheetId: spreadsheetId },
+            payload: payload,
+            btnElement: btn,
+            originalBtnText: originalText,
+            successMessage: "Processos migrados com sucesso para a planilha de Controle!",
+            onDone: () => {
+                const npusProcessos = payload.map(item => item.processo);
+                registrarMigracaoSucesso(npusProcessos, 'CentralSuspensos');
+                SIMAP_PROCESS_LIST = SIMAP_PROCESS_LIST.filter(p => !npusRemover.includes(p.chave));
+                processarDadosGerais();
+                atualizarPainelCentralAgilizacaoSuspensos();
+            }
         });
     };
 
@@ -6183,9 +7322,11 @@
     carregarSerprecCentral();
     carregarControleSerprecCentral();
     carregarRecjudLeilaoCentral();
+    carregarCentralAgilizacaoSuspensosMaster();
     atualizarPainelMigracaoDiretoria();
     atualizarPainelControleSerprec();
     atualizarPainelRecjudLeilao();
+    atualizarPainelCentralAgilizacaoSuspensos();
 </script>
 </body>
 </html>
