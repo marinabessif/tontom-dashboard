@@ -939,7 +939,7 @@
 
         <!-- Copy Teams Card -->
         <div class="panel-card teams-card">
-            <div class="panel-title">📋 Envio para o MS Teams (Prioridades P1-P4)</div>
+            <div class="panel-title">📋 Resumo do cumprimento da planilha</div>
             <div class="teams-preview" id="teamsPreviewText">Resumo da fila para o Teams...</div>
             <button class="btn-premium" id="btnCopiarTeams">📋 Copiar Resumo para o Teams</button>
         </div>
@@ -951,7 +951,10 @@
     <div class="panel-card" id="consolidatedQueueSection" style="display: none; margin-top: 30px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
             <div class="panel-title" style="margin-bottom: 0;">📋 Processos da Equipe</div>
-            <button class="btn-action-small" id="btnCopiarFila" style="padding: 6px 12px; font-weight: bold; background: var(--accent-primary); border-radius: 6px; cursor: pointer; color: #fff; font-size: 12px; border: none; display: flex; align-items: center; gap: 4px;">📋 Copiar Lista</button>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-action-small" id="btnCopiarAuditoria" style="padding: 6px 12px; font-weight: bold; background: var(--accent-info); border-radius: 6px; cursor: pointer; color: #fff; font-size: 12px; border: none; display: flex; align-items: center; gap: 4px;">📋 Copiar para auditoria</button>
+                <button class="btn-action-small" id="btnCopiarFila" style="padding: 6px 12px; font-weight: bold; background: var(--accent-primary); border-radius: 6px; cursor: pointer; color: #fff; font-size: 12px; border: none; display: flex; align-items: center; gap: 4px;">📋 Copiar Lista</button>
+            </div>
         </div>
         
         <!-- Filter Actions -->
@@ -1023,8 +1026,10 @@
             <table class="custom-table" style="text-align: left;">
                 <thead>
                     <tr>
+                        <th style="width: 35px; text-align: center;"><input type="checkbox" id="chkSelectAllQueue" title="Selecionar/Desmarcar Todos" style="cursor: pointer;"></th>
                         <th style="width: 60px; text-align: center;">Prio</th>
                         <th>Processo (NPU)</th>
+                        <th>Vara</th>
                         <th>Servidora</th>
                         <th style="width: 120px; text-align: center;">Status</th>
                         <th style="width: 120px; text-align: center;">Data</th>
@@ -1047,16 +1052,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Default No-Data Screen -->
-    <div class="panel-card" id="noDataCard">
-        <div class="no-data-msg">
-            <span style="font-size:40px; display:block; margin-bottom:10px;">📉</span>
-            Nenhuma planilha do SIMAP carregada. Arraste e solte o arquivo do SIMAP acima para iniciar a análise.
-        </div>
-    </div>
-
-
 
     </div> <!-- /#viewSimap -->
 
@@ -1584,19 +1579,10 @@
                     </div>
                 </div>
 
-                <div id="serprecConnectionStatus" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                    <span class="status-dot warning" id="serprecStatusDot"></span>
-                    <span id="serprecStatusText">Erro de fluxo/vinculação: Não carregado. Clique em Atualizar.</span>
-                </div>
-
-                <div class="gestores-filter-bar" style="display:flex; align-items:center; justify-content:space-between; background: rgba(0,0,0,0.15); padding: 10px 14px; border-radius: 6px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; font-size: 11px; border: 1px solid var(--border-glass);">
-                    <div style="display:flex; align-items:center; gap: 10px;">
-                        <span style="font-weight: 600; color: var(--text-primary);">📌 Filtrar Origem:</span>
-                        <select id="selectFiltroOrigemSerprec" class="form-control" style="width: auto; font-size: 11px; height: 28px; padding: 2px 10px; border-radius: 4px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-glass);" onchange="atualizarExibicaoSerprec()">
-                            <option value="TODOS" selected>Todos os Registros</option>
-                            <option value="VINCULACAO">Apenas Vinculação de Conta (SISCONDJ)</option>
-                            <option value="ERRO">Apenas Erro de Fluxo / Sistema</option>
-                        </select>
+                <div id="serprecConnectionStatus" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                    <div style="display:flex; align-items:center; gap: 8px;">
+                        <span class="status-dot warning" id="serprecStatusDot"></span>
+                        <span id="serprecStatusText">Erro de fluxo/vinculação: Não carregado. Clique em Atualizar.</span>
                     </div>
                     <div style="color: var(--text-secondary); font-size: 11px; font-weight: 500;" id="lblSummaryFilter_GestoresDetalhes">
                         Exibindo 0 de 0 processos
@@ -1612,17 +1598,44 @@
                     <table class="custom-table" style="text-align: left;">
                         <thead>
                             <tr>
-                                <th>Origem</th>
-                                <th>Processo (NPU)</th>
-                                <th>Unidade Judiciária</th>
+                                <th style="min-width: 140px;">
+                                    ORIGEM<br>
+                                    <select id="selectFiltroOrigemSerprec" class="form-control" style="width: 100%; font-size: 10px; height: 26px; margin-top: 4px; padding: 2px 4px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-glass);" onchange="atualizarExibicaoSerprec()">
+                                        <option value="TODOS" selected>Todos os processos</option>
+                                        <option value="VINCULACAO">Apenas vinculação de conta</option>
+                                        <option value="ERRO">Apenas erro de fluxo/sistema</option>
+                                    </select>
+                                </th>
+                                <th style="min-width: 150px;">PROCESSO (NPU)</th>
+                                <th style="min-width: 160px;">
+                                    UNIDADE JUDICIÁRIA<br>
+                                    <select id="selectFiltroUnidadeSerprec" class="form-control" style="width: 100%; font-size: 10px; height: 26px; margin-top: 4px; padding: 2px 4px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-glass);" onchange="atualizarExibicaoSerprec()">
+                                        <option value="TODAS" selected>Todas as unidades</option>
+                                    </select>
+                                </th>
                                 <th style="min-width: 180px;">
                                     OBSERVAÇÃO<br>
                                     <button type="button" id="btnToggleAllSerprecObs" class="btn-theme" style="padding: 3px 8px; font-size: 10px; margin-top: 4px; border-radius: 4px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: var(--text-primary); cursor: pointer;">↕️ Expandir / Recolher Todas</button>
                                 </th>
-                                <th style="width: 250px;">Situação</th>
-                                <th style="width: 200px;">Analisado</th>
-                                <th style="width: 180px;">Adicionar Obs.</th>
-                                <th style="width: 140px;">Data de Retorno</th>
+                                <th style="width: 250px;">SITUAÇÃO</th>
+                                <th style="width: 180px;">
+                                    ANALISADO<br>
+                                    <select id="selectFiltroAnalisadoSerprec" class="form-control" style="width: 100%; font-size: 10px; height: 26px; margin-top: 4px; padding: 2px 4px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-glass);" onchange="atualizarExibicaoSerprec()">
+                                        <option value="TODOS" selected>Todos os processos</option>
+                                        <option value="Sim">Sim</option>
+                                        <option value="Excluir ABA GESTORES">Excluir da planilha gestores</option>
+                                        <option value="Manter nas duas">Manter nas duas</option>
+                                        <option value="PENDENTES">Pendentes (Em branco)</option>
+                                    </select>
+                                </th>
+                                <th style="width: 180px;">ADICIONAR OBS.</th>
+                                <th style="width: 140px;">
+                                    DATA DE RETORNO<br>
+                                    <select id="selectFiltroRetornoSerprec" class="form-control" style="width: 100%; font-size: 10px; height: 26px; margin-top: 4px; padding: 2px 4px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-glass);" onchange="atualizarExibicaoSerprec()">
+                                        <option value="TODAS" selected>Todas as datas</option>
+                                        <option value="ATENCAO">Atenção (Semana Atual)</option>
+                                    </select>
+                                </th>
                             </tr>
                         </thead>
                         <tbody id="tbodySerprec">
@@ -2522,6 +2535,92 @@
         return new Date(date.getTime() + userTimezoneOffset);
     }
 
+    // Auxiliar para formatar data da audiência sempre como DD/MM/YYYY - HH:mm
+    function formatarDataHoraAgendada(dataRaw) {
+        if (!dataRaw) return "-";
+        let dateObj = null;
+        let hoursStr = "00";
+        let minsStr = "00";
+
+        if (/^\d+(\.\d+)?$/.test(dataRaw)) {
+            const serial = parseFloat(dataRaw);
+            dateObj = excelSerialToDate(serial);
+            const frac = serial - Math.floor(serial);
+            if (frac > 0) {
+                const totalMins = Math.round(frac * 24 * 60);
+                const hrs = Math.floor(totalMins / 60);
+                const mins = totalMins % 60;
+                hoursStr = String(hrs).padStart(2, '0');
+                minsStr = String(mins).padStart(2, '0');
+            }
+        } else if (typeof dataRaw === 'string') {
+            const str = dataRaw.trim();
+            const matchIso = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:\s+(\d{1,2}):(\d{1,2}))?/);
+            if (matchIso) {
+                const [, y, m, d, hh, mm] = matchIso;
+                dateObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+                if (hh !== undefined) {
+                    hoursStr = String(hh).padStart(2, '0');
+                    minsStr = String(mm || 0).padStart(2, '0');
+                }
+            } else {
+                const matchBr = str.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})(?:\s+-\s+|\s+)?(\d{1,2})?:?(\d{1,2})?/);
+                if (matchBr) {
+                    const [, d, m, y, hh, mm] = matchBr;
+                    dateObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+                    if (hh !== undefined) {
+                        hoursStr = String(hh).padStart(2, '0');
+                        minsStr = String(mm || 0).padStart(2, '0');
+                    }
+                } else {
+                    const d = new Date(str);
+                    if (!isNaN(d.getTime())) dateObj = d;
+                }
+            }
+        }
+
+        if (!dateObj || isNaN(dateObj.getTime())) return String(dataRaw);
+
+        const dd = String(dateObj.getDate()).padStart(2, '0');
+        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const yyyy = dateObj.getFullYear();
+
+        if (dateObj.getHours() !== 0 || dateObj.getMinutes() !== 0) {
+            hoursStr = String(dateObj.getHours()).padStart(2, '0');
+            minsStr = String(dateObj.getMinutes()).padStart(2, '0');
+        }
+
+        return `${dd}/${mm}/${yyyy} - ${hoursStr}:${minsStr}`;
+    }
+
+    // Auxiliar para verificar se a data cai na semana atual (segunda a sexta)
+    function isDataNaSemanaAtual(dataStr) {
+        if (!dataStr) return false;
+        let parts = String(dataStr).trim().split(/[/.-]/);
+        let dObj = null;
+        if (parts.length === 3) {
+            if (parts[0].length === 4) {
+                dObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            } else {
+                dObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+            }
+        }
+        if (!dObj || isNaN(dObj.getTime())) return false;
+
+        const hoje = new Date();
+        const dayOfWeek = hoje.getDay();
+        const distanceToMon = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        const seg = new Date(hoje);
+        seg.setDate(hoje.getDate() + distanceToMon);
+        seg.setHours(0,0,0,0);
+
+        const sex = new Date(seg);
+        sex.setDate(seg.getDate() + 4);
+        sex.setHours(23,59,59,999);
+
+        return dObj >= seg && dObj <= sex;
+    }
+
     // Processar planilha Gestores CSV ou Matriz externa
     function processarPlanilhaGestoresCSV(csvTextOrMatriz, colLetters) {
         const rows = Array.isArray(csvTextOrMatriz) ? csvTextOrMatriz : parsearCSV(csvTextOrMatriz);
@@ -2859,25 +2958,36 @@
         const supervisorSel = txtSupervisor.value || supervisoresMap[equipeSel] || "";
         
         if (equipeSel === "Todas") {
-            document.getElementById('audStatusText').innerText = "Audiências: Selecione uma equipe específica.";
-            document.getElementById('audNoData').style.display = 'block';
-            document.getElementById('audTableContainer').style.display = 'none';
-            document.getElementById('btnSubmitAud').style.display = 'none';
-            return;
+            document.getElementById('audStatusText').innerText = "Audiências: Exibindo todas as equipes.";
+            AUDIENCIAS_FILTRADAS = AUDIENCIAS_MASTER_LIST;
+        } else {
+            logDebug("Filtrando audiências para o supervisor: '" + supervisorSel + "'");
+            AUDIENCIAS_FILTRADAS = AUDIENCIAS_MASTER_LIST.filter(a => {
+                return verificarOverlapSupervisor(a.supervisor, supervisorSel);
+            });
         }
 
-        logDebug("Filtrando audiências para o supervisor: '" + supervisorSel + "'");
-        
+        const theadAud = document.querySelector('#audTableContainer table thead tr');
+        if (theadAud) {
+            if (equipeSel === "Todas") {
+                if (!document.getElementById('thAudEquipe')) {
+                    const th = document.createElement('th');
+                    th.id = 'thAudEquipe';
+                    th.innerText = 'Equipe / Supervisor';
+                    theadAud.appendChild(th);
+                }
+            } else {
+                const th = document.getElementById('thAudEquipe');
+                if (th) th.remove();
+            }
+        }
+
         if (AUDIENCIAS_MASTER_LIST.length === 0) {
             document.getElementById('audNoData').style.display = 'block';
             document.getElementById('audTableContainer').style.display = 'none';
             document.getElementById('btnSubmitAud').style.display = 'none';
             return;
         }
-
-        AUDIENCIAS_FILTRADAS = AUDIENCIAS_MASTER_LIST.filter(a => {
-            return verificarOverlapSupervisor(a.supervisor, supervisorSel);
-        });
 
         logDebug("Audiências encontradas após o filtro: " + AUDIENCIAS_FILTRADAS.length);
 
@@ -2950,6 +3060,7 @@
         const opcoesSituacao = [
             "",
             "APAGAR",
+            "OUTROS",
             "REMETIDO À CENTRAL DE AUD.",
             "CITAÇÃO FRUSTRADA - SOLICITAR RETIRADA DA PAUTA",
             "ARQUIVADO - SOLICITADA RETIRADA DA PAUTA",
@@ -2966,6 +3077,8 @@
         const opcoesJustificativa = [
             "",
             "Resolvido",
+            "Resolvido + texto livre",
+            "Pendência + texto livre",
             "APAGAR"
         ];
 
@@ -2986,19 +3099,21 @@
             }
             
             const tdData = document.createElement('td');
-            tdData.innerText = a.dataAgendada || "-";
+            tdData.innerText = formatarDataHoraAgendada(a.dataAgendada);
             tr.appendChild(tdData);
 
             const tdOrgao = document.createElement('td');
             tdOrgao.innerText = a.orgaoJulgador || "-";
             tr.appendChild(tdOrgao);
 
+            // NPU com cópia no padrão PJe (com pontos e traços)
             const tdNpu = document.createElement('td');
+            tdNpu.style.whiteSpace = "nowrap";
             tdNpu.innerHTML = `
-                <a href="#" onclick="event.preventDefault(); navigator.clipboard.writeText('${limparNPU(a.npu)}'); mostrarToastNPU('${limparNPU(a.npu)}'); window.open('https://simap.svc.tjpe.jus.br/historico-servidor-processo#npu=${limparNPU(a.npu)}', '_blank');" style="color: var(--accent-info); text-decoration: underline; font-weight: 600; cursor: pointer;">${a.npu}</a>
+                <a href="#" onclick="event.preventDefault(); navigator.clipboard.writeText('${a.npu}'); mostrarToastNPU('${a.npu}'); window.open('https://simap.svc.tjpe.jus.br/historico-servidor-processo#npu=${limparNPU(a.npu)}', '_blank');" style="color: var(--accent-info); text-decoration: underline; font-weight: 600; cursor: pointer;">${a.npu}</a>
+                <button class="btn-action-small" onclick="navigator.clipboard.writeText('${a.npu}'); mostrarToastNPU('${a.npu}');" style="margin-left:6px; padding:2px 6px; font-size:10px;" title="Copiar NPU no padrão PJe">📋 Copiar</button>
             `;
             tr.appendChild(tdNpu);
-
 
             const tdSelSit = document.createElement('td');
             const selectSit = document.createElement('select');
@@ -3047,36 +3162,84 @@
             selectJust.style.background = "var(--bg-glass)";
             selectJust.style.color = "var(--text-primary)";
             selectJust.style.border = "1px solid var(--border-glass)";
+
+            let modoAtual = justificativaVal;
+            let textoExtra = "";
+            if (justificativaVal.startsWith("Resolvido:")) {
+                modoAtual = "Resolvido + texto livre";
+                textoExtra = justificativaVal.replace(/^Resolvido:\s*/, "");
+            } else if (justificativaVal.startsWith("Pendência:")) {
+                modoAtual = "Pendência + texto livre";
+                textoExtra = justificativaVal.replace(/^Pendência:\s*/, "");
+            }
             
             opcoesJustificativa.forEach(optVal => {
                 const opt = document.createElement('option');
                 opt.value = optVal;
                 opt.innerText = optVal || "(Em branco)";
-                if (optVal === justificativaVal) opt.selected = true;
+                if (optVal === modoAtual) opt.selected = true;
                 selectJust.appendChild(opt);
             });
 
-            selectJust.onchange = () => {
+            const inputCustomJust = document.createElement('input');
+            inputCustomJust.type = "text";
+            inputCustomJust.className = "form-control";
+            inputCustomJust.placeholder = "Digite o complemento livre...";
+            inputCustomJust.style.cssText = "padding:4px; font-size:11px; margin-top:4px; background:var(--bg-glass); color:var(--text-primary); border:1px solid var(--border-glass); width:100%;";
+            inputCustomJust.value = textoExtra;
+            inputCustomJust.style.display = (modoAtual === "Resolvido + texto livre" || modoAtual === "Pendência + texto livre") ? "block" : "none";
+
+            const salvarLocalJustificativa = () => {
                 const currentEdit = AUDIENCIAS_MODIFIED[a.npu] || {};
                 const sit = currentEdit.situacao !== undefined ? currentEdit.situacao : a.enviarSituacao;
-                
-                if (selectJust.value === "Resolvido" && (!sit || sit === "APAGAR")) {
-                    alert("Atenção: Só é permitido enviar a justificativa 'Resolvido' se a coluna 'Enviar Situação' estiver preenchida.");
-                    selectJust.value = justificativaVal;
-                    return;
+                const selVal = selectJust.value;
+
+                let finalJust = selVal;
+                if (selVal === "Resolvido + texto livre") {
+                    finalJust = inputCustomJust.value.trim() ? `Resolvido: ${inputCustomJust.value.trim()}` : "Resolvido";
+                } else if (selVal === "Pendência + texto livre") {
+                    finalJust = inputCustomJust.value.trim() ? `Pendência: ${inputCustomJust.value.trim()}` : "Pendência";
                 }
-                
-                currentEdit.justificativa = selectJust.value;
+
+                currentEdit.justificativa = finalJust;
                 currentEdit.situacao = sit;
                 AUDIENCIAS_MODIFIED[a.npu] = currentEdit;
-                
-                if (selectJust.value === a.enviarJustificativa && currentEdit.situacao === a.enviarSituacao) {
+
+                if (finalJust === a.enviarJustificativa && currentEdit.situacao === a.enviarSituacao) {
                     delete AUDIENCIAS_MODIFIED[a.npu];
                 }
-                atualizarExibicaoAudiencias();
+
+                const btn = document.getElementById('btnSubmitAud');
+                if (btn) btn.disabled = Object.keys(AUDIENCIAS_MODIFIED).length === 0;
             };
+
+            selectJust.onchange = () => {
+                if (selectJust.value === "Resolvido + texto livre" || selectJust.value === "Pendência + texto livre") {
+                    inputCustomJust.style.display = "block";
+                    setTimeout(() => inputCustomJust.focus(), 50);
+                } else {
+                    inputCustomJust.style.display = "none";
+                }
+                salvarLocalJustificativa();
+                gerarPreviewTeams();
+            };
+
+            inputCustomJust.oninput = () => {
+                salvarLocalJustificativa();
+                gerarPreviewTeams();
+            };
+
             tdSelJust.appendChild(selectJust);
+            tdSelJust.appendChild(inputCustomJust);
             tr.appendChild(tdSelJust);
+
+            if (equipeSel === "Todas") {
+                const tdSup = document.createElement('td');
+                tdSup.innerText = a.supervisor || "-";
+                tdSup.style.fontSize = "11px";
+                tdSup.style.color = "var(--accent-info)";
+                tr.appendChild(tdSup);
+            }
 
             tbody.appendChild(tr);
         });
@@ -3440,7 +3603,8 @@
             }
         });
 
-        document.getElementById('noDataCard').style.display = 'none';
+        const ndCard = document.getElementById('noDataCard');
+        if (ndCard) ndCard.style.display = 'none';
         document.getElementById('dashboardSection').style.display = 'grid';
         document.getElementById('consolidatedQueueSection').style.display = 'block';
 
@@ -4204,17 +4368,42 @@
             });
             texto += `\n`;
         } else {
-            texto += `✅ Datas/TEMAS/complementos devidamente preenchidos.\n\n`;
+            texto += `✅ COMPLEMENTOS - Sem pendência de complemento.\n\n`;
         }
 
-        if (desatualizadosExtensao.length > 0) {
-            texto += `🚨 ATENÇÃO (EXTENSÃO DESATUALIZADA): Orientar servidores a atualizar a extensão do SIMAP:\n`;
-            desatualizadosExtensao.forEach(item => {
-                texto += `⚠️ Servidor: ${item.servidor} / NPU: ${item.npu} / Observação: ${item.obs} (Versão Antiga SISCONDJ)\n`;
+        // 1.1.1 Erro de Status
+        const statusErros = [];
+        todosProcsEquipe.forEach(p => {
+            if (verificarPendenciaStatus(p)) {
+                statusErros.push({
+                    servidor: p.servidor,
+                    npu: p.npu,
+                    vara: p.vara || "Não informada",
+                    obs: p.obs
+                });
+            }
+        });
+
+        if (statusErros.length > 0) {
+            texto += `⚠️ ATENÇÃO: HÁ ERRO DE STATUS:\n`;
+            statusErros.forEach(item => {
+                texto += `❌ Servidor: ${item.servidor} / NPU: ${item.npu} / Vara: ${item.vara} / Observação: ${item.obs} / Alterar Status: para Finalizado\n`;
             });
             texto += `\n`;
+        } else {
+            texto += `✅ STATUS - Sem pendência de Status.\n\n`;
         }
-        texto += `\n`;
+
+        // 1.1.2 Pendência de Atualização - Tontom Servidor
+        if (desatualizadosExtensao.length > 0) {
+            texto += `⚠️ ATENÇÃO: HÁ PENDÊNCIA DE ATUALIZAÇÃO - TONTOM SERVIDOR:\n`;
+            desatualizadosExtensao.forEach(item => {
+                texto += `❌ Servidor: ${item.servidor} / NPU: ${item.npu} / Vara: ${item.vara} / Observação: ${item.obs} / Pendência de atualização: orientar servidor a atualizar o Tontom.\n`;
+            });
+            texto += `\n`;
+        } else {
+            texto += `✅ TONTOM SERVIDOR - Sem pendência de atualização.\n\n`;
+        }
 
         // Acopla a análise da planilha gestores de forma dinâmica
         texto += construirPlanilhaGestoresTextoDinamico() + "\n";
@@ -4252,105 +4441,70 @@
 
         const statusFiltro = document.getElementById('queueFilterStatus').value;
         if (statusFiltro === "ativos") {
-            filtrados = filtrados.filter(p => p.status !== "Finalizado");
+            filtrados = filtrados.filter(p => p.status === "Pendente" || p.status === "Em andamento");
         } else if (statusFiltro !== "todos") {
             filtrados = filtrados.filter(p => p.status === statusFiltro);
         }
 
         const prioFiltro = document.getElementById('queueFilterPrio').value;
-        const apenasNotif = document.getElementById('queueFilterNotif').classList.contains('active');
-
-        // Garante que a prioridade e data estão populadas a partir do BANCO_PRIORIDADES para toda a fila consolidada
-        filtrados.forEach(p => {
-            let prio = "S/P";
-            let prioData = null;
-            const npuLimpo = limparNPU(p.npu);
-            let info = null;
-            if (npuLimpo.length >= 14 && BANCO_PRIORIDADES.has(npuLimpo)) {
-                info = BANCO_PRIORIDADES.get(npuLimpo);
-            } else if (BANCO_PRIORIDADES.has(p.chave)) {
-                info = BANCO_PRIORIDADES.get(p.chave);
-            }
-            
-            if (info) {
-                prio = info.prioridade;
-                prioData = info.data;
-            }
-            p.prioridade = prio;
-            p.data = p.data || prioData;
-        });
-
         if (prioFiltro === "p1-p4") {
-            filtrados = filtrados.filter(p => {
-                const pBase = parseInt(p.prioridade, 10);
-                return pBase >= 1 && pBase <= 4;
-            });
+            filtrados = filtrados.filter(p => ["1", "2", "3", "4"].includes(String(p.prioridade)));
         } else if (prioFiltro === "S/P") {
-            filtrados = filtrados.filter(p => {
-                const pBase = parseInt(p.prioridade, 10);
-                return isNaN(pBase) || pBase < 1 || pBase > 9;
-            });
+            filtrados = filtrados.filter(p => !["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(String(p.prioridade)));
         } else if (prioFiltro !== "todas_real") {
-            filtrados = filtrados.filter(p => {
-                const pBase = parseInt(p.prioridade, 10);
-                return String(pBase) === prioFiltro;
-            });
+            filtrados = filtrados.filter(p => String(p.prioridade) === prioFiltro);
         }
 
-        // Filtro por Tipo de Observação Padronizada
         const obsTypeFiltro = document.getElementById('queueFilterObsType').value;
         if (obsTypeFiltro !== "todas") {
-            filtrados = filtrados.filter(p => {
-                const analises = analisarObservacaoCompleta(p.obs);
-                if (obsTypeFiltro === "outras") {
+            if (obsTypeFiltro === "outras") {
+                filtrados = filtrados.filter(p => {
+                    const analises = analisarObservacaoCompleta(p.obs);
                     return analises.some(a => a.tipo === "Outra / Personalizada");
-                }
-                return analises.some(a => {
-                    const tNorm = a.tipo.toUpperCase();
-                    const fNorm = obsTypeFiltro.toUpperCase();
-                    return tNorm.includes(fNorm) || fNorm.includes(tNorm) || a.original.toUpperCase().includes(fNorm);
                 });
-            });
+            } else {
+                filtrados = filtrados.filter(p => {
+                    const analises = analisarObservacaoCompleta(p.obs);
+                    return analises.some(a => a.tipo.toUpperCase().includes(obsTypeFiltro.toUpperCase()));
+                });
+            }
         }
 
-        // Filtro por Pendência de Observação / Extensão
         const obsPendingFiltro = document.getElementById('queueFilterObsPending').value;
         if (obsPendingFiltro !== "todos") {
             filtrados = filtrados.filter(p => {
                 const analises = analisarObservacaoCompleta(p.obs);
                 const temStatusPrio = verificarPendenciaStatus(p);
-                
+
                 if (obsPendingFiltro === "pendente") {
                     return analises.some(a => a.pendente || a.extensaoDesatualizada) || temStatusPrio;
-                } else if (obsPendingFiltro === "pendente_complemento") {
-                    return analises.some(a => a.pendente);
                 } else if (obsPendingFiltro === "pendente_extensao") {
                     return analises.some(a => a.extensaoDesatualizada);
                 } else if (obsPendingFiltro === "pendente_status") {
                     return temStatusPrio;
+                } else if (obsPendingFiltro === "pendente_complemento") {
+                    return analises.some(a => a.pendente);
                 }
                 return true;
             });
         }
 
-        if (apenasNotif) {
+        const onlyNotif = document.getElementById('queueFilterNotif').classList.contains('active');
+        if (onlyNotif) {
             filtrados = filtrados.filter(p => p.notif > 0);
         }
-
-        filtrados.sort((a,b) => a.prioValor - b.prioValor);
 
         return filtrados;
     }
 
-    // Atualiza a visualização da fila
     function atualizarFilaTrabalho() {
         const fila = obterFilaConsolidada();
-        const tbody = document.getElementById('tbodyQueue');
-        tbody.innerHTML = '';
-
         const totalItens = fila.length;
         const totalPaginas = Math.ceil(totalItens / QUEUE_ITENS_POR_PAGINA) || 1;
-        
+
+        const tbody = document.getElementById('tbodyQueue');
+        tbody.innerHTML = "";
+
         if (QUEUE_PAGINA_ATUAL > totalPaginas) QUEUE_PAGINA_ATUAL = totalPaginas;
         if (QUEUE_PAGINA_ATUAL < 1) QUEUE_PAGINA_ATUAL = 1;
 
@@ -4360,7 +4514,7 @@
         if (totalItens === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 20px;">
+                    <td colspan="9" style="text-align: center; color: var(--text-secondary); padding: 20px;">
                         Nenhum processo correspondente aos filtros.
                     </td>
                 </tr>
@@ -4462,11 +4616,13 @@
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
+                <td style="text-align:center;"><input type="checkbox" class="chk-queue-row" data-npu="${p.npu}" data-vara="${p.vara || ''}" style="cursor:pointer;"></td>
                 <td style="text-align:center;"><span style="${tagEstilo}">P${p.prioridade}</span></td>
                 <td>
                     <a href="#" onclick="event.preventDefault(); navigator.clipboard.writeText('${limparNPU(p.npu)}'); mostrarToastNPU('${limparNPU(p.npu)}'); window.open('https://simap.svc.tjpe.jus.br/historico-servidor-processo#npu=${limparNPU(p.npu)}', '_blank');" title="Clique para copiar o NPU e abrir no SIMAP" style="color: var(--accent-info); text-decoration: underline; font-weight: 600; cursor: pointer;">${p.npu}</a>
                     <button class="btn-action-small" onclick="navigator.clipboard.writeText('${p.npu}')" style="margin-left:8px;" title="Copiar NPU">📋 Copiar</button>
                 </td>
+                <td>${p.vara || '-'}</td>
                 <td>${p.servidor}</td>
                 <td style="text-align:center; color:${displayStatusColor}; font-weight:bold;">${displayStatusText}</td>
                 <td style="text-align:center; color:var(--text-secondary);">${p.data || '-'}</td>
@@ -4477,19 +4633,33 @@
             `;
             tbody.appendChild(tr);
         });
+
+        // Listener do checkbox Selecionar Todos
+        const chkAll = document.getElementById('chkSelectAllQueue');
+        if (chkAll) {
+            chkAll.onchange = function() {
+                const isChecked = this.checked;
+                document.querySelectorAll('.chk-queue-row').forEach(c => c.checked = isChecked);
+            };
+        }
     }
 
     // Copiar Fila para WhatsApp/Teams
     document.getElementById('btnCopiarFila').onclick = () => {
-        const fila = obterFilaConsolidada();
+        let fila = obterFilaConsolidada();
         if (fila.length === 0) {
             alert("A fila está vazia.");
             return;
         }
+
+        const marcados = Array.from(document.querySelectorAll('.chk-queue-row:checked')).map(c => c.dataset.npu);
+        if (marcados.length > 0) {
+            fila = fila.filter(p => marcados.includes(p.npu));
+        }
         
         let texto = `📋 *Processos da Equipe (${selectEquipe.value})*\n\n`;
         fila.forEach(p => {
-            texto += `🔸 *P${p.prioridade}* | NPU: ${p.npu} | Servidor: ${p.servidor} | Status: ${p.status}\n`;
+            texto += `🔸 *P${p.prioridade}* | NPU: ${p.npu} | Vara: ${p.vara || '-'} | Servidor: ${p.servidor} | Status: ${p.status}\n`;
             if (p.obs) {
                 const analises = analisarObservacaoCompleta(p.obs);
                 analises.forEach(analise => {
@@ -4508,6 +4678,36 @@
         }).catch(err => {
             console.error(err);
             alert("Erro ao copiar a fila.");
+        });
+    };
+
+    // Copiar para Auditoria (NPU | Vara)
+    document.getElementById('btnCopiarAuditoria').onclick = () => {
+        let fila = obterFilaConsolidada();
+        if (fila.length === 0) {
+            alert("A fila está vazia.");
+            return;
+        }
+
+        const marcados = Array.from(document.querySelectorAll('.chk-queue-row:checked')).map(c => c.dataset.npu);
+        if (marcados.length > 0) {
+            fila = fila.filter(p => marcados.includes(p.npu));
+        }
+
+        let textoAud = "";
+        fila.forEach(p => {
+            textoAud += `${p.vara || "Não informada"}\t${p.npu}\n`;
+        });
+
+        navigator.clipboard.writeText(textoAud).then(() => {
+            const btn = document.getElementById('btnCopiarAuditoria');
+            btn.textContent = "✅ Copiado!";
+            setTimeout(() => {
+                btn.textContent = "📋 Copiar para auditoria";
+            }, 2000);
+        }).catch(err => {
+            console.error(err);
+            alert("Erro ao copiar dados para auditoria.");
         });
     };
 
@@ -4963,11 +5163,28 @@
         const supervisorSel = txtSupervisor.value || supervisoresMap[equipeSel] || "";
 
         if (equipeSel === "Todas") {
-            document.getElementById('cancStatusText').innerText = "Cancelamentos: Selecione uma equipe específica.";
-            document.getElementById('cancNoData').style.display = 'block';
-            document.getElementById('cancTableContainer').style.display = 'none';
-            document.getElementById('btnSubmitCanc').style.display = 'none';
-            return;
+            document.getElementById('cancStatusText').innerText = "Cancelamentos: Exibindo todas as equipes.";
+            CANCELAMENTO_FILTRADAS = CANCELAMENTO_MASTER_LIST;
+        } else {
+            logDebug("Cancelamentos filtrados para supervisor '" + supervisorSel + "': " + CANCELAMENTO_FILTRADAS.length);
+            CANCELAMENTO_FILTRADAS = CANCELAMENTO_MASTER_LIST.filter(c => {
+                return verificarOverlapSupervisor(c.supervisor, supervisorSel);
+            });
+        }
+
+        const theadCanc = document.querySelector('#cancTableContainer table thead tr');
+        if (theadCanc) {
+            if (equipeSel === "Todas") {
+                if (!document.getElementById('thCancEquipe')) {
+                    const th = document.createElement('th');
+                    th.id = 'thCancEquipe';
+                    th.innerText = 'Equipe / Supervisor';
+                    theadCanc.appendChild(th);
+                }
+            } else {
+                const th = document.getElementById('thCancEquipe');
+                if (th) th.remove();
+            }
         }
 
         if (CANCELAMENTO_MASTER_LIST.length === 0) {
@@ -4976,12 +5193,6 @@
             document.getElementById('btnSubmitCanc').style.display = 'none';
             return;
         }
-
-        CANCELAMENTO_FILTRADAS = CANCELAMENTO_MASTER_LIST.filter(c => {
-            return verificarOverlapSupervisor(c.supervisor, supervisorSel);
-        });
-
-        logDebug("Cancelamentos filtrados para supervisor '" + supervisorSel + "': " + CANCELAMENTO_FILTRADAS.length);
 
         let total = CANCELAMENTO_FILTRADAS.length;
         let cumpridos = CANCELAMENTO_FILTRADAS.filter(c => {
@@ -5066,8 +5277,13 @@
             tdUnidade.innerText = c.unidadeJudiciaria || "-";
             tr.appendChild(tdUnidade);
 
+            // NPU com cópia no padrão PJe (com pontos e traços)
             const tdNpu = document.createElement('td');
-            tdNpu.innerHTML = `<a href="#" onclick="event.preventDefault(); navigator.clipboard.writeText('${limparNPU(c.processo)}'); mostrarToastNPU('${limparNPU(c.processo)}');" style="color: var(--accent-info); text-decoration: underline; font-weight: 600; cursor: pointer;">${c.processo}</a>`;
+            tdNpu.style.whiteSpace = "nowrap";
+            tdNpu.innerHTML = `
+                <a href="#" onclick="event.preventDefault(); navigator.clipboard.writeText('${c.processo}'); mostrarToastNPU('${c.processo}');" style="color: var(--accent-info); text-decoration: underline; font-weight: 600; cursor: pointer;">${c.processo}</a>
+                <button class="btn-action-small" onclick="navigator.clipboard.writeText('${c.processo}'); mostrarToastNPU('${c.processo}');" style="margin-left:6px; padding:2px 6px; font-size:10px;" title="Copiar NPU no padrão PJe">📋 Copiar</button>
+            `;
             tr.appendChild(tdNpu);
 
             // Dropdown Enviar Cancelamento
@@ -5120,6 +5336,14 @@
             };
             tdObs.appendChild(inputObs);
             tr.appendChild(tdObs);
+
+            if (equipeSel === "Todas") {
+                const tdSup = document.createElement('td');
+                tdSup.innerText = c.supervisor || "-";
+                tdSup.style.fontSize = "11px";
+                tdSup.style.color = "var(--accent-info)";
+                tr.appendChild(tdSup);
+            }
 
             tbody.appendChild(tr);
         });
@@ -5538,11 +5762,28 @@
         const supervisorSel = txtSupervisor.value || supervisoresMap[equipeSel] || "";
 
         if (equipeSel === "Todas") {
-            document.getElementById('serprecStatusText').innerText = "Serprec: Selecione uma equipe específica.";
-            document.getElementById('serprecNoData').style.display = 'block';
-            document.getElementById('serprecTableContainer').style.display = 'none';
-            document.getElementById('btnSubmitSerprec').style.display = 'none';
-            return;
+            document.getElementById('serprecStatusText').innerText = "Erro de fluxo/vinculação: Exibindo todas as equipes.";
+            SERPREC_FILTRADAS = SERPREC_MASTER_LIST;
+        } else {
+            logDebug("Serprec filtrados para supervisor '" + supervisorSel + "': " + SERPREC_FILTRADAS.length);
+            SERPREC_FILTRADAS = SERPREC_MASTER_LIST.filter(s => {
+                return verificarOverlapSupervisor(s.supervisor, supervisorSel);
+            });
+        }
+
+        const theadSerprec = document.querySelector('#serprecTableContainer table thead tr');
+        if (theadSerprec) {
+            if (equipeSel === "Todas") {
+                if (!document.getElementById('thSerprecEquipe')) {
+                    const th = document.createElement('th');
+                    th.id = 'thSerprecEquipe';
+                    th.innerText = 'EQUIPE / SUPERVISOR';
+                    theadSerprec.appendChild(th);
+                }
+            } else {
+                const th = document.getElementById('thSerprecEquipe');
+                if (th) th.remove();
+            }
         }
 
         if (SERPREC_MASTER_LIST.length === 0) {
@@ -5551,12 +5792,6 @@
             document.getElementById('btnSubmitSerprec').style.display = 'none';
             return;
         }
-
-        SERPREC_FILTRADAS = SERPREC_MASTER_LIST.filter(s => {
-            return verificarOverlapSupervisor(s.supervisor, supervisorSel);
-        });
-
-        logDebug("Serprec filtrados para supervisor '" + supervisorSel + "': " + SERPREC_FILTRADAS.length);
 
         // Atualiza Badges do Índice do Gestores
         const bAud = document.getElementById('navBadge_GestoresAud');
@@ -5574,7 +5809,7 @@
             btnApagarAnalisados.dataset.bound = "true";
             btnApagarAnalisados.onclick = () => {
                 const supSel = txtSupervisor.value || selectEquipe.value;
-                if (!confirm('😸 Pense bem! deseja apagar as informações contidas da coluna "analisados"? Serão apagadas tanto no painel Tontom e quanto na planilha gestores')) return;
+                if (!confirm('😸 Pense bem! Deseja apagar as informações da coluna "ANALISADOS"? Serão apagadas as informações:\n"SIM"\n"EXCLUIR DA PLANILHA GESTORES"\n"MANTER NAS DUAS"\ntanto no painel Tontom, quanto na planilha gestores.')) return;
 
                 const webAppUrl = document.getElementById('txtWebAppUrl').value.trim();
                 if (!webAppUrl) {
@@ -5621,6 +5856,26 @@
                 btnToggleAllObs.innerText = window.serprecAllObsExpanded ? "▲ Recolher Obs" : "↕️ Expandir/Recolher Obs";
                 atualizarExibicaoSerprec();
             };
+        }
+
+        // Popula dinamicamente as opções de Unidade Judiciária se o select existir
+        const selectUnidade = document.getElementById('selectFiltroUnidadeSerprec');
+        if (selectUnidade) {
+            const currentSelUnit = selectUnidade.value;
+            const unidadesSet = new Set(SERPREC_FILTRADAS.map(s => s.unidadeJudiciaria).filter(Boolean));
+            const sortedUnits = Array.from(unidadesSet).sort();
+            
+            const currentOptionCount = selectUnidade.options.length;
+            if (currentOptionCount !== sortedUnits.length + 1) {
+                selectUnidade.innerHTML = '<option value="TODAS">Todas as unidades</option>';
+                sortedUnits.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u;
+                    opt.innerText = u;
+                    if (u === currentSelUnit) opt.selected = true;
+                    selectUnidade.appendChild(opt);
+                });
+            }
         }
 
         // Separação das situações em "VINCULAÇÃO DE CONTA" e "ERRO DE FLUXO/SISTEMA"
@@ -5682,13 +5937,59 @@
         document.getElementById('valSerprecCumprido').innerText = totalCumpridos;
         document.getElementById('valSerprecSaldo').innerText = totalSaldo;
 
-        // Filtro por Origem na Tabela de Detalhes
-        const filtroOrigem = document.getElementById('selectFiltroOrigemSerprec')?.value || "TODOS";
+        // Aplicação dos Filtros de Cabeçalho na Tabela de Detalhes
         let listaExibicao = SERPREC_FILTRADAS;
+
+        // 2.4.2 Filtro Origem
+        const filtroOrigem = document.getElementById('selectFiltroOrigemSerprec')?.value || "TODOS";
         if (filtroOrigem === "VINCULACAO") {
-            listaExibicao = SERPREC_FILTRADAS.filter(s => s.origem.toUpperCase().includes("VINCULA") || s.origem.toUpperCase().includes("CONTA"));
+            listaExibicao = listaExibicao.filter(s => s.origem.toUpperCase().includes("VINCULA") || s.origem.toUpperCase().includes("CONTA"));
         } else if (filtroOrigem === "ERRO") {
-            listaExibicao = SERPREC_FILTRADAS.filter(s => s.origem.toUpperCase().includes("ERRO") || s.origem.toUpperCase().includes("FLUXO") || s.origem.toUpperCase().includes("SISTEMA"));
+            listaExibicao = listaExibicao.filter(s => s.origem.toUpperCase().includes("ERRO") || s.origem.toUpperCase().includes("FLUXO") || s.origem.toUpperCase().includes("SISTEMA"));
+        }
+
+        // 2.4.3 Filtro Unidade Judiciária
+        const filtroUnidade = document.getElementById('selectFiltroUnidadeSerprec')?.value || "TODAS";
+        if (filtroUnidade !== "TODAS") {
+            listaExibicao = listaExibicao.filter(s => s.unidadeJudiciaria === filtroUnidade);
+        }
+
+        // 2.4.4 Filtro Analisado
+        const filtroAnalisado = document.getElementById('selectFiltroAnalisadoSerprec')?.value || "TODOS";
+        if (filtroAnalisado === "Sim") {
+            listaExibicao = listaExibicao.filter(s => {
+                const edit = SERPREC_MODIFIED[s.processo];
+                const val = edit?.analisado !== undefined ? edit.analisado : s.analisado;
+                return val === "Sim";
+            });
+        } else if (filtroAnalisado === "Excluir ABA GESTORES") {
+            listaExibicao = listaExibicao.filter(s => {
+                const edit = SERPREC_MODIFIED[s.processo];
+                const val = edit?.analisado !== undefined ? edit.analisado : s.analisado;
+                return val === "Excluir ABA GESTORES";
+            });
+        } else if (filtroAnalisado === "Manter nas duas") {
+            listaExibicao = listaExibicao.filter(s => {
+                const edit = SERPREC_MODIFIED[s.processo];
+                const val = edit?.analisado !== undefined ? edit.analisado : s.analisado;
+                return val === "Manter nas duas";
+            });
+        } else if (filtroAnalisado === "PENDENTES") {
+            listaExibicao = listaExibicao.filter(s => {
+                const edit = SERPREC_MODIFIED[s.processo];
+                const val = edit?.analisado !== undefined ? edit.analisado : s.analisado;
+                return !val || val.trim() === "";
+            });
+        }
+
+        // 2.4.5 Filtro Data de Retorno
+        const filtroRetorno = document.getElementById('selectFiltroRetornoSerprec')?.value || "TODAS";
+        if (filtroRetorno === "ATENCAO") {
+            listaExibicao = listaExibicao.filter(s => {
+                const edit = SERPREC_MODIFIED[s.processo];
+                const val = edit?.dataRetorno !== undefined ? edit.dataRetorno : s.dataRetorno;
+                return isDataNaSemanaAtual(val);
+            });
         }
 
         const lblSummary = document.getElementById('lblSummaryFilter_GestoresDetalhes');
@@ -5702,17 +6003,20 @@
         const btnSubmit = document.getElementById('btnSubmitSerprec');
         const hasChanges = Object.keys(SERPREC_MODIFIED).length > 0;
 
-        if (listaExibicao.length === 0) {
-            document.getElementById('serprecNoData').style.display = 'block';
-            document.getElementById('serprecTableContainer').style.display = 'none';
-            btnSubmit.style.display = 'none';
-            return;
-        }
-
+        // Mantém a tabela e os filtros de cabeçalho SEMPRE visíveis (Item 2.3)
         document.getElementById('serprecNoData').style.display = 'none';
         document.getElementById('serprecTableContainer').style.display = 'block';
-        btnSubmit.style.display = 'inline-flex';
+        btnSubmit.style.display = hasChanges ? 'inline-flex' : 'none';
         btnSubmit.disabled = !hasChanges;
+
+        if (listaExibicao.length === 0) {
+            const trEmpty = document.createElement('tr');
+            const totalCols = selectEquipe.value === "Todas" ? 9 : 8;
+            trEmpty.innerHTML = `<td colspan="${totalCols}" style="text-align: center; padding: 30px; color: var(--text-secondary); font-size: 13px;">🔍 Nenhum processo encontrado para os filtros selecionados.</td>`;
+            tbody.appendChild(trEmpty);
+            gerarPreviewTeams();
+            return;
+        }
 
         const opcoesSituacao = [
             "",
@@ -5760,9 +6064,13 @@
             tdOrigem.innerText = s.origem || "-";
             tr.appendChild(tdOrigem);
 
-            // Coluna Processo (NPU)
+            // Coluna Processo (NPU) + Botão Copiar NPU no padrão PJe
             const tdNpu = document.createElement('td');
-            tdNpu.innerHTML = `<a href="#" onclick="event.preventDefault(); navigator.clipboard.writeText('${limparNPU(s.processo)}'); mostrarToastNPU('${limparNPU(s.processo)}');" style="color: var(--accent-info); text-decoration: underline; font-weight: 600; cursor: pointer;">${s.processo}</a>`;
+            tdNpu.style.whiteSpace = "nowrap";
+            tdNpu.innerHTML = `
+                <a href="#" onclick="event.preventDefault(); navigator.clipboard.writeText('${s.processo}'); mostrarToastNPU('${s.processo}');" style="color: var(--accent-info); text-decoration: underline; font-weight: 600; cursor: pointer;">${s.processo}</a>
+                <button class="btn-action-small" onclick="navigator.clipboard.writeText('${s.processo}'); mostrarToastNPU('${s.processo}');" style="margin-left:6px; padding:2px 6px; font-size:10px;" title="Copiar NPU no padrão PJe">📋 Copiar</button>
+            `;
             tr.appendChild(tdNpu);
 
             // Coluna Unidade Judiciária
@@ -5770,7 +6078,7 @@
             tdUnidade.innerText = s.unidadeJudiciaria || "-";
             tr.appendChild(tdUnidade);
 
-            // Coluna Observação Existente (Com suporte a expandir/recolher individual e global)
+            // Coluna Observação Existente
             const tdObs = document.createElement('td');
             tdObs.style.fontSize = "11px";
             tdObs.style.maxWidth = "240px";
@@ -5883,16 +6191,24 @@
             tdAddObs.appendChild(inputAddObs);
             tr.appendChild(tdAddObs);
 
-            // Coluna Input Data de Retorno
+            // Coluna Input Data de Retorno com Destaque da Semana Atual (2.4.5)
             const tdRet = document.createElement('td');
             const inputRet = document.createElement('input');
             inputRet.type = "text";
             inputRet.className = "form-control";
             inputRet.style.cssText = "padding:4px; font-size:11px; background:var(--bg-glass); color:var(--text-primary); border:1px solid var(--border-glass);";
+            
+            const isSemanaAtual = isDataNaSemanaAtual(retVal);
+            if (isSemanaAtual) {
+                inputRet.style.background = "rgba(245, 158, 11, 0.25)";
+                inputRet.style.borderColor = "var(--accent-warning)";
+                inputRet.style.color = "#fbbf24";
+                inputRet.style.fontWeight = "bold";
+            }
+
             inputRet.placeholder = "dd/mm/aaaa";
             inputRet.value = retVal;
             inputRet.onchange = () => {
-                // Normaliza formato
                 let normalized = inputRet.value.trim();
                 if (normalized) {
                     normalized = normalizarDataComplemento(normalized);
@@ -5913,6 +6229,14 @@
             };
             tdRet.appendChild(inputRet);
             tr.appendChild(tdRet);
+
+            if (equipeSel === "Todas") {
+                const tdSup = document.createElement('td');
+                tdSup.innerText = s.supervisor || "-";
+                tdSup.style.fontSize = "11px";
+                tdSup.style.color = "var(--accent-info)";
+                tr.appendChild(tdSup);
+            }
 
             tbody.appendChild(tr);
         });
@@ -5940,6 +6264,7 @@
         };
     }
 
+    // Envio em Lote (3 em 3) e Mensagem de Confirmação Atualizada (2.4.6 & 2.4.7)
     document.getElementById('btnSubmitSerprec').onclick = () => {
         const webAppUrl = document.getElementById('txtWebAppUrl').value.trim();
         if (!webAppUrl) {
@@ -5953,43 +6278,66 @@
             return;
         }
 
-        if (!confirm(`Deseja enviar as modificações de ${npusToUpdate.length} processo(s) da Serprec?`)) return;
+        if (!confirm(`Deseja enviar as modificações de ${npusToUpdate.length} processo(s)?`)) return;
 
         const btnSubmit = document.getElementById('btnSubmitSerprec');
         const originalText = btnSubmit.innerText;
-        btnSubmit.innerText = "⏳ Enviando...";
         btnSubmit.disabled = true;
 
-        // Build payload: { "npu": { situacao, analisado, adicionarObs, dataRetorno } }
-        const payload = {};
-        npusToUpdate.forEach(npu => {
-            payload[npu] = {
-                situacao: SERPREC_MODIFIED[npu].situacao,
-                analisado: SERPREC_MODIFIED[npu].analisado,
-                adicionarObs: SERPREC_MODIFIED[npu].adicionarObs,
-                dataRetorno: SERPREC_MODIFIED[npu].dataRetorno
-            };
-        });
+        const payloadList = npusToUpdate.map(npu => ({
+            npu: npu,
+            situacao: SERPREC_MODIFIED[npu].situacao,
+            analisado: SERPREC_MODIFIED[npu].analisado,
+            adicionarObs: SERPREC_MODIFIED[npu].adicionarObs,
+            dataRetorno: SERPREC_MODIFIED[npu].dataRetorno
+        }));
 
-        const encodedData = encodeURIComponent(JSON.stringify(payload));
-        const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=updateSerprec&data=${encodedData}&callback=cbSerprecWrite`;
+        const chunkSize = 3;
+        const totalItems = payloadList.length;
 
-        carregarJsonp(url, "cbSerprecWrite", function(response) {
-            btnSubmit.innerText = originalText;
-            btnSubmit.disabled = false;
-
-            if (response && response.status === "success") {
-                alert("Dados da Serprec gravados com sucesso!");
+        function processarLoteSerprec(index) {
+            if (index >= totalItems) {
+                btnSubmit.innerText = originalText;
+                btnSubmit.disabled = false;
+                alert("Dados enviados com sucesso!");
                 SERPREC_MODIFIED = {};
                 carregarSerprecCentral();
-            } else {
-                alert("Erro ao gravar: " + (response ? response.message : "Resposta inválida"));
+                return;
             }
-        }, function() {
-            btnSubmit.innerText = originalText;
-            btnSubmit.disabled = false;
-            alert("Falha de rede ou erro no Web App.");
-        });
+
+            const chunk = payloadList.slice(index, index + chunkSize);
+            btnSubmit.innerText = `⏳ ${index + chunk.length}/${totalItems} sendo enviados...`;
+
+            const chunkPayload = {};
+            chunk.forEach(item => {
+                chunkPayload[item.npu] = {
+                    situacao: item.situacao,
+                    analisado: item.analisado,
+                    adicionarObs: item.adicionarObs,
+                    dataRetorno: item.dataRetorno
+                };
+            });
+
+            const encodedData = encodeURIComponent(JSON.stringify(chunkPayload));
+            const callbackName = `cbSerprecWrite_${Date.now()}_${index}`;
+            const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=updateSerprec&data=${encodedData}&callback=${callbackName}`;
+
+            carregarJsonp(url, callbackName, function(response) {
+                if (response && (response.status === "success" || response.status === "ok")) {
+                    processarLoteSerprec(index + chunkSize);
+                } else {
+                    btnSubmit.innerText = originalText;
+                    btnSubmit.disabled = false;
+                    alert("Erro ao gravar lote: " + (response ? response.message : "Resposta inválida"));
+                }
+            }, function() {
+                btnSubmit.innerText = originalText;
+                btnSubmit.disabled = false;
+                alert(`Falha de rede ao enviar lote de processos (${index + 1} a ${Math.min(index + chunkSize, totalItems)}).`);
+            });
+        }
+
+        processarLoteSerprec(0);
     };
     
     // Ação do Botão Global de Atualização da Planilha Gestores
