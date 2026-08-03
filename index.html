@@ -1573,7 +1573,7 @@
                 <div class="panel-title" style="display:flex; align-items:center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                     <span>🛠️ Detalhes Vinculação / Erro</span>
                     <div style="display:flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        <button class="btn-theme" id="btnApagarAnalisados" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);">🗑️ Apagar Analisados (nova semana)</button>
+                        <button class="btn-theme" id="btnApagarAnalisados" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);">🗑️ Apagar apenas Analisados "SIM"</button>
                         <button class="btn-theme" id="btnUpdateSerprec" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px;">🔄 Atualizar Erro/Vinc</button>
                         <button class="btn-premium" id="btnSubmitSerprec" style="padding: 6px 15px; font-size: 12px; width: auto; height: 32px; border-radius: 6px; box-shadow: none;" disabled>💾 Enviar Dados</button>
                     </div>
@@ -1742,7 +1742,7 @@
         "Equipe 2": ["MARINA BESSI FERNANDES", "ANA ELIZABETH AGUIAR CAVALCANTI", "ANE VICTOR ALVES CARDOSO", "BLANIA LEUCHTEMBERG DE OLIVEIRA", "DIANA GONCALVES BOTELHO", "ISOLDA MARIA AZEVEDO DE LYRA", "MARIA INEZ MENEZES DOS SANTOS", "SABRINA SERRANO BARBOSA", "SAMARA OLIVEIRA DE MELO", "JULIANA SABRINA CABRAL RODRIGUES"],
         "Equipe 3": ["ADRIANA MINDELO CAVALCANTI DE ALBUQUERQUE", "BIANCA ARAUJO DA SILVA", "CARLOS EDUARDO GOMES DE MELO", "EVERSON PAULO DO NASCIMENTO", "LUCIANA TEIXEIRA DE MAGALHAES", "MICHELE ELIAS SANTOS SOUZA", "RAQUEL FERREIRA DOS SANTOS NIPPO", "ROBERTA CORTEZ DE CARVALHO", "SIDNEY PEDROSA DE MELO", "JOAO VICTOR SARAIVA WENCESLAU"],
         "Equipe 4": ["ANA ELISABETE PROCOPIO DE ALMEIDA", "CAROLINA JORDAN", "CLAUDIA LOBO DA COSTA CARVALHO AMORIM", "EUDALIA MARIA ALVES FONSECA", "GESLAINE DA SILVA FERREIRA", "JOSE AUGUSTO BRAGA", "JULIANA DE SOUSA AMORIM", "KAREN SAVANNA BRILHANTE ALVES MIYAKAWA", "LUCIANA CARMONA BOTELHO"],
-        "Equipe 5": ["ADALBERTO DA SOLEDADE SILVA FILHO", "JANAINA FERRO DE SOUSA PORFIRIO LIMA", "JULIANA CARNEIRO DA MOTTA", "JULIANA PONTES A DE A LOPES TAVARES", "LIDIA SERRANO BARBOSA SANTOS", "MAYARA SIMONI LAET DE ANDRADE", "PATRICIA VIEIRA DE L ALBUQUERQUE NOVAES", "SIMONE NANES VILELA", "LARISSA NOGUEIRA BESSA"],
+        "Equipe 5": ["ADALBERTO DA SOLEDADE SILVA FILHO", "JANAINA FERRO DE SOUSA PORFIRIO LIMA", "JULIANA CARNEIRO DA MOTTA", "JULIANA PONTES A DE A LOPES TAVARES", "LIDIA SERRANO BARBOSA SANTOS", "MAYARA SIMONI LAET DE ANDRADE", "PATRICIA VIEIRA DE LIRA ALBUQUERQUE NOVAES", "SIMONE NANES VILELA", "LARISSA NOGUEIRA BESSA"],
         "Equipe 6": ["BERGSON DANTAS DE MOURA BARBOSA", "FERNANDA ALVES DA SILVA", "IAMANDA LEUSE CAMPOS DE LIMA", "ITALO JORGE CAVALCANTI DE A NUNES", "NATALIA MARIA CATÃO VILELA", "ROBERTO FERREIRA DA SILVA", "SILVANA MARIA ROCHA PEREIRA FRAGOSO", "TASSIA REBECA RATIS DA SILVA", "TERCIA VANESSA MATIAS DE OLIVEIRA"],
         "Equipe 7": ["ANA CLAUDIA DE MELO MARQUES LUZ", "CARLOS DE LIMA RIBEIRO JUNIOR", "CHARLES TONY DE OLIVEIRA LIRA", "FRANCIELLE MARIA DA SILVA M DE ANDRADE", "IRACY CABRAL DAS NEVES", "JULIANA TAVARES CORDEIRO GALVÃO", "LADJANE FERREIRA GUIMARAES", "POLLYHANE MAYUMI ALMEIDA", "THAMYRIS FERREIRA SANTOS"],
         "Equipe 8": ["ANDRE DA SILVA CORDOVILE", "CAIO LUIZ NEVES MAIA", "CHRISTIANE O DE ALMEIDA G MOTA BARRETO", "LUCIANA FLÁVIA DO NASCIMENTO", "MUNIK LUCIENE DE FONTES", "ROSEANE SANTOS DE ANDRADE", "SHEILA CRISTINA RODRIGUES DE L ARAUJO", "TARCISIO BATISTA DA SILVA JUNIOR", "THALLES SIZENANDO AZEVEDO DIAS"],
@@ -5809,7 +5809,20 @@
             btnApagarAnalisados.dataset.bound = "true";
             btnApagarAnalisados.onclick = () => {
                 const supSel = txtSupervisor.value || selectEquipe.value;
-                if (!confirm('😸 Pense bem! Deseja apagar as informações da coluna "ANALISADOS"? Serão apagadas as informações:\n"SIM"\n"EXCLUIR DA PLANILHA GESTORES"\n"MANTER NAS DUAS"\ntanto no painel Tontom, quanto na planilha gestores.')) return;
+
+                // Filtrar apenas os que possuem Analisado = "Sim" / "SIM"
+                const simItems = SERPREC_FILTRADAS.filter(s => {
+                    const edit = SERPREC_MODIFIED[s.processo];
+                    const anaVal = edit && edit.analisado !== undefined ? edit.analisado : s.analisado;
+                    return (anaVal || "").trim().toLowerCase() === "sim";
+                });
+
+                if (simItems.length === 0) {
+                    alert("Nenhum processo com Analisado 'SIM' encontrado para apagar.");
+                    return;
+                }
+
+                if (!confirm('😸 Pense bem! Deseja apagar a informação da coluna "ANALISADO" APENAS dos processos marcados como "SIM"?\n\nProcessos marcados como "Excluir ABA GESTORES" e "Manter nas duas" NÃO serão apagados.\n\nA ação será aplicada tanto no painel Tontom quanto na planilha gestores.')) return;
 
                 const webAppUrl = document.getElementById('txtWebAppUrl').value.trim();
                 if (!webAppUrl) {
@@ -5822,7 +5835,7 @@
                 btn.innerText = "⏳ Apagando...";
                 btn.disabled = true;
 
-                const npusToClear = SERPREC_FILTRADAS.map(s => s.processo.replace(/\D/g, ""));
+                const npusToClear = simItems.map(s => s.processo.replace(/\D/g, ""));
                 const encodedNpus = encodeURIComponent(JSON.stringify(npusToClear));
                 const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=apagarAnalisados&supervisor=${encodeURIComponent(supSel)}&data=${encodedNpus}&callback=cbApagarAnalisados`;
 
@@ -5830,14 +5843,18 @@
                     btn.innerText = origText;
                     btn.disabled = false;
                     if (res && res.status === "success") {
-                        alert("Análises zeradas com sucesso! As pendências da semana foram reiniciadas.");
+                        alert("Análises SIM apagadas com sucesso!");
                         SERPREC_FILTRADAS.forEach(s => {
-                            s.analisado = "";
-                            if (SERPREC_MODIFIED[s.processo]) delete SERPREC_MODIFIED[s.processo].analisado;
+                            const edit = SERPREC_MODIFIED[s.processo];
+                            const anaVal = edit && edit.analisado !== undefined ? edit.analisado : s.analisado;
+                            if ((anaVal || "").trim().toLowerCase() === "sim") {
+                                s.analisado = "";
+                                if (SERPREC_MODIFIED[s.processo]) delete SERPREC_MODIFIED[s.processo].analisado;
+                            }
                         });
                         atualizarExibicaoSerprec();
                     } else {
-                        alert("Erro ao zerar análises: " + (res ? res.message : "Erro desconhecido"));
+                        alert("Erro ao apagar análises: " + (res ? res.message : "Erro desconhecido"));
                     }
                 }, function() {
                     btn.innerText = origText;
@@ -5890,7 +5907,7 @@
                 const anaVal = edit ? edit.analisado : s.analisado;
                 
                 const temAnalise = (anaVal && anaVal.trim() !== "" && anaVal !== "APAGAR");
-                const temSituacaoResolvida = (sitVal && (sitVal.toUpperCase().includes("RESOLVIDO") || sitVal.toUpperCase().includes("SISCON - NÃO É")));
+                const temSituacaoResolvida = (sitVal && (sitVal.toUpperCase().includes("RESOLVIDO") || sitVal.toUpperCase().includes("EXPEDIR") || sitVal.toUpperCase().includes("NÃO SE APLICA") || sitVal.toUpperCase().includes("SISCON - NÃO É")));
                 
                 return temAnalise || temSituacaoResolvida;
             }).length;
@@ -6020,17 +6037,11 @@
 
         const opcoesSituacao = [
             "",
-            "APAGAR",
-            "SERPREC EM ANDAMENTO",
-            "SERPREC ARQUIVADO EM ACOMPANHAMENTO",
-            "SERPREC RESOLVIDO (para validação da coordenação)",
-            "SERPREC - PRAZO EM CURSO - DATA DE RETORNO",
             "ERRO DE FLUXO/SISTEMA (informar nº do chamado na obs)",
             "ERRO DE FLUXO COM CHAMADO RESOLVIDO (para validação da coordenação)",
-            "RESOLVIDO (uso da coordenação)",
             "SISCONDJ - VINCULAÇÃO EM ANDAMENTO",
-            "SISCON - EXPEDIR (CONTROLE exclui)",
-            "SISCON - NÃO É VINCULAÇÃO DE CONTA"
+            "SISCONDJ - EXPEDIR (CONTROLE exclui)",
+            "SISCONDJ - NÃO SE APLICA (SUPER atuará)"
         ];
 
         const opcoesAnalisado = [
@@ -6038,7 +6049,6 @@
             "APAGAR",
             "Sim",
             "Excluir ABA GESTORES",
-            "Cump. Incomp.",
             "Manter nas duas"
         ];
 
@@ -6049,7 +6059,7 @@
             const addObsVal = edit.adicionarObs !== undefined ? edit.adicionarObs : "";
             const retVal = edit.dataRetorno !== undefined ? edit.dataRetorno : s.dataRetorno;
 
-            const isLocalResolved = (sitVal && (sitVal.toUpperCase().includes("RESOLVIDO") || sitVal.toUpperCase().includes("SISCON - NÃO É"))) ||
+            const isLocalResolved = (sitVal && (sitVal.toUpperCase().includes("RESOLVIDO") || sitVal.toUpperCase().includes("EXPEDIR") || sitVal.toUpperCase().includes("NÃO SE APLICA") || sitVal.toUpperCase().includes("SISCON - NÃO É"))) ||
                                    (anaVal && anaVal.trim() !== "" && anaVal !== "APAGAR");
 
             const tr = document.createElement('tr');
@@ -6407,7 +6417,7 @@
         "JULIANA PONTES A DE A LOPES TAVARES": "Juliana Pontes",
         "LIDIA SERRANO BARBOSA SANTOS": "Lídia Serrano",
         "MAYARA SIMONI LAET DE ANDRADE": "Mayara Laet",
-        "PATRICIA VIEIRA DE L ALBUQUERQUE NOVAES": "Patrícia Vieira",
+        "PATRICIA VIEIRA DE LIRA ALBUQUERQUE NOVAES": "Patrícia Novaes",
         "SIMONE NANES VILELA": "Simone Nanes",
         "LARISSA NOGUEIRA BESSA": "Larissa Bessa",
 
@@ -7159,7 +7169,7 @@
             payload.push({
                 vara: cand.vara,
                 processo: cand.processo,
-                origem: cand.origem,
+                origem: cand.tipo === "SISCONDJ" ? "VINCULAÇÃO DE CONTA-SISCONDJ" : cand.origem,
                 duplaGestores: cand.duplaGestores,
                 servidor: cand.servidor,
                 obsDestino: cand.obsDestino,
