@@ -485,8 +485,11 @@
             margin-left: 6px;
         }
         
-        .badge-desvio.real { background: var(--accent-danger); }
-        .badge-desvio.recente { background: var(--accent-warning); }
+        .badge-desvio.verde { background: #10b981; color: #fff; }
+        .badge-desvio.amarelo { background: #f59e0b; color: #111; }
+        .badge-desvio.vermelho { background: var(--accent-danger, #ef4444); color: #fff; }
+        .badge-desvio.real { background: var(--accent-danger, #ef4444); color: #fff; }
+        .badge-desvio.recente { background: var(--accent-warning, #f59e0b); color: #111; }
 
         /* Teams Preview & Button Card */
         .teams-card {
@@ -712,6 +715,10 @@
         .tontom-chewing {
             animation: tontomChewing 0.5s infinite ease-in-out;
         }
+        @keyframes pulse-warning {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { opacity: 0.82; box-shadow: 0 0 0 5px rgba(245, 158, 11, 0); }
+        }
         
         /* Style for disabled buttons */
         .btn-premium:disabled, .btn-theme:disabled {
@@ -778,10 +785,71 @@
                 <label for="txtWebAppUrl">URL do Web App do Google Apps Script (para gravação de dados):</label>
                 <input type="text" class="form-control" id="txtWebAppUrl" value="https://script.google.com/macros/s/AKfycbyHV6Ug4oTRybN5Mi1uevDaUS2d5YF6d-G5qBVMAKVQ5qjd0MYrFuCU70Ud3ZTor5jS/exec" placeholder="Cole a URL de implantação do Apps Script (Ex: https://script.google.com/macros/s/.../exec)">
             </div>
+            <div class="form-group" style="margin-top: 10px;">
+                <label for="txtFeriadosSheetUrl">Link da Planilha de Feriados (Apoio - Compartilhada para Leitura):</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" class="form-control" id="txtFeriadosSheetUrl" value="https://docs.google.com/spreadsheets/d/1OJQj5e6eZ_IGeyH4YTC9vnlY_mmISLg0yNwx_yIpNoc/edit?gid=494830240#gid=494830240" placeholder="Cole a URL da planilha de apoio/feriados">
+                    <button type="button" class="btn-theme" id="btnSyncFeriadosSheet" style="white-space: nowrap; padding: 6px 12px; font-size: 12px;">📥 Sincronizar Feriados</button>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 10px;">
+                <label for="txtFeriadosList">Lista de Feriados Cadastrados (Editável - Um por linha no formato DD/MM/YYYY - Nome):</label>
+                <textarea class="form-control" id="txtFeriadosList" rows="4" style="font-family: monospace; font-size: 12px; resize: vertical;" placeholder="10/08/2026 - Cursos Jurídicos&#10;07/09/2026 - Independência"></textarea>
+            </div>
+
+            <!-- Gerenciamento de Equipes, Supervisores e Servidores -->
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed rgba(255,255,255,0.15);">
+                <div style="font-weight: bold; font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; color: var(--accent-color, #3b82f6);">
+                    <span>👥 Gerenciamento de Equipes, Supervisores e Servidores</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn-theme" id="btnSyncEquipesNuvem" style="font-size: 12px; padding: 5px 12px;">☁️ Carregar da Nuvem</button>
+                        <button type="button" class="btn-theme" id="btnAddNovaEquipe" style="font-size: 12px; padding: 5px 12px;">➕ Nova Equipe</button>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                    <div class="form-group" style="flex: 2; min-width: 220px;">
+                        <label for="selectEquipeEditor">Selecionar Equipe para Editar:</label>
+                        <select class="form-control" id="selectEquipeEditor">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 3; min-width: 260px;">
+                        <label for="txtSupervisorEditor">Dupla de Supervisores:</label>
+                        <input type="text" class="form-control" id="txtSupervisorEditor" placeholder="Ex: Ana Angélica / Ricardo Dias">
+                    </div>
+                    <button type="button" class="btn-theme" id="btnExcluirEquipeEditor" style="padding: 8px 12px; font-size: 12px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); display: none;" title="Excluir equipe personalizada">🗑️ Excluir Equipe</button>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Adicionar Novo Servidor à Equipe:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" class="form-control" id="txtNovoServidorNome" placeholder="Nome completo do servidor">
+                        <button type="button" class="btn-theme" id="btnAddServidorEquipe" style="white-space: nowrap; padding: 8px 15px;">➕ Adicionar</button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <label style="margin: 0;">Servidores Cadastrados (<span id="lblQtdServidoresEquipe">0</span>):</label>
+                    </div>
+                    <div id="containerListaServidores" style="max-height: 220px; overflow-y: auto; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 10px;">
+                        <!-- Rendered list of servers -->
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <details>
+                        <summary style="cursor: pointer; font-size: 12px; color: var(--accent-color, #3b82f6); font-weight: 600;">📝 Edição / Colagem em Lote (Um servidor por linha)</summary>
+                        <textarea class="form-control" id="txtServidoresBulkList" rows="5" style="font-family: monospace; font-size: 12px; margin-top: 8px; resize: vertical;" placeholder="Cole aqui os nomes dos servidores (um por linha)"></textarea>
+                        <button type="button" class="btn-theme" id="btnAplicarBulkServidores" style="margin-top: 8px; font-size: 12px; padding: 6px 12px;">✅ Aplicar Lista em Lote</button>
+                    </details>
+                </div>
+            </div>
+
             <div style="display: flex; gap: 15px; margin-top: 15px;">
                 <button class="btn-premium" id="btnSaveSettings" style="flex: 1; padding: 10px; font-size: 13px;">💾 Salvar Configurações</button>
                 <button class="btn-theme" id="btnSyncNow" style="flex: 1; padding: 10px; font-size: 13px;">🔄 Sincronizar Agora</button>
-                <button class="btn-theme" id="btnResetSettings" style="flex: 1; padding: 10px; font-size: 13px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);">⚠️ Restaurar Padrões</button>
             </div>
         </div>
     </div>
@@ -995,9 +1063,9 @@
                 <option value="SISCONDJ (Alvará gravado)">Observação: SISCONDJ (Alvará gravado)</option>
                 <option value="SISCONDJ (Vinculação de Conta)">Observação: SISCONDJ (Vinculação de Conta)</option>
                 <option value="SISCONDJ (Alvará ou Vinculação)">Observação: SISCONDJ (Versão Antiga)</option>
-                <option value="PRAZO ABERTO FORA DO SISTEMA">Observação: PRAZO ABERTO</option>
-                <option value="PRAZO EM CURSO NO SISTEMA">Observação: PRAZO EM CURSO</option>
-                <option value="PROCESSO SUSPENSO">Observação: PROCESSO SUSPENSO</option>
+                <option value="PRAZO ABERTO FORA">Observação: PRAZO ABERTO</option>
+                <option value="PRAZO EM CURSO">Observação: PRAZO EM CURSO</option>
+                <option value="SUSPENSO">Observação: PROCESSO SUSPENSO</option>
                 <option value="ARQUIVO PROVISÓRIO">Observação: ARQUIVO PROVISÓRIO</option>
                 <option value="ERRO DE FLUXO">Observação: ERRO DE FLUXO</option>
                 <option value="LEILÃO">Observação: LEILÃO</option>
@@ -1082,7 +1150,7 @@
 
             <div onclick="document.getElementById('centralAgilizacaoSuspensosMigrationSection').scrollIntoView({ behavior: 'smooth', block: 'start' })" style="cursor: pointer; padding: 10px 14px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;" onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--accent-success)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(16, 185, 129, 0.3)';">
                 <div style="font-size: 11px; font-weight: 600; color: var(--text-primary);">
-                    <span>🛠️ Agilização / Suspensos</span>
+                    <span>🛠️ Aguardar / Suspensos</span>
                 </div>
                 <span id="navBadge_CentralSuspensos" style="background: var(--accent-success); color: #fff; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px;">0</span>
             </div>
@@ -1648,6 +1716,7 @@
                     <div style="display:flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                         <button class="btn-theme" id="btnApagarAnalisados" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);">🗑️ Apagar apenas Analisados "SIM"</button>
                         <button class="btn-theme" id="btnUpdateSerprec" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px;">🔄 Atualizar Erro/Vinc</button>
+                        <span id="serprecPendingWarning" style="display:none; font-size:11px; font-weight:600; color:#fbbf24; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.35); border-radius:6px; padding:4px 10px; animation: pulse-warning 2s infinite;">⚠️ Atenção: há dados alterados pendentes de envio</span>
                         <button class="btn-premium" id="btnSubmitSerprec" style="padding: 6px 15px; font-size: 12px; width: auto; height: 32px; border-radius: 6px; box-shadow: none;" disabled>💾 Enviar Dados</button>
                     </div>
                 </div>
@@ -1808,8 +1877,172 @@
 
     logDebug("Painel Tontom carregado.");
 
-    // Configurações das Equipes estáticas
-    const equipes = {
+    window.FERIADOS_SET = window.FERIADOS_SET || new Set();
+
+    function formatarDataKey(dateObj) {
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const d = String(dateObj.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function extrairDataGvizCell(cell) {
+        if (!cell) return null;
+        if (cell.f) {
+            const parts = cell.f.trim().split('/');
+            if (parts.length === 3) {
+                const d = parts[0].padStart(2, '0');
+                const m = parts[1].padStart(2, '0');
+                let y = parts[2];
+                if (y.length === 2) y = "20" + y;
+                return `${y}-${m}-${d}`;
+            }
+        }
+        if (cell.v !== undefined && cell.v !== null) {
+            const strVal = String(cell.v);
+            if (strVal.includes('Date(')) {
+                const match = strVal.match(/Date\((\d+),\s*(\d+),\s*(\d+)\)/);
+                if (match) {
+                    const y = parseInt(match[1], 10);
+                    const m = parseInt(match[2], 10); // 0-indexed no GViz Date()
+                    const d = parseInt(match[3], 10);
+                    const dateObj = new Date(y, m, d);
+                    return formatarDataKey(dateObj);
+                }
+            }
+        }
+        return null;
+    }
+
+    function carregarFeriadosPlanilha() {
+        const urlFeriados = "https://docs.google.com/spreadsheets/d/1OJQj5e6eZ_IGeyH4YTC9vnlY_mmISLg0yNwx_yIpNoc/gviz/tq?gid=494830240&tqx=responseHandler:cbFeriados";
+        logDebug("Iniciando busca de Feriados via GViz...");
+        carregarJsonp(urlFeriados, "cbFeriados", function(data) {
+            try {
+                if (data && data.status === "ok" && data.table && data.table.rows) {
+                    window.FERIADOS_SET.clear();
+                    data.table.rows.forEach(r => {
+                        if (r.c && r.c[6]) { // Coluna G (índice 6) = Data do feriado
+                            const dtStr = extrairDataGvizCell(r.c[6]);
+                            if (dtStr) {
+                                window.FERIADOS_SET.add(dtStr);
+                            }
+                        }
+                    });
+                    logDebug("Feriados carregados com sucesso! Total: " + window.FERIADOS_SET.size);
+                    inicializarMetas();
+                    if (typeof sincronizarAbasEEquipes === 'function') {
+                        sincronizarAbasEEquipes();
+                    }
+                }
+            } catch (err) {
+                console.error("Erro ao processar feriados:", err);
+            }
+        }, function() {
+            logDebug("Erro de rede ao carregar feriados.");
+        });
+    }
+
+    // Calcula meta baseada nos dias úteis e feriados da semana
+    function obterMetaAcumuladaInfo(dateParam) {
+        const agora = dateParam ? new Date(dateParam) : new Date();
+        const diaNum = agora.getDay(); // 0 = Dom, 1 = Seg, 2 = Ter, 3 = Qua, 4 = Qui, 5 = Sex, 6 = Sáb
+        
+        if (diaNum === 0 || diaNum === 6) {
+            return { rangeText: "Meta de 100%", cutoff: 100, totalDiasUteis: 5, diaUtilAtual: 5, isFeriado: false };
+        }
+
+        // Achar a segunda-feira da semana atual (00:00:00)
+        const seg = new Date(agora);
+        const diffToMon = (diaNum === 0 ? -6 : 1 - diaNum);
+        seg.setDate(agora.getDate() + diffToMon);
+        seg.setHours(0, 0, 0, 0);
+
+        // Mapear de Segunda (1) a Sexta (5)
+        const diasUteisSemana = [];
+        for (let i = 0; i < 5; i++) {
+            const d = new Date(seg);
+            d.setDate(seg.getDate() + i);
+            const key = formatarDataKey(d);
+            const isFeriado = window.FERIADOS_SET && window.FERIADOS_SET.has(key);
+            diasUteisSemana.push({
+                date: d,
+                key: key,
+                dayOfWeek: i + 1,
+                isFeriado: isFeriado
+            });
+        }
+
+        const diasUteisValidos = diasUteisSemana.filter(d => !d.isFeriado);
+        const totalDiasUteis = diasUteisValidos.length;
+
+        const hojeKey = formatarDataKey(agora);
+        const hojeObj = diasUteisSemana.find(d => d.key === hojeKey);
+
+        if (!hojeObj) {
+            return { rangeText: "Meta de 100%", cutoff: 100, totalDiasUteis: 5, diaUtilAtual: 5, isFeriado: false };
+        }
+
+        // Se hoje for feriado
+        if (hojeObj.isFeriado) {
+            const agoraTs = agora.getTime();
+            const diasUteisAntes = diasUteisValidos.filter(d => d.date.getTime() < agoraTs).length;
+            let cutoff = 0;
+            if (totalDiasUteis > 0 && diasUteisAntes > 0) {
+                cutoff = Math.round((diasUteisAntes / totalDiasUteis) * 100);
+            }
+            return {
+                rangeText: `Feriado (Meta de ${cutoff}%)`,
+                cutoff: cutoff,
+                totalDiasUteis: totalDiasUteis,
+                diaUtilAtual: 0,
+                isFeriado: true
+            };
+        }
+
+        const rankUtil = diasUteisValidos.findIndex(d => d.key === hojeKey) + 1;
+
+        let rangeText = "";
+        let cutoff = 0;
+
+        if (totalDiasUteis === 5) {
+            if (rankUtil === 1) { rangeText = "Meta de 0-20%"; cutoff = 0; }
+            else if (rankUtil === 2) { rangeText = "Meta de 20-40%"; cutoff = 20; }
+            else if (rankUtil === 3) { rangeText = "Meta de 40-60%"; cutoff = 40; }
+            else if (rankUtil === 4) { rangeText = "Meta de 60-80%"; cutoff = 60; }
+            else if (rankUtil === 5) { rangeText = "Meta de 80-100%"; cutoff = 80; }
+        } else if (totalDiasUteis === 4) {
+            if (rankUtil === 1) { rangeText = "Meta de 0-25%"; cutoff = 0; }
+            else if (rankUtil === 2) { rangeText = "Meta de 25-50%"; cutoff = 25; }
+            else if (rankUtil === 3) { rangeText = "Meta de 50-75%"; cutoff = 50; }
+            else if (rankUtil === 4) { rangeText = "Meta de 75-100%"; cutoff = 75; }
+        } else if (totalDiasUteis === 3) {
+            if (rankUtil === 1) { rangeText = "Meta de 0-33,33%"; cutoff = 0; }
+            else if (rankUtil === 2) { rangeText = "Meta de 33,33-66,66%"; cutoff = 33.33; }
+            else if (rankUtil === 3) { rangeText = "Meta de 66,66-100%"; cutoff = 66.66; }
+        } else if (totalDiasUteis === 2) {
+            if (rankUtil === 1) { rangeText = "Meta de 0-50%"; cutoff = 0; }
+            else if (rankUtil === 2) { rangeText = "Meta de 50-100%"; cutoff = 50; }
+        } else if (totalDiasUteis === 1) {
+            rangeText = "Meta de 0-100%"; cutoff = 0;
+        } else {
+            rangeText = "Semana sem dias úteis (Meta 0%)"; cutoff = 0;
+        }
+
+        return {
+            rangeText: rangeText,
+            cutoff: cutoff,
+            totalDiasUteis: totalDiasUteis,
+            diaUtilAtual: rankUtil,
+            isFeriado: false
+        };
+    }
+
+
+
+
+    // Configurações das Equipes padrões (Master fallback)
+    const DEFAULT_EQUIPES = {
         "Todas": [],
         "Equipe 1": ["ELIANE MARIA SANTOS RODARTE ANDRADE", "FABIO BORGES GONCALVES", "HI MEET SHIUE", "MARIA LUCIANA DA SILVA", "MARCELLE SÁ CARNEIRO MENDONÇA", "MARCIA RODRIGUES DE OLIVEIRA", "MARTA MARIA BARBOSA", "MOYSA MARIA DE SOUZA LEAO SALES", "TAYSSA MAYARA PEDERNEIRAS PAZ", "MARIANA PORTO GOMES DE CARVALHO"],
         "Equipe 2": ["MARINA BESSI FERNANDES", "ANA ELIZABETH AGUIAR CAVALCANTI", "ANE VICTOR ALVES CARDOSO", "BLANIA LEUCHTEMBERG DE OLIVEIRA", "DIANA GONCALVES BOTELHO", "ISOLDA MARIA AZEVEDO DE LYRA", "MARIA INEZ MENEZES DOS SANTOS", "SABRINA SERRANO BARBOSA", "SAMARA OLIVEIRA DE MELO", "JULIANA SABRINA CABRAL RODRIGUES"],
@@ -1822,12 +2055,11 @@
         "Equipe 9": ["ANA CRISTINA PEDROSA FREIRE DE SA","ALUSKA SUYANNE MARQUES DA SILVA", "ELISA CARLA CAMPOS TAVARES", "ERICKSON MOURA DE QUEIROZ", "FRANCISCO ELTOMAR MARTINS FERREIRA", "LILIAN AVELINO DE MORAIS", "OTIMAR ANTÔNIO DA SILVA", "SIMONE DE MEDEIROS TORRES", "SIMONE DOS PASSOS E SILVA LEITE", "TACIANA MARTINS AMORIM BARBOSA BARROS"],
         "Equipe 10": ["ALEXANDRE LINDOSO DE ARAÚJO", "DAYANE FERNANDES MESSIAS", "FABIO COSTA TAVARES DA SILVA", "KALENNE FRANMARRY B ALVES MIYAKAWA", "MARILIA DOHERTY AYRES", "SILVIO MUCIO DE MACEDO FILHO", "WAGNER JEFFERSON MEIRA FILHO"],
         "Equipe 11": ["CAMILLA RODRIGUES MARQUES CARNEIRO", "DIEGO MOURA DA SILVA LOPES", "ELBA MARIA BARROS GALIZA PINHEIRO", "GUILHERME ALBERTI LUPCHINSKI", "GEMMA GONCALVES DE ARAUJO GONDIM", "JAQUELINE GONDIM SOTERO SIQUEIRA", "LAURA BUARQUE INACIO DE BARROS", "NILSON JOSE GONCALVES DOS SANTOS SILVA", "ROSELYNE BEZERRA SMITH", "MICHELLE MARIA NASCIMENTO FILGUEIRAS"],
-        "Equipe SCGA (GT)": ["GUSTAVO GOMES DE OLIVEIRA", "MANOEL PORFIRIO DE ARAUJO FILHO", "BRENDA CRISTINE PACHECO DE OLIVEIRA", "NAYRA CELLE BELTRAO AGUIAR"],
-        "SCGA (GT)": ["GUSTAVO GOMES DE OLIVEIRA", "MANOEL PORFIRIO DE ARAUJO FILHO", "BRENDA CRISTINE PACHECO DE OLIVEIRA", "NAYRA CELLE BELTRAO AGUIAR"]
+        "Equipe SCGA (GT)": ["GUSTAVO GOMES DE OLIVEIRA", "MANOEL PORFIRIO DE ARAUJO FILHO", "BRENDA CRISTINE PACHECO DE OLIVEIRA", "NAYRA CELLE BELTRAO AGUIAR"]
     };
 
-    // Mapeamento oficial de Duplas de Supervisores por Equipe (Conforme arquivo da Diretoria Civel)
-    const supervisoresMap = {
+    // Mapeamento padrão de Duplas de Supervisores por Equipe
+    const DEFAULT_SUPERVISORES = {
         "Equipe 1": "Ana Angélica / Ricardo Dias",
         "Equipe 2": "Roberto Gonçalves / Marina Bessi",
         "Equipe 3": "Suziane Muniz / Janaina Freitas",
@@ -1840,9 +2072,112 @@
         "Equipe 10": "Taciana Martins / Napoleão Tavares",
         "Equipe 11": "Rianne Torres / Lígia Ribeiro",
         "Equipe SCGA (GT)": "Jary Barros",
-
         "Todas": "Todos os Supervisores"
     };
+
+    function carregarEquipesLocal() {
+        try {
+            const raw = localStorage.getItem('tontom_equipes_custom');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === 'object') {
+                    parsed["Todas"] = [];
+                    if (parsed["Equipe SCGA (GT)"]) parsed["SCGA (GT)"] = parsed["Equipe SCGA (GT)"];
+                    return parsed;
+                }
+            }
+        } catch (e) {
+            console.error("Erro ao carregar equipes do localStorage:", e);
+        }
+        const cloned = JSON.parse(JSON.stringify(DEFAULT_EQUIPES));
+        cloned["SCGA (GT)"] = cloned["Equipe SCGA (GT)"];
+        return cloned;
+    }
+
+    function carregarSupervisoresLocal() {
+        try {
+            const raw = localStorage.getItem('tontom_supervisores_custom');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === 'object') {
+                    parsed["Todas"] = "Todos os Supervisores";
+                    if (parsed["Equipe SCGA (GT)"]) parsed["SCGA (GT)"] = parsed["Equipe SCGA (GT)"];
+                    return parsed;
+                }
+            }
+        } catch (e) {
+            console.error("Erro ao carregar supervisores do localStorage:", e);
+        }
+        const cloned = JSON.parse(JSON.stringify(DEFAULT_SUPERVISORES));
+        cloned["SCGA (GT)"] = cloned["Equipe SCGA (GT)"];
+        return cloned;
+    }
+
+    let equipes = carregarEquipesLocal();
+    let supervisoresMap = carregarSupervisoresLocal();
+
+    function salvarEquipesESupervisoresLocal() {
+        try {
+            equipes["Todas"] = [];
+            supervisoresMap["Todas"] = "Todos os Supervisores";
+            if (equipes["Equipe SCGA (GT)"]) {
+                equipes["SCGA (GT)"] = equipes["Equipe SCGA (GT)"];
+            }
+            if (supervisoresMap["Equipe SCGA (GT)"]) {
+                supervisoresMap["SCGA (GT)"] = supervisoresMap["Equipe SCGA (GT)"];
+            }
+            localStorage.setItem('tontom_equipes_custom', JSON.stringify(equipes));
+            localStorage.setItem('tontom_supervisores_custom', JSON.stringify(supervisoresMap));
+        } catch (e) {
+            console.error("Erro ao salvar equipes/supervisores no localStorage:", e);
+        }
+    }
+
+    function salvarEquipesNuvem(showNotification = false) {
+        salvarEquipesESupervisoresLocal();
+        const webAppUrl = document.getElementById('txtWebAppUrl')?.value?.trim();
+        if (!webAppUrl) return;
+
+        const eqParam = encodeURIComponent(JSON.stringify(equipes));
+        const supParam = encodeURIComponent(JSON.stringify(supervisoresMap));
+        const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=saveEquipesConfig&equipes=${eqParam}&supervisores=${supParam}&callback=cbSaveEquipesConfig`;
+
+        carregarJsonp(url, "cbSaveEquipesConfig", function(resp) {
+            if (resp && (resp.status === "success" || resp.status === "ok")) {
+                logDebug("Equipes sincronizadas na nuvem com sucesso.");
+                if (showNotification) alert("Configurações salvas localmente e sincronizadas na nuvem para todos!");
+            }
+        }, function(err) {
+            console.error("Erro ao salvar equipes na nuvem:", err);
+        });
+    }
+
+    function carregarEquipesNuvem(callbackSuccess) {
+        const webAppUrl = document.getElementById('txtWebAppUrl')?.value?.trim();
+        if (!webAppUrl) return;
+
+        const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=readEquipesConfig&callback=cbReadEquipesConfig`;
+        carregarJsonp(url, "cbReadEquipesConfig", function(resp) {
+            if (resp && (resp.status === "ok" || resp.status === "success")) {
+                if (resp.equipes && typeof resp.equipes === 'object') {
+                    equipes = resp.equipes;
+                    equipes["Todas"] = [];
+                    if (equipes["Equipe SCGA (GT)"]) equipes["SCGA (GT)"] = equipes["Equipe SCGA (GT)"];
+                }
+                if (resp.supervisores && typeof resp.supervisores === 'object') {
+                    supervisoresMap = resp.supervisores;
+                    supervisoresMap["Todas"] = "Todos os Supervisores";
+                    if (supervisoresMap["Equipe SCGA (GT)"]) supervisoresMap["SCGA (GT)"] = supervisoresMap["Equipe SCGA (GT)"];
+                }
+                salvarEquipesESupervisoresLocal();
+                atualizarSelecioneEquipesUI();
+                logDebug("Equipes carregadas da nuvem com sucesso.");
+                if (typeof callbackSuccess === 'function') callbackSuccess();
+            }
+        }, function(err) {
+            logDebug("Nenhuma configuração na nuvem ou erro ao carregar.");
+        });
+    }
 
     const linksResumosPadrao = {
         "Equipe 1": "https://docs.google.com/spreadsheets/d/1UjO33whaaEUn4KgwoRSkdxH0aOVrzqqEW_1PQmPaWJk/edit",
@@ -2015,6 +2350,20 @@
     // Globals
     const diasSemanaNomes = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
 
+    // Inicialização de Datas e Metas
+    function inicializarMetas() {
+        const agora = new Date();
+        const diaNum = agora.getDay();
+        
+        lblDiaSemana.innerText = diasSemanaNomes[diaNum];
+        
+        const metaInfo = obterMetaAcumuladaInfo();
+        lblMetaAcumulada.innerText = metaInfo.rangeText;
+        lblMetaAcumulada.title = metaInfo.rangeText + (metaInfo.totalDiasUteis ? ` (Semana de ${metaInfo.totalDiasUteis} dia(s) útil/úteis)` : '');
+        window.metaHojeAcumulada = metaInfo.cutoff;
+    }
+    inicializarMetas();
+
     // Theme Select handler
     const selectTheme = document.getElementById('selectTheme');
     
@@ -2029,10 +2378,27 @@
         localStorage.setItem('tontom_theme', theme);
     };
 
-    // Toggle Settings panel visibility
+    // Toggle Settings panel visibility com proteção por PIN de acesso (PIN: 2020)
+    let isSettingsUnlocked = false;
+
     document.getElementById('btnSettingsToggle').onclick = () => {
         const panel = document.getElementById('settingsPanel');
-        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        if (panel.style.display === 'block') {
+            panel.style.display = 'none';
+            return;
+        }
+
+        if (!isSettingsUnlocked) {
+            const pin = prompt("🔒 Digite o código de acesso para abrir as Configurações:");
+            if (pin === "2020") {
+                isSettingsUnlocked = true;
+                panel.style.display = 'block';
+            } else if (pin !== null) {
+                alert("❌ Código de acesso incorreto!");
+            }
+        } else {
+            panel.style.display = 'block';
+        }
     };
 
     // Helper: Normaliza Strings
@@ -2097,51 +2463,114 @@
         return false;
     }
 
-    // Calcula meta baseada no dia da semana solicitado pelo usuário
-    function obterMetaAcumuladaInfo() {
-        const agora = new Date();
-        const diaNum = agora.getDay();
-        
-        let rangeText = "";
-        let cutoff = 0;
-        
-        if (diaNum === 1) { // Segunda
-            rangeText = "Meta de 0-20%";
-            cutoff = 0;
-        } else if (diaNum === 2) { // Terça
-            rangeText = "Meta de 20-40%";
-            cutoff = 20;
-        } else if (diaNum === 3) { // Quarta
-            rangeText = "Meta de 40-60%";
-            cutoff = 40;
-        } else if (diaNum === 4) { // Quinta
-            rangeText = "Meta de 60-80%";
-            cutoff = 60;
-        } else if (diaNum === 5) { // Sexta
-            rangeText = "Meta de 80-100%";
-            cutoff = 80;
-        } else { // Fim de semana
-            rangeText = "Meta de 100%";
-            cutoff = 100;
+    window.FERIADOS_SET = window.FERIADOS_SET || new Set();
+
+    function formatarDataKey(dateObj) {
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const d = String(dateObj.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function extrairDataGvizCell(cell) {
+        if (!cell) return null;
+        if (cell.f) {
+            const parts = cell.f.trim().split('/');
+            if (parts.length === 3) {
+                const d = parts[0].padStart(2, '0');
+                const m = parts[1].padStart(2, '0');
+                let y = parts[2];
+                if (y.length === 2) y = "20" + y;
+                return `${y}-${m}-${d}`;
+            }
         }
-        
-        return { rangeText, cutoff };
+        if (cell.v !== undefined && cell.v !== null) {
+            const strVal = String(cell.v);
+            if (strVal.includes('Date(')) {
+                const match = strVal.match(/Date\((\d+),\s*(\d+),\s*(\d+)\)/);
+                if (match) {
+                    const y = parseInt(match[1], 10);
+                    const m = parseInt(match[2], 10); // 0-indexed no GViz Date()
+                    const d = parseInt(match[3], 10);
+                    const dateObj = new Date(y, m, d);
+                    return formatarDataKey(dateObj);
+                }
+            }
+        }
+        return null;
     }
 
-    // Inicialização de Datas e Metas
-    function inicializarMetas() {
-        const agora = new Date();
-        const diaNum = agora.getDay();
+    function carregarFeriadosLocal() {
+        window.FERIADOS_SET.clear();
+        const txtEl = document.getElementById('txtFeriadosList');
+        const rawText = txtEl ? txtEl.value : (localStorage.getItem('tontom_feriados_list') || "");
         
-        lblDiaSemana.innerText = diasSemanaNomes[diaNum];
-        
-        const metaInfo = obterMetaAcumuladaInfo();
-        lblMetaAcumulada.innerText = metaInfo.rangeText;
-        window.metaHojeAcumulada = metaInfo.cutoff;
+        if (rawText) {
+            const linhas = rawText.split('\n');
+            linhas.forEach(linha => {
+                const match = linha.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/);
+                if (match) {
+                    const d = match[1].padStart(2, '0');
+                    const m = match[2].padStart(2, '0');
+                    const y = match[3];
+                    window.FERIADOS_SET.add(`${y}-${m}-${d}`);
+                }
+            });
+        }
+        inicializarMetas();
+        if (typeof sincronizarAbasEEquipes === 'function') {
+            sincronizarAbasEEquipes();
+        }
     }
-    inicializarMetas();
 
-    // Configurando supervisor inicial e persistência da equipe com sincronização bidirecional
+    function sincronizarFeriadosPlanilha() {
+        const urlFeriados = document.getElementById('txtFeriadosSheetUrl')?.value.trim() || 
+            "https://docs.google.com/spreadsheets/d/1OJQj5e6eZ_IGeyH4YTC9vnlY_mmISLg0yNwx_yIpNoc/edit?gid=494830240#gid=494830240";
+        
+        const parsed = extrairSpreadsheetIdEGid(urlFeriados);
+        if (!parsed || !parsed.id) {
+            logDebug("Link de Feriados inválido.");
+            return;
+        }
+        const gid = parsed.gid || "494830240";
+        const jsonpUrl = `https://docs.google.com/spreadsheets/d/${parsed.id}/gviz/tq?gid=${gid}&tqx=responseHandler:cbFeriados`;
+
+        logDebug("Iniciando busca de Feriados via GViz...");
+        carregarJsonp(jsonpUrl, "cbFeriados", function(data) {
+            try {
+                if (data && data.status === "ok" && data.table && data.table.rows) {
+                    const listaLinhas = [];
+                    data.table.rows.forEach(r => {
+                        if (r.c && r.c[6]) { // Coluna G (índice 6) = Data do feriado
+                            const dtStr = extrairDataGvizCell(r.c[6]);
+                            if (dtStr) {
+                                const parts = dtStr.split('-');
+                                const dataFormatted = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                                const nomeFeriado = (r.c[7] && r.c[7].v) ? String(r.c[7].v).trim() : "Feriado";
+                                listaLinhas.push(`${dataFormatted} - ${nomeFeriado}`);
+                            }
+                        }
+                    });
+                    const textoFinal = listaLinhas.join('\n');
+                    const txtEl = document.getElementById('txtFeriadosList');
+                    if (txtEl) txtEl.value = textoFinal;
+                    localStorage.setItem('tontom_feriados_list', textoFinal);
+                    carregarFeriadosLocal();
+                    logDebug("Feriados sincronizados da planilha com sucesso! Total: " + listaLinhas.length);
+                }
+            } catch (err) {
+                console.error("Erro ao sincronizar feriados:", err);
+            }
+        }, function() {
+            logDebug("Erro de rede ao carregar feriados.");
+        });
+    }
+
+        function carregarFeriadosPlanilha() {
+        carregarFeriadosLocal();
+    }
+
+        // Configurando supervisor inicial e persistência da equipe com sincronização bidirecional
     function sincronizarAbasEEquipes() {
         if (SIMAP_PROCESS_LIST.length > 0) {
             processarDadosGerais();
@@ -2157,35 +2586,288 @@
         if (typeof atualizarPainelCentralAgilizacaoSuspensos === 'function') atualizarPainelCentralAgilizacaoSuspensos();
     }
 
-    const savedEquipe = localStorage.getItem('tontom_selected_equipe') || "Equipe 2";
-    selectEquipe.value = savedEquipe;
-    
-    const savedSupervisor = localStorage.getItem('tontom_supervisor_name') || supervisoresMap[savedEquipe] || "Roberto Gonçalves / Marina Bessi";
-    txtSupervisor.value = savedSupervisor;
-
-    selectEquipe.onchange = () => {
-        const eqVal = selectEquipe.value;
-        const supVal = supervisoresMap[eqVal] || "Todos os Supervisores";
-        txtSupervisor.value = supVal;
-        localStorage.setItem('tontom_selected_equipe', eqVal);
-        localStorage.setItem('tontom_supervisor_name', supVal);
-        sincronizarAbasEEquipes();
-    };
-
-    txtSupervisor.onchange = () => {
-        const supVal = txtSupervisor.value;
-        let foundEquipe = "Todas";
-        for (let eq in supervisoresMap) {
-            if (supervisoresMap[eq] === supVal) {
-                foundEquipe = eq;
-                break;
-            }
+    // Funções de gerenciamento dinâmico de equipes na UI
+    function popularSelectEquipe() {
+        const selectEq = document.getElementById('selectEquipe');
+        if (!selectEq) return;
+        const currentVal = selectEq.value || localStorage.getItem('tontom_selected_equipe') || "Equipe 2";
+        selectEq.innerHTML = "";
+        
+        for (let eqKey in equipes) {
+            if (eqKey === "Todas" || eqKey === "SCGA (GT)") continue;
+            const opt = document.createElement('option');
+            opt.value = eqKey;
+            opt.textContent = eqKey;
+            selectEq.appendChild(opt);
         }
-        selectEquipe.value = foundEquipe;
-        localStorage.setItem('tontom_selected_equipe', foundEquipe);
-        localStorage.setItem('tontom_supervisor_name', supVal);
-        sincronizarAbasEEquipes();
-    };
+        
+        const optTodas = document.createElement('option');
+        optTodas.value = "Todas";
+        optTodas.textContent = "Todas as Equipes";
+        selectEq.appendChild(optTodas);
+
+        if (equipes[currentVal] !== undefined || currentVal === "Todas") {
+            selectEq.value = currentVal;
+        } else if (selectEq.options.length > 0) {
+            selectEq.selectedIndex = 0;
+        }
+    }
+
+    function popularSelectSupervisor() {
+        const txtSup = document.getElementById('txtSupervisor');
+        if (!txtSup) return;
+        const currentEq = document.getElementById('selectEquipe')?.value || "Equipe 2";
+        txtSup.innerHTML = "";
+
+        for (let eqKey in supervisoresMap) {
+            if (eqKey === "Todas" || eqKey === "SCGA (GT)") continue;
+            const opt = document.createElement('option');
+            opt.value = supervisoresMap[eqKey];
+            opt.textContent = `${supervisoresMap[eqKey]} (${eqKey})`;
+            txtSup.appendChild(opt);
+        }
+
+        const optTodos = document.createElement('option');
+        optTodos.value = "Todos os Supervisores";
+        optTodos.textContent = "Todos os Supervisores (Todas as Equipes)";
+        txtSup.appendChild(optTodos);
+
+        if (supervisoresMap[currentEq]) {
+            txtSup.value = supervisoresMap[currentEq];
+        }
+    }
+
+    function popularSelectEquipeEditor() {
+        const selectEditor = document.getElementById('selectEquipeEditor');
+        if (!selectEditor) return;
+        const savedSelection = selectEditor.value;
+        selectEditor.innerHTML = "";
+
+        for (let eqKey in equipes) {
+            if (eqKey === "Todas" || eqKey === "SCGA (GT)") continue;
+            const opt = document.createElement('option');
+            opt.value = eqKey;
+            opt.textContent = eqKey;
+            selectEditor.appendChild(opt);
+        }
+
+        if (savedSelection && equipes[savedSelection] !== undefined && savedSelection !== "Todas" && savedSelection !== "SCGA (GT)") {
+            selectEditor.value = savedSelection;
+        } else if (selectEditor.options.length > 0) {
+            selectEditor.selectedIndex = 0;
+        }
+    }
+
+    function atualizarSelecioneEquipesUI() {
+        popularSelectEquipe();
+        popularSelectSupervisor();
+        popularSelectEquipeEditor();
+        renderizarEditorEquipeSelecionada();
+    }
+
+    // Inicializar UI das equipes ao carregar
+    atualizarSelecioneEquipesUI();
+
+    // Reagir à mudança de equipe no editor
+    const selectEquipeEditorEl = document.getElementById('selectEquipeEditor');
+    if (selectEquipeEditorEl) {
+        selectEquipeEditorEl.onchange = () => renderizarEditorEquipeSelecionada();
+    }
+
+    // Reagir à mudança de supervisor no editor (salva automaticamente no map)
+    const txtSupervisorEditorEl = document.getElementById('txtSupervisorEditor');
+    if (txtSupervisorEditorEl) {
+        txtSupervisorEditorEl.onblur = () => {
+            const selEq = document.getElementById('selectEquipeEditor')?.value;
+            if (selEq) {
+                supervisoresMap[selEq] = txtSupervisorEditorEl.value.trim();
+                salvarEquipesESupervisoresLocal();
+            }
+        };
+    }
+
+    function renderizarEditorEquipeSelecionada() {
+        const selectEditor = document.getElementById('selectEquipeEditor');
+        if (!selectEditor || !selectEditor.value) return;
+        const eqKey = selectEditor.value;
+
+        // Atualiza campo de supervisor da equipe
+        const txtSupEd = document.getElementById('txtSupervisorEditor');
+        if (txtSupEd) {
+            txtSupEd.value = supervisoresMap[eqKey] || "";
+        }
+
+        // Visibilidade do botão Excluir (somente para equipes customizadas além das padrão)
+        const builtInEquipes = ["Equipe 1", "Equipe 2", "Equipe 3", "Equipe 4", "Equipe 5", "Equipe 6", "Equipe 7", "Equipe 8", "Equipe 9", "Equipe 10", "Equipe 11", "Equipe SCGA (GT)"];
+        const btnExcluir = document.getElementById('btnExcluirEquipeEditor');
+        if (btnExcluir) {
+            btnExcluir.style.display = builtInEquipes.includes(eqKey) ? "none" : "inline-block";
+        }
+
+        // Renderiza lista de servidores
+        const container = document.getElementById('containerListaServidores');
+        const lblQtd = document.getElementById('lblQtdServidoresEquipe');
+        const txtBulk = document.getElementById('txtServidoresBulkList');
+        
+        const servidores = equipes[eqKey] || [];
+        if (lblQtd) lblQtd.innerText = servidores.length;
+        if (txtBulk) txtBulk.value = servidores.join('\n');
+
+        if (!container) return;
+        container.innerHTML = "";
+
+        if (servidores.length === 0) {
+            container.innerHTML = `<div style="font-size: 12px; color: #94a3b8; text-align: center; padding: 15px;">Nenhum servidor cadastrado nesta equipe.</div>`;
+            return;
+        }
+
+        // Lista de outras equipes para transferência
+        const outrasEquipes = Object.keys(equipes).filter(k => k !== "Todas" && k !== "SCGA (GT)" && k !== eqKey);
+
+        servidores.forEach((servidor, index) => {
+            const row = document.createElement('div');
+            row.style.cssText = "display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px;";
+            if (index % 2 === 1) row.style.background = "rgba(255,255,255,0.02)";
+
+            const nomeSpan = document.createElement('span');
+            nomeSpan.style.cssText = "flex: 1; font-weight: 500; word-break: break-word;";
+            nomeSpan.textContent = servidor;
+
+            // Seletor para mover de equipe
+            const moveSelect = document.createElement('select');
+            moveSelect.className = "form-control";
+            moveSelect.style.cssText = "padding: 2px 6px; font-size: 11px; width: auto; max-width: 140px; height: auto;";
+            moveSelect.innerHTML = `<option value="" disabled selected>Mover para...</option>`;
+            outrasEquipes.forEach(targetEq => {
+                const opt = document.createElement('option');
+                opt.value = targetEq;
+                opt.textContent = targetEq;
+                moveSelect.appendChild(opt);
+            });
+
+            moveSelect.onchange = () => {
+                const targetEq = moveSelect.value;
+                if (!targetEq) return;
+                // Move o servidor
+                equipes[eqKey].splice(index, 1);
+                if (!equipes[targetEq]) equipes[targetEq] = [];
+                if (!equipes[targetEq].includes(servidor)) {
+                    equipes[targetEq].push(servidor);
+                }
+                salvarEquipesESupervisoresLocal();
+                atualizarSelecioneEquipesUI();
+            };
+
+            // Botão remover
+            const btnRemove = document.createElement('button');
+            btnRemove.type = "button";
+            btnRemove.innerHTML = "❌";
+            btnRemove.title = "Remover servidor desta equipe";
+            btnRemove.style.cssText = "background: transparent; border: none; cursor: pointer; font-size: 12px; padding: 2px 5px;";
+            btnRemove.onclick = () => {
+                equipes[eqKey].splice(index, 1);
+                salvarEquipesESupervisoresLocal();
+                atualizarSelecioneEquipesUI();
+            };
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.style.cssText = "display: flex; gap: 8px; align-items: center;";
+            actionsDiv.appendChild(moveSelect);
+            actionsDiv.appendChild(btnRemove);
+
+            row.appendChild(nomeSpan);
+            row.appendChild(actionsDiv);
+            container.appendChild(row);
+        });
+    }
+
+    const btnAddServ = document.getElementById('btnAddServidorEquipe');
+    if (btnAddServ) {
+        btnAddServ.onclick = () => {
+            const selEq = document.getElementById('selectEquipeEditor')?.value;
+            if (!selEq) return;
+            const inputNome = document.getElementById('txtNovoServidorNome');
+            const nome = inputNome?.value?.trim()?.toUpperCase();
+            if (!nome) return;
+
+            if (!equipes[selEq]) equipes[selEq] = [];
+            if (!equipes[selEq].includes(nome)) {
+                equipes[selEq].push(nome);
+                salvarEquipesESupervisoresLocal();
+                if (inputNome) inputNome.value = "";
+                atualizarSelecioneEquipesUI();
+            } else {
+                alert("Este servidor já está cadastrado nesta equipe!");
+            }
+        };
+    }
+
+    const btnBulk = document.getElementById('btnAplicarBulkServidores');
+    if (btnBulk) {
+        btnBulk.onclick = () => {
+            const selEq = document.getElementById('selectEquipeEditor')?.value;
+            if (!selEq) return;
+            const text = document.getElementById('txtServidoresBulkList')?.value || "";
+            const linhas = text.split('\n').map(l => l.trim().toUpperCase()).filter(l => l.length > 0);
+            
+            equipes[selEq] = Array.from(new Set(linhas));
+            salvarEquipesESupervisoresLocal();
+            atualizarSelecioneEquipesUI();
+            alert(`Lista de servidores da ${selEq} atualizada com ${equipes[selEq].length} integrantes!`);
+        };
+    }
+
+    const btnNovaEq = document.getElementById('btnAddNovaEquipe');
+    if (btnNovaEq) {
+        btnNovaEq.onclick = () => {
+            const nomeNova = prompt("Digite o nome da nova equipe (ex: Equipe 12):");
+            if (!nomeNova) return;
+            const nomeTratado = nomeNova.trim();
+            if (!nomeTratado) return;
+
+            if (equipes[nomeTratado] !== undefined) {
+                alert("Já existe uma equipe com este nome!");
+                return;
+            }
+
+            const supDefault = prompt(`Digite a dupla de supervisores para a ${nomeTratado}:`, "Novo Supervisor / Co-Supervisor") || "Supervisão";
+            
+            equipes[nomeTratado] = [];
+            supervisoresMap[nomeTratado] = supDefault.trim();
+            salvarEquipesESupervisoresLocal();
+            
+            atualizarSelecioneEquipesUI();
+            const selEdEl = document.getElementById('selectEquipeEditor');
+            if (selEdEl) {
+                selEdEl.value = nomeTratado;
+                renderizarEditorEquipeSelecionada();
+            }
+        };
+    }
+
+    const btnExcluirEq = document.getElementById('btnExcluirEquipeEditor');
+    if (btnExcluirEq) {
+        btnExcluirEq.onclick = () => {
+            const selEq = document.getElementById('selectEquipeEditor')?.value;
+            if (!selEq) return;
+            
+            if (confirm(`Tem certeza que deseja excluir a ${selEq}? Servidores cadastrados serão removidos.`)) {
+                delete equipes[selEq];
+                delete supervisoresMap[selEq];
+                salvarEquipesESupervisoresLocal();
+                atualizarSelecioneEquipesUI();
+            }
+        };
+    }
+
+    const btnSyncNuvem = document.getElementById('btnSyncEquipesNuvem');
+    if (btnSyncNuvem) {
+        btnSyncNuvem.onclick = () => {
+            carregarEquipesNuvem(function() {
+                alert("Configurações de equipes atualizadas da nuvem com sucesso!");
+            });
+        };
+    }
 
     // Toggle Manual CSV
     document.getElementById('btnToggleManualCsv').onclick = (e) => {
@@ -2394,10 +3076,12 @@
                 }
             }
             const dataStr = idxData >= 0 ? row[idxData] : null;
+            const origemRaw = idxTipo >= 0 ? row[idxTipo] : null;
             
             const info = {
                 prioridade: prioridadeIdentificada,
-                data: dataStr
+                data: dataStr,
+                origem: origemRaw
             };
 
             // Armazena com a chave completa limpa se disponível (evita colisões de NPUs com mesma sequência em anos diferentes)
@@ -3548,34 +4232,92 @@
         if (typeof atualizarPainelPrazoSaldo === 'function') atualizarPainelPrazoSaldo();
     }
 
-    // Verifica se a data do processo é recente (hoje ou ontem)
-    function ehRecente(dataStr) {
-        if (!dataStr) return false;
-        const m = dataStr.match(/(\d{2})\/(\d{2})\/(\d{4}|\d{2})/);
-        if (!m) return false;
-        const dia = parseInt(m[1], 10);
-        const mes = parseInt(m[2], 10) - 1;
-        let ano = parseInt(m[3], 10);
+    // Extrai informação de data EXCLUSIVAMENTE a partir da string da origem (ex: "1 - ALVARÁ 11/08")
+    function calcularInfoDataOrigem(p, dataReferencia = new Date()) {
+        const textoOrigem = String(p.origem || p.obs || "").trim();
+        const matchData = textoOrigem.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
+        
+        if (!matchData) {
+            return {
+                temData: false,
+                dias: Infinity,
+                rotulo: "no início da planilha",
+                cor: "vermelho",
+                bolinha: "🔴"
+            };
+        }
+        
+        const dia = parseInt(matchData[1], 10);
+        const mes = parseInt(matchData[2], 10) - 1;
+        let ano = matchData[3] ? parseInt(matchData[3], 10) : dataReferencia.getFullYear();
         if (ano < 100) ano += 2000;
         
-        const dataProcesso = new Date(ano, mes, dia);
-        const hoje = new Date();
-        hoje.setHours(0, 0, 0, 0);
+        const dataProc = new Date(ano, mes, dia);
+        dataProc.setHours(0, 0, 0, 0);
         
-        const ontem = new Date();
-        ontem.setDate(ontem.getDate() - 1);
-        ontem.setHours(0, 0, 0, 0);
+        const ref = new Date(dataReferencia);
+        ref.setHours(0, 0, 0, 0);
         
-        const tempo = dataProcesso.getTime();
-        return tempo === hoje.getTime() || tempo === ontem.getTime();
+        const diffTime = ref.getTime() - dataProc.getTime();
+        let dias = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        if (dias < 0) dias = 0;
+        
+        let cor = "vermelho";
+        let bolinha = "🔴";
+        let rotulo = `há ${dias} dias`;
+        
+        if (dias === 0) {
+            cor = "verde";
+            bolinha = "🟢";
+            rotulo = "Hoje";
+        } else if (dias === 1) {
+            cor = "amarelo";
+            bolinha = "🟡";
+            rotulo = "Ontem";
+        }
+        
+        return {
+            temData: true,
+            dataStr: matchData[0],
+            dias: dias,
+            rotulo: rotulo,
+            cor: cor,
+            bolinha: bolinha
+        };
     }
 
-    // Detecta se a servidora pulou a ordem de prioridades
+    // Helper: Extrai nome amigável da Origem (sem o prefixo de prioridade e sem a data)
+    function obterNomeOrigemLimpo(origemRaw, prioVal) {
+        if (!origemRaw || !String(origemRaw).trim()) {
+            const pNum = parseInt(prioVal, 10);
+            if (pNum === 1) return "Alvará";
+            if (pNum === 2) return "Mandado";
+            if (pNum === 3) return "Despacho";
+            if (pNum === 4) return "Processo";
+            return "Processo";
+        }
+        
+        let txt = String(origemRaw).trim();
+        txt = txt.replace(/^(?:P?\d+(?:\.\d+)?\s*[-–:]?\s*)/i, "");
+        txt = txt.replace(/\s*\d{1,2}\/\d{1,2}(?:\/\d{2,4})?/g, "").trim();
+        
+        if (!txt) {
+            return "Alvará";
+        }
+        
+        if (txt === txt.toUpperCase()) {
+            txt = txt.toLowerCase().replace(/(?:^|\s|-)\S/g, a => a.toUpperCase());
+        }
+        
+        return txt;
+    }
+
+    // Detecta se a servidora pulou a ordem de prioridades e calcula a cor da gravidade do desvio
     function detectarDesvioPrioridade(s) {
         const srvProcs = SIMAP_PROCESS_LIST.filter(p => p.servidor === s.nome);
         
         let maiorPrioPendente = null;
-        let temPendenteRecente = false;
+        let pendentesMaiorPrio = [];
         
         for (let pNum = 1; pNum <= 4; pNum++) {
             const pendentesNessaPrio = srvProcs.filter(p => {
@@ -3584,7 +4326,7 @@
             });
             if (pendentesNessaPrio.length > 0) {
                 maiorPrioPendente = pNum;
-                temPendenteRecente = pendentesNessaPrio.some(p => ehRecente(p.data));
+                pendentesMaiorPrio = pendentesNessaPrio;
                 break;
             }
         }
@@ -3598,9 +4340,25 @@
             });
             
             if (finalizadosMenorPrio.length > 0) {
+                let temVermelho = false;
+                let temAmarelo = false;
+                
+                pendentesMaiorPrio.forEach(p => {
+                    const infoData = calcularInfoDataOrigem(p);
+                    if (infoData.cor === 'vermelho') temVermelho = true;
+                    if (infoData.cor === 'amarelo') temAmarelo = true;
+                });
+                
+                let cor = 'verde';
+                if (temVermelho) {
+                    cor = 'vermelho';
+                } else if (temAmarelo) {
+                    cor = 'amarelo';
+                }
+                
                 return {
                     nivel: maiorPrioPendente,
-                    recente: temPendenteRecente
+                    cor: cor
                 };
             }
         }
@@ -3653,6 +4411,7 @@
         processosFiltrados.forEach(p => {
             let prio = "S/P";
             let prioData = null;
+            let prioOrigem = null;
             const chaveSequencial = p.chave;
             const npuLimpo = limparNPU(p.npu);
             let info = null;
@@ -3665,10 +4424,12 @@
             if (info) {
                 prio = info.prioridade;
                 prioData = info.data;
+                prioOrigem = info.origem;
             }
             
             p.prioridade = prio;
             p.data = p.data || prioData;
+            p.origem = prioOrigem || p.origem || "";
             p.prioValor = prio !== "S/P" ? parseFloat(String(prio).replace(',', '.')) : 999;
             
             if (!mapaServidores.has(p.servidor)) {
@@ -3797,9 +4558,16 @@
             const desvio = detectarDesvioPrioridade(s);
             let desvioBadgeHtml = '';
             if (desvio) {
-                const classe = desvio.recente ? 'recente' : 'real';
-                const label = desvio.recente ? `⚠️ Desvio P${desvio.nivel} (Recente)` : `⚠️ Desvio P${desvio.nivel}`;
-                const title = desvio.recente ? `Processos pendentes em P${desvio.nivel} incluídos hoje ou ontem.` : `Pendente antigo em P${desvio.nivel} com processos de menor prioridade já finalizados.`;
+                const classe = desvio.cor;
+                const label = desvio.cor === 'vermelho' ? `⚠️ Desvio P${desvio.nivel}` : `Desvio P${desvio.nivel}`;
+                let title = '';
+                if (desvio.cor === 'verde') {
+                    title = `Desvio P${desvio.nivel} justificado: processo inserido hoje segundo a origem.`;
+                } else if (desvio.cor === 'amarelo') {
+                    title = `Desvio P${desvio.nivel} justificado (atenção): processo inserido ontem segundo a origem.`;
+                } else {
+                    title = `Desvio P${desvio.nivel}: processo inserido há 2 dias ou mais (ou sem data na origem).`;
+                }
                 desvioBadgeHtml = `<span class="badge-desvio ${classe}" title="${title}">${label}</span>`;
             }
 
@@ -4380,14 +5148,21 @@
 
         if (servidoresAbaixo.length > 0 && window.metaHojeAcumulada > 0) {
             texto += `⚠️ SERVIDORES COM CUMPRIMENTO ABAIXO DO ESPERADO (Menor que ${window.metaHojeAcumulada}%):\n`;
+            const limiteCritico = Math.max(0, window.metaHojeAcumulada - 10);
             servidoresAbaixo.forEach(s => {
-                texto += `👤 ${s.nome} (${s.percentual} concluído) - \n`;
+                const pct = parseFloat(s.percentual) || 0;
+                if (pct < limiteCritico) {
+                    texto += `🔴 ${s.nome} (${s.percentual} concluído) - \n`;
+                } else {
+                    texto += `👤 ${s.nome} (${s.percentual} concluído) - \n`;
+                }
             });
             texto += `\n--------------------------------------------------\n\n`;
         }
 
         texto += `--------------------------------------------------\n`;
         texto += `📌 PROCESSOS PENDENTES / EM ANDAMENTO POR PRIORIDADE (P1 a P4)\n`;
+        texto += `Legenda: 🔴 Inserido Início planilha | 🟠 Em Andamento (Início planilha) | 🟡 Inserido Ontem | 🟢 Inserido Hoje\n`;
         texto += `--------------------------------------------------\n\n`;
 
         const integrantes = equipes[equipe] || [];
@@ -4424,9 +5199,87 @@
                 texto += `\n👤 ${srvPrimeiroNome} (${srvNome})\n`;
                 texto += `   -> ${srvPend} pendentes | ${srvAnd} em andamento\n`;
 
+                // --- Alerta de Sobrecarga por servidor/prioridade acumulada ---
+                const srvData = DADOS_SUPERVISAO_SERVIDORES.find(s => s.nome === srvNome);
+                let temSobrecarga = false;
+                if (srvData) {
+                    let somaRecebidosSrv = 0;
+                    for (let k = 1; k <= prio; k++) {
+                        somaRecebidosSrv += srvData.contadoresPrio[k].total;
+                    }
+                    const volumeEsperadoSrv = srvData.total * (window.metaHojeAcumulada / 100);
+                    if (somaRecebidosSrv > volumeEsperadoSrv) {
+                        temSobrecarga = true;
+                        const labelRange = prio === 1 ? 'P1' : `P1-P${prio}`;
+                        texto += `⚠️ Alerta de Sobrecarga : ${somaRecebidosSrv} proc. ${labelRange} > meta acumulada esperada (${Math.round(volumeEsperadoSrv)} proc. / ${window.metaHojeAcumulada}%)\n`;
+                    }
+                }
+
+                const procsAtencao = [];      // 🔴 (≥ 2 dias ou sem data)
+                const procsRecentesOntem = [];// 🟡 (1 dia)
+                const procsRecentesHoje = []; // 🟢 (0 dias)
+
                 srvProcs.forEach(p => {
-                    texto += `      [ NPU: ${p.npu} ] - ${p.status === "Em andamento" ? "EM ANDAMENTO" : "PENDENTE"} - \n`;
+                    const infoData = calcularInfoDataOrigem(p);
+                    const statusStr = p.status === "Em andamento" ? "EM ANDAMENTO" : "PENDENTE";
+                    const itemObj = {
+                        npu: p.npu,
+                        statusStr: statusStr,
+                        sortStatus: p.status === "Pendente" ? 1 : 2
+                    };
+                    
+                    if (infoData.temData) {
+                        if (infoData.dias === 0) {
+                            itemObj.bolinha = "🟢";
+                            procsRecentesHoje.push(itemObj);
+                        } else if (infoData.dias === 1) {
+                            itemObj.bolinha = "🟡";
+                            procsRecentesOntem.push(itemObj);
+                        } else {
+                            itemObj.bolinha = p.status === "Em andamento" ? "🟠" : "🔴";
+                            procsAtencao.push(itemObj);
+                        }
+                    } else {
+                        itemObj.bolinha = p.status === "Em andamento" ? "🟠" : "🔴";
+                        procsAtencao.push(itemObj);
+                    }
                 });
+
+                // Ordena cada grupo: PENDENTE (1) antes de EM ANDAMENTO (2)
+                const sortProcs = (arr) => arr.sort((a, b) => a.sortStatus - b.sortStatus);
+                sortProcs(procsAtencao);
+                sortProcs(procsRecentesOntem);
+                sortProcs(procsRecentesHoje);
+
+                if (procsAtencao.length > 0) {
+                    // --- Alerta de Desvio (só vermelho) junto da seção de atenção ---
+                    let temDesvio = false;
+                    if (srvData) {
+                        const desvio = detectarDesvioPrioridade(srvData);
+                        if (desvio && desvio.cor === 'vermelho' && desvio.nivel === prio) {
+                            temDesvio = true;
+                            texto += `⚠️ Desvio P${desvio.nivel}\n`;
+                        }
+                    }
+                    // Só mostra "-Atenção - justificar:" se NÃO tem desvio E NÃO tem sobrecarga
+                    if (!temDesvio && !temSobrecarga) {
+                        texto += `-Atenção - justificar:\n`;
+                    }
+                    procsAtencao.forEach(item => {
+                        texto += `      ${item.bolinha} NPU: ${item.npu} - ${item.statusStr}\n`;
+                    });
+                }
+
+                const temRecentes = procsRecentesOntem.length > 0 || procsRecentesHoje.length > 0;
+                if (temRecentes) {
+                    texto += `-Pendências recentes - acompanhar:\n`;
+                    procsRecentesOntem.forEach(item => {
+                        texto += `      ${item.bolinha} NPU: ${item.npu} - ${item.statusStr}\n`;
+                    });
+                    procsRecentesHoje.forEach(item => {
+                        texto += `      ${item.bolinha} NPU: ${item.npu} - ${item.statusStr}\n`;
+                    });
+                }
             });
 
             texto += `\n--------------------------------------------------\n\n`;
@@ -4521,7 +5374,16 @@
         // Acopla a análise da planilha gestores de forma dinâmica
         texto += construirPlanilhaGestoresTextoDinamico() + "\n";
 
-        document.getElementById('teamsPreviewText').innerText = texto;
+        const elPreview = document.getElementById('teamsPreviewText');
+        if (elPreview) {
+            const htmlText = texto
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/\n/g, "<br>")
+                .replace(/(🔴 [^<]+ \([\d\.,]+% concluído\) - [^\n<]*)/g, '<span style="color: #ef4444; font-weight: bold;">$1</span>');
+            elPreview.innerHTML = htmlText;
+        }
         window.textoTeamsCopiado = texto;
     }
 
@@ -4578,6 +5440,8 @@
             } else {
                 filtrados = filtrados.filter(p => {
                     const analises = analisarObservacaoCompleta(p.obs);
+                    // Compara obsTypeFiltro com a.tipo: o filtro usa o label (ou prefixo do label)
+                    // retornado por analisarObservacaoCompleta, não a key do padrão.
                     return analises.some(a => a.tipo.toUpperCase().includes(obsTypeFiltro.toUpperCase()));
                 });
             }
@@ -4874,8 +5738,7 @@
         atualizarFilaTrabalho();
     };
 
-    // Gerenciador de links da aba de configurações
-    function inicializarUrls() {
+        function inicializarUrls() {
         let savedPrioUrl = localStorage.getItem('tontom_prio_sheet_url');
         // Se estiver em branco ou não contiver a planilha definitiva (1RFS3XkGQ7Ga1NqCMXJmqYGcR-JBCXtYB7r51quVb0yE), força o reset
         if (!savedPrioUrl || !savedPrioUrl.includes("1RFS3XkGQ7Ga1NqCMXJmqYGcR-JBCXtYB7r51quVb0yE")) {
@@ -4909,9 +5772,32 @@
         }
         document.getElementById('txtWebAppUrl').value = savedWebAppUrl;
 
-        // Migração em lote para as 11 equipes
-        for (let i = 1; i <= 11; i++) {
-            const eqKey = "Equipe " + i;
+        // Planilha e Lista de Feriados
+        let savedFeriadosUrl = localStorage.getItem('tontom_feriados_sheet_url');
+        if (!savedFeriadosUrl) {
+            savedFeriadosUrl = "https://docs.google.com/spreadsheets/d/1OJQj5e6eZ_IGeyH4YTC9vnlY_mmISLg0yNwx_yIpNoc/edit?gid=494830240#gid=494830240";
+            localStorage.setItem('tontom_feriados_sheet_url', savedFeriadosUrl);
+        }
+        const txtFeriadosSheet = document.getElementById('txtFeriadosSheetUrl');
+        if (txtFeriadosSheet) txtFeriadosSheet.value = savedFeriadosUrl;
+
+        const savedFeriadosList = localStorage.getItem('tontom_feriados_list');
+        const txtFeriadosList = document.getElementById('txtFeriadosList');
+        if (savedFeriadosList !== null && txtFeriadosList) {
+            txtFeriadosList.value = savedFeriadosList;
+            carregarFeriadosLocal();
+        } else {
+            sincronizarFeriadosPlanilha();
+        }
+
+        const btnSyncFeriados = document.getElementById('btnSyncFeriadosSheet');
+        if (btnSyncFeriados) {
+            btnSyncFeriados.onclick = sincronizarFeriadosPlanilha;
+        }
+
+        // Migração em lote para todas as equipes cadastradas
+        for (let eqKey in equipes) {
+            if (eqKey === "Todas" || eqKey === "SCGA (GT)") continue;
             let savedResumosUrl = localStorage.getItem('tontom_resumos_sheet_url_' + eqKey) || "";
             // Se estiver em branco ou for um link antigo (não contém docs.google.com), força reset
             if (!savedResumosUrl || !savedResumosUrl.includes("docs.google.com")) {
@@ -4943,6 +5829,8 @@
         const consolidadoraUrl = document.getElementById('txtConsolidadoraSheetUrl').value.trim();
         const recjudLeilaoUrl = document.getElementById('txtRecjudLeilaoSheetUrl').value.trim();
         const webAppUrl = document.getElementById('txtWebAppUrl').value.trim();
+        const feriadosUrl = document.getElementById('txtFeriadosSheetUrl')?.value.trim();
+        const feriadosList = document.getElementById('txtFeriadosList')?.value.trim() || "";
         const equipe = selectEquipe.value;
 
         if (prioUrl) localStorage.setItem('tontom_prio_sheet_url', prioUrl);
@@ -4952,14 +5840,17 @@
             document.getElementById('btnLinkRecjudLeilao').href = recjudLeilaoUrl;
         }
         localStorage.setItem('tontom_webapp_url', webAppUrl);
+        if (feriadosUrl) localStorage.setItem('tontom_feriados_sheet_url', feriadosUrl);
+        localStorage.setItem('tontom_feriados_list', feriadosList);
 
         if (equipe !== "Todas") {
             localStorage.setItem('tontom_resumos_sheet_url_' + equipe, resumosUrl);
         }
 
-        alert("Configurações salvas localmente!");
+        salvarEquipesNuvem(true);
         
         // Recarrega conexões com os novos links
+        carregarFeriadosLocal();
         carregarPrioridadesPlanilha();
         carregarResumosPlanilha();
         carregarListaGestoresServidores();
@@ -4968,26 +5859,6 @@
         carregarSerprecCentral();
         carregarControleSerprecCentral();
         carregarRecjudLeilaoCentral();
-    };
-
-    document.getElementById('btnSyncNow').onclick = () => {
-        carregarPrioridadesPlanilha();
-        carregarResumosPlanilha();
-    };
-
-    // Restaurar Configurações Padrão
-    document.getElementById('btnResetSettings').onclick = () => {
-        if (confirm("Deseja realmente limpar suas configurações personalizadas e restaurar todos os links padrões das 11 equipes?")) {
-            localStorage.removeItem('tontom_prio_sheet_url');
-            localStorage.removeItem('tontom_consolidadora_sheet_url');
-            localStorage.removeItem('tontom_recjud_leilao_sheet_url');
-            localStorage.removeItem('tontom_webapp_url');
-            for (let i = 1; i <= 11; i++) {
-                localStorage.removeItem('tontom_resumos_sheet_url_Equipe ' + i);
-            }
-            alert("Configurações padrão restauradas! A página será recarregada.");
-            location.reload();
-        }
     };
 
     // Ao mudar de equipe
@@ -6106,9 +6977,11 @@
             });
         } else if (filtroAnalisado === "PENDENTES") {
             listaExibicao = listaExibicao.filter(s => {
-                const edit = SERPREC_MODIFIED[s.processo];
-                const val = edit?.analisado !== undefined ? edit.analisado : s.analisado;
-                return !val || val.trim() === "";
+                // Usa o valor ORIGINAL da planilha (s.analisado) para o filtro,
+                // para que o processo permaneça visível enquanto há edições
+                // pendentes de envio (antes de clicar em 💾 Enviar Dados).
+                const originalVal = s.analisado;
+                return !originalVal || originalVal.trim() === "";
             });
         }
 
@@ -6132,12 +7005,14 @@
 
         const btnSubmit = document.getElementById('btnSubmitSerprec');
         const hasChanges = Object.keys(SERPREC_MODIFIED).length > 0;
+        const pendingWarning = document.getElementById('serprecPendingWarning');
 
         // Mantém a tabela e os filtros de cabeçalho SEMPRE visíveis (Item 2.3)
         document.getElementById('serprecNoData').style.display = 'none';
         document.getElementById('serprecTableContainer').style.display = 'block';
         btnSubmit.style.display = hasChanges ? 'inline-flex' : 'none';
         btnSubmit.disabled = !hasChanges;
+        if (pendingWarning) pendingWarning.style.display = hasChanges ? 'inline-block' : 'none';
 
         if (listaExibicao.length === 0) {
             const trEmpty = document.createElement('tr');
@@ -6757,7 +7632,7 @@
         // 2. Fallback: procura nas equipes estáticas
         for (const [equipeNome, membros] of Object.entries(equipes)) {
             if (equipeNome === "Todas") continue;
-            for (const membroCompleto of membros) {
+for (const membroCompleto of membros) {
                 const membroCompletoNorm = normalizar(membroCompleto);
                 if (membroCompletoNorm === nomeNorm) {
                     return supervisoresMap[equipeNome] || "Não localizada no banco de dados";
@@ -8152,6 +9027,7 @@
     // Executa no carregamento da página
     inicializarUrls();
     document.getElementById('imgTontomMascot').src = TONTOM_MOUTH_B64;
+    carregarFeriadosPlanilha();
     carregarListaGestoresServidores();
     carregarPrioridadesPlanilha();
     carregarResumosPlanilha();
