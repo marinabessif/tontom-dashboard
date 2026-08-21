@@ -989,7 +989,7 @@
                     <thead>
                         <tr>
                             <th style="width: 25px;"></th>
-                            <th style="text-align: left;">Servidora</th>
+                            <th style="text-align: left;">Servidor</th>
                             <th>Total</th>
                             <th style="color: var(--accent-success);">Fin</th>
                             <th style="color: var(--accent-info);">And</th>
@@ -1027,7 +1027,7 @@
         
         <!-- Filter Actions -->
         <div class="queue-header-actions">
-            <input type="text" class="form-control queue-search" id="queueSearch" placeholder="🔍 Buscar por NPU, Servidora ou Observação...">
+            <input type="text" class="form-control queue-search" id="queueSearch" placeholder="🔍 Buscar por NPU, Servidor ou Observação...">
             
             <select class="form-control queue-filter" id="queueFilterServidor">
                 <option value="todos">Servidor: Todos</option>
@@ -1098,7 +1098,7 @@
                         <th style="width: 60px; text-align: center;">Prio</th>
                         <th>Processo (NPU)</th>
                         <th>Vara</th>
-                        <th>Servidora</th>
+                        <th>Servidor</th>
                         <th style="width: 120px; text-align: center;">Status</th>
                         <th style="width: 120px; text-align: center;">Data</th>
                         <th style="width: 80px; text-align: center;">Notif</th>
@@ -1651,7 +1651,7 @@
                     <table class="custom-table" style="text-align: left;">
                         <thead>
                             <tr>
-                                <th>Servidora</th>
+                                <th>Servidor</th>
                                 <th>Unidade Judiciária</th>
                                 <th style="width: 200px;">Processo (NPU)</th>
                                 <th style="width: 280px;">Enviar Cancelamento</th>
@@ -2146,9 +2146,45 @@
             if (resp && (resp.status === "success" || resp.status === "ok")) {
                 logDebug("Equipes sincronizadas na nuvem com sucesso.");
                 if (showNotification) alert("Configurações salvas localmente e sincronizadas na nuvem para todos!");
+                salvarFeriadosNuvem();
             }
         }, function(err) {
             console.error("Erro ao salvar equipes na nuvem:", err);
+        });
+    }
+
+    function salvarFeriadosNuvem(showNotification = false) {
+        const webAppUrl = document.getElementById('txtWebAppUrl')?.value?.trim();
+        if (!webAppUrl) return;
+        const feriadosList = document.getElementById('txtFeriadosList')?.value?.trim() || "";
+        const ferParam = encodeURIComponent(feriadosList);
+        const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=saveFeriadosConfig&feriados=${ferParam}&callback=cbSaveFeriadosConfig`;
+        carregarJsonp(url, "cbSaveFeriadosConfig", function(resp) {
+            if (resp && (resp.status === "success" || resp.status === "ok")) {
+                logDebug("Feriados sincronizados na nuvem com sucesso.");
+            }
+        }, function(err) {
+            console.error("Erro ao salvar feriados na nuvem:", err);
+        });
+    }
+
+    function carregarFeriadosNuvem(callbackSuccess) {
+        const webAppUrl = document.getElementById('txtWebAppUrl')?.value?.trim();
+        if (!webAppUrl) return;
+        const url = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}action=readFeriadosConfig&callback=cbReadFeriadosConfig`;
+        carregarJsonp(url, "cbReadFeriadosConfig", function(resp) {
+            if (resp && (resp.status === "ok" || resp.status === "success")) {
+                if (resp.feriados !== undefined && resp.feriados !== null && resp.feriados !== "") {
+                    const txtEl = document.getElementById('txtFeriadosList');
+                    if (txtEl) txtEl.value = resp.feriados;
+                    localStorage.setItem('tontom_feriados_list', resp.feriados);
+                    carregarFeriadosLocal();
+                    logDebug("Feriados carregados da nuvem com sucesso.");
+                }
+                if (typeof callbackSuccess === 'function') callbackSuccess();
+            }
+        }, function(err) {
+            logDebug("Nenhum feriado na nuvem ou erro ao carregar.");
         });
     }
 
@@ -4312,7 +4348,7 @@
         return txt;
     }
 
-    // Detecta se a servidora pulou a ordem de prioridades e calcula a cor da gravidade do desvio
+    // Detecta se o servidor pulou a ordem de prioridades e calcula a cor da gravidade do desvio
     function detectarDesvioPrioridade(s) {
         const srvProcs = SIMAP_PROCESS_LIST.filter(p => p.servidor === s.nome);
         
@@ -4496,7 +4532,7 @@
         document.getElementById('valTotalNotificacoes').innerText = procs.reduce((acc, p) => acc + p.notif, 0);
     }
 
-    // Abre e fecha os detalhes das prioridades das servidoras
+    // Abre e fecha os detalhes das prioridades dos servidores
     function toggleRowDetails(idx) {
         const btn = document.getElementById(`btn-toggle-${idx}`);
         const row = document.getElementById(`row-detail-${idx}`);
@@ -4601,21 +4637,26 @@
                                    s.contadoresPrio[2].pen + s.contadoresPrio[2].and +
                                    s.contadoresPrio[3].pen + s.contadoresPrio[3].and +
                                    s.contadoresPrio[4].pen + s.contadoresPrio[4].and;
+            const totalP14Pend = s.contadoresPrio[1].pen + s.contadoresPrio[2].pen + s.contadoresPrio[3].pen + s.contadoresPrio[4].pen;
 
             let cargaHtml = '';
             if (totalP14Ativos > 0) {
                 if (totalP14Recebido > volumeEsperado) {
                     cargaHtml = `<div class="load-alert-message" style="background: rgba(214, 51, 132, 0.1); color: #d63384; border: 1px solid rgba(214, 51, 132, 0.2);">
-                        ⚠️ <strong>Alerta de Carga:</strong> Sobrecarga de prioridades detectada. A servidora recebeu ${totalP14Recebido} processos P1-P4, o que excede a meta acumulada esperada (${volumeEsperado.toFixed(0)} proc. / ${window.metaHojeAcumulada}%). Justifica as pendências de prioridade.
+                        ⚠️ <strong>Alerta de Carga:</strong> Sobrecarga de prioridades detectada. O servidor recebeu ${totalP14Recebido} processos P1-P4, o que excede a meta acumulada esperada (${volumeEsperado.toFixed(0)} proc. / ${window.metaHojeAcumulada}%). Justifica as pendências de prioridade.
                     </div>`;
                 } else {
                     cargaHtml = `<div class="load-alert-message" style="background: rgba(13, 110, 253, 0.1); color: var(--accent-info); border: 1px solid rgba(13, 110, 253, 0.2);">
                         ℹ️ <strong>Status de Fila:</strong> Fila P1-P4 dentro do volume esperado (${totalP14Recebido} recebidos de prioridade contra ${volumeEsperado.toFixed(0)} de capacidade esperada).
                     </div>`;
                 }
-            } else {
+            } else if (totalP14Recebido > 0 && totalP14Pend === 0) {
                 cargaHtml = `<div class="load-alert-message" style="background: rgba(16, 185, 129, 0.1); color: var(--accent-success); border: 1px solid rgba(16, 185, 129, 0.2);">
                     ✅ <strong>Status de Fila:</strong> Todas as prioridades P1-P4 deste servidor foram concluídas!
+                </div>`;
+            } else {
+                cargaHtml = `<div class="load-alert-message" style="background: rgba(16, 185, 129, 0.1); color: var(--accent-success); border: 1px solid rgba(16, 185, 129, 0.2);">
+                    ✅ <strong>Status de Fila:</strong> Servidor não recebeu processos nas origens prioritárias
                 </div>`;
             }
 
@@ -5251,15 +5292,21 @@
                 sortProcs(procsRecentesOntem);
                 sortProcs(procsRecentesHoje);
 
+                // --- Alerta de Desvio: detectar antes para usar em ambos os blocos ---
+                let temDesvio = false;
+                let desvioNivel = null;
+                if (srvData) {
+                    const desvio = detectarDesvioPrioridade(srvData);
+                    if (desvio && desvio.cor === 'vermelho' && desvio.nivel === prio) {
+                        temDesvio = true;
+                        desvioNivel = desvio.nivel;
+                    }
+                }
+
                 if (procsAtencao.length > 0) {
-                    // --- Alerta de Desvio (só vermelho) junto da seção de atenção ---
-                    let temDesvio = false;
-                    if (srvData) {
-                        const desvio = detectarDesvioPrioridade(srvData);
-                        if (desvio && desvio.cor === 'vermelho' && desvio.nivel === prio) {
-                            temDesvio = true;
-                            texto += `⚠️ Desvio P${desvio.nivel}\n`;
-                        }
+                    // Desvio com processos 🔴/🟠 → precisa justificar
+                    if (temDesvio) {
+                        texto += `⚠️ Desvio P${desvioNivel} - Justificar:\n`;
                     }
                     // Só mostra "-Atenção - justificar:" se NÃO tem desvio E NÃO tem sobrecarga
                     if (!temDesvio && !temSobrecarga) {
@@ -5272,6 +5319,10 @@
 
                 const temRecentes = procsRecentesOntem.length > 0 || procsRecentesHoje.length > 0;
                 if (temRecentes) {
+                    // Desvio SEM processos 🔴/🟠, apenas 🟡/🟢 → não precisa justificar
+                    if (temDesvio && procsAtencao.length === 0) {
+                        texto += `⚠️ Desvio P${desvioNivel}\n`;
+                    }
                     texto += `-Pendências recentes - acompanhar:\n`;
                     procsRecentesOntem.forEach(item => {
                         texto += `      ${item.bolinha} NPU: ${item.npu} - ${item.statusStr}\n`;
@@ -5848,6 +5899,7 @@
         }
 
         salvarEquipesNuvem(true);
+        salvarFeriadosNuvem();
         
         // Recarrega conexões com os novos links
         carregarFeriadosLocal();
@@ -6359,7 +6411,7 @@
         btnSubmit.innerText = "⏳ Enviando...";
         btnSubmit.disabled = true;
 
-        // Build payload: { "processo_servidora": { cancelamento, observacao } }
+        // Build payload: { "processo_servidor": { cancelamento, observacao } }
         const payload = {};
         chavesToUpdate.forEach(chave => {
             payload[chave] = {
@@ -9026,6 +9078,9 @@ for (const membroCompleto of membros) {
 
     // Executa no carregamento da página
     inicializarUrls();
+    // Auto-sync: carregar equipes e feriados da nuvem ao abrir o painel
+    carregarEquipesNuvem();
+    carregarFeriadosNuvem();
     document.getElementById('imgTontomMascot').src = TONTOM_MOUTH_B64;
     carregarFeriadosPlanilha();
     carregarListaGestoresServidores();

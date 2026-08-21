@@ -482,6 +482,92 @@ function doGet(e) {
       return retornarJSONP(callback, { status: "success", data: list });
     }
 
+    // ==========================================
+    // 9. ROTAS DE CONFIGURAÇÃO DE EQUIPES E SUPERVISORES (NUVEM)
+    // ==========================================
+    if (action === "saveEquipesConfig") {
+      var eqJson = e.parameter.equipes;
+      var supJson = e.parameter.supervisores;
+      
+      var sheet = ss.getSheetByName("CONFIG_EQUIPES");
+      if (!sheet) {
+        sheet = ss.insertSheet("CONFIG_EQUIPES");
+        sheet.appendRow(["KEY", "VALUE"]);
+      }
+      
+      // Limpa dados antigos (mantém cabeçalho)
+      if (sheet.getLastRow() > 1) {
+        sheet.getRange(2, 1, sheet.getLastRow() - 1, 2).clearContent();
+      }
+      
+      if (eqJson) {
+        sheet.getRange(2, 1).setValue("equipes");
+        sheet.getRange(2, 2).setValue(decodeURIComponent(eqJson));
+      }
+      if (supJson) {
+        sheet.getRange(3, 1).setValue("supervisores");
+        sheet.getRange(3, 2).setValue(decodeURIComponent(supJson));
+      }
+      
+      return retornarJSONP(callback, { status: "success", message: "Configuração de equipes salva na nuvem." });
+    }
+
+    if (action === "readEquipesConfig") {
+      var sheet = ss.getSheetByName("CONFIG_EQUIPES");
+      if (!sheet || sheet.getLastRow() < 2) {
+        return retornarJSONP(callback, { status: "ok", equipes: null, supervisores: null });
+      }
+      
+      var data = sheet.getRange(2, 1, Math.min(sheet.getLastRow() - 1, 2), 2).getValues();
+      var result = { status: "ok", equipes: null, supervisores: null };
+      
+      for (var i = 0; i < data.length; i++) {
+        var key = String(data[i][0]).trim();
+        var val = String(data[i][1]).trim();
+        if (key === "equipes" && val) {
+          try { result.equipes = JSON.parse(val); } catch(err) {}
+        }
+        if (key === "supervisores" && val) {
+          try { result.supervisores = JSON.parse(val); } catch(err) {}
+        }
+      }
+      
+      return retornarJSONP(callback, result);
+    }
+
+    // ==========================================
+    // 10. ROTAS DE CONFIGURAÇÃO DE FERIADOS (NUVEM)
+    // ==========================================
+    if (action === "saveFeriadosConfig") {
+      var feriadosText = e.parameter.feriados || "";
+      
+      var sheet = ss.getSheetByName("CONFIG_FERIADOS");
+      if (!sheet) {
+        sheet = ss.insertSheet("CONFIG_FERIADOS");
+        sheet.appendRow(["KEY", "VALUE"]);
+      }
+      
+      // Limpa dados antigos (mantém cabeçalho)
+      if (sheet.getLastRow() > 1) {
+        sheet.getRange(2, 1, sheet.getLastRow() - 1, 2).clearContent();
+      }
+      
+      sheet.getRange(2, 1).setValue("feriados");
+      sheet.getRange(2, 2).setValue(decodeURIComponent(feriadosText));
+      
+      return retornarJSONP(callback, { status: "success", message: "Feriados salvos na nuvem." });
+    }
+
+    if (action === "readFeriadosConfig") {
+      var sheet = ss.getSheetByName("CONFIG_FERIADOS");
+      if (!sheet || sheet.getLastRow() < 2) {
+        return retornarJSONP(callback, { status: "ok", feriados: null });
+      }
+      
+      var val = String(sheet.getRange(2, 2).getValue() || "").trim();
+      return retornarJSONP(callback, { status: "ok", feriados: val });
+    }
+
     throw new Error("Ação '" + action + "' não reconhecida.");
     
   } catch (error) {
