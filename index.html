@@ -1506,7 +1506,7 @@
 
             <div onclick="document.getElementById('cardResumoSerprecSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' })" style="cursor: pointer; padding: 10px 14px; background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: 8px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
                 <div style="font-size: 11px; font-weight: 600; color: var(--text-primary);">
-                    <span>📊 Erro de fluxo / Vinculação</span>
+                    <span>📊 Erro / Vinc. / TED</span>
                 </div>
                 <span id="navBadge_GestoresResumo" style="background: var(--accent-warning); color: #fff; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px;">0</span>
             </div>
@@ -1516,7 +1516,7 @@
         <div class="panel-card" style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.2);">
             <div>
                 <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--text-primary);">🔄 Painel Integrado de Gestão da Planilha Gestores</h3>
-                <p style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-secondary);">Atualize ou salve todos os módulos de acompanhamento (Audiências, Cancelamento e Erro/Vinculação)</p>
+                <p style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-secondary);">Atualize ou salve todos os módulos de acompanhamento (Audiências, Cancelamento e Erro/Vinculação/TED)</p>
             </div>
             <button class="btn-premium" id="btnUpdateAllGestores" style="width: auto; padding: 8px 16px; font-size: 13px; border-radius: 8px; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);">
                 🔄 Atualizar Toda Planilha Gestores
@@ -1666,11 +1666,11 @@
             </div>
         </div>
 
-        <!-- ===== ERRO E VINCULAÇÃO (SERPREC) ===== -->
+        <!-- ===== ERRO, VINCULAÇÃO E TED DEV (SERPREC) ===== -->
         <div id="cardResumoSerprecSection" style="margin-top: 35px; border-top: 2px solid var(--border-glass); padding-top: 25px;">
-            <!-- Stats Table (Vinculação / Erro summary) -->
+            <!-- Stats Table (Vinculação / Erro / TED summary) -->
             <div class="panel-card" style="margin-bottom: 25px;">
-                <div class="panel-title">📊 Resumo Vinculação / Erro</div>
+                <div class="panel-title">📊 Resumo Vinculação / Erro / TED</div>
                 <div class="table-responsive">
                     <table class="custom-table" style="text-align: left; font-size: 12px;">
                         <thead>
@@ -1683,6 +1683,16 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <tr style="background: rgba(245, 158, 11, 0.07); border-left: 3px solid #f59e0b;">
+                                <td>
+                                    <strong style="color: #fbbf24;">TED DEVOLVIDA</strong>
+                                    <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 9px; margin-left: 6px; padding: 2px 6px; border-radius: 4px; font-weight: bold;">⚡ PRIORIDADE</span>
+                                </td>
+                                <td style="text-align: center;" id="valTedQtd">0</td>
+                                <td style="text-align: center;" id="valTedCumprido">0</td>
+                                <td style="text-align: center;" id="valTedSaldo">0</td>
+                                <td style="text-align: center; font-weight: bold;" id="valTedStatus">SEM PENDÊNCIAS</td>
+                            </tr>
                             <tr>
                                 <td>VINCULAÇÃO DE CONTA</td>
                                 <td style="text-align: center;" id="valVincQtd">0</td>
@@ -1712,10 +1722,10 @@
             <!-- Interactive Table panel -->
             <div class="panel-card" id="cardDetalhesSerprecSection" style="margin-top: 20px;">
                 <div class="panel-title" style="display:flex; align-items:center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <span>🛠️ Detalhes Vinculação / Erro</span>
+                    <span>🛠️ Detalhes Vinculação / Erro / TED</span>
                     <div style="display:flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                         <button class="btn-theme" id="btnApagarAnalisados" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);">🗑️ Apagar apenas Analisados "SIM"</button>
-                        <button class="btn-theme" id="btnUpdateSerprec" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px;">🔄 Atualizar Erro/Vinc</button>
+                        <button class="btn-theme" id="btnUpdateSerprec" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px;">🔄 Atualizar Erro/Vinc/TED</button>
                         <span id="serprecPendingWarning" style="display:none; font-size:11px; font-weight:600; color:#fbbf24; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.35); border-radius:6px; padding:4px 10px; animation: pulse-warning 2s infinite;">⚠️ Atenção: há dados alterados pendentes de envio</span>
                         <button class="btn-premium" id="btnSubmitSerprec" style="padding: 6px 15px; font-size: 12px; width: auto; height: 32px; border-radius: 6px; box-shadow: none;" disabled>💾 Enviar Dados</button>
                     </div>
@@ -1724,7 +1734,7 @@
                 <div id="serprecConnectionStatus" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
                     <div style="display:flex; align-items:center; gap: 8px;">
                         <span class="status-dot warning" id="serprecStatusDot"></span>
-                        <span id="serprecStatusText">Erro de fluxo/vinculação: Não carregado. Clique em Atualizar.</span>
+                        <span id="serprecStatusText">Erro/Vinculação/TED: Não carregado. Clique em Atualizar.</span>
                     </div>
                     <div style="color: var(--text-secondary); font-size: 11px; font-weight: 500;" id="lblSummaryFilter_GestoresDetalhes">
                         Exibindo 0 de 0 processos
@@ -1733,7 +1743,7 @@
 
                 <div id="serprecNoData" class="no-data-msg" style="padding: 40px 10px;">
                     <span style="font-size:40px; display:block; margin-bottom:10px;">🛠️</span>
-                    Nenhum registro carregado. Clique em <strong>Atualizar Erro/Vinc</strong> para puxar os dados.
+                    Nenhum registro carregado. Clique em <strong>Atualizar Erro/Vinc/TED</strong> para puxar os dados.
                 </div>
 
                 <div id="serprecTableContainer" class="table-responsive" style="display: none;">
@@ -1744,6 +1754,7 @@
                                     ORIGEM<br>
                                     <select id="selectFiltroOrigemSerprec" class="form-control" style="width: 100%; font-size: 10px; height: 26px; margin-top: 4px; padding: 2px 4px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-glass);" onchange="atualizarExibicaoSerprec()">
                                         <option value="TODOS" selected>Todos os processos</option>
+                                        <option value="TED">⚡ Apenas TED devolvida</option>
                                         <option value="VINCULACAO">Apenas vinculação de conta</option>
                                         <option value="ERRO">Apenas erro de fluxo/sistema</option>
                                     </select>
@@ -5123,27 +5134,38 @@
             cancStatus = cancSaldo === 1 ? "1 pendência!" : `${cancSaldo} pendências!`;
         }
 
-        // 3. Erro de Fluxo / Sistema
-        const erroTotal = parseInt(document.getElementById('valErroQtd').innerText, 10) || 0;
-        const erroSaldo = parseInt(document.getElementById('valErroSaldo').innerText, 10) || 0;
-        let erroStatus = "SEM PENDÊNCIAS";
+        // 3. TED Devolvida (Alta Prioridade)
+        const tedTotal = parseInt(document.getElementById('valTedQtd')?.innerText, 10) || 0;
+        const tedSaldo = parseInt(document.getElementById('valTedSaldo')?.innerText, 10) || 0;
+        let tedStatus = "SEM PENDÊNCIAS";
         
-        const serprecStatusText = document.getElementById('serprecStatusText').innerText;
+        const serprecStatusText = document.getElementById('serprecStatusText')?.innerText || "";
         if (serprecStatusText.includes("Não carregado") || serprecStatusText.includes("Nao carregado")) {
-            erroStatus = "NÃO CARREGADO";
-        } else if (erroSaldo > 0) {
-            erroStatus = erroSaldo === 1 ? "1 pendência!" : `${erroSaldo} pendências!`;
+            tedStatus = "NÃO CARREGADO";
+        } else if (tedSaldo > 0) {
+            tedStatus = tedSaldo === 1 ? "1 pendência!" : `${tedSaldo} pendências!`;
         }
 
         // 4. Vinculação de Conta-Siscondj
-        const vincTotal = parseInt(document.getElementById('valVincQtd').innerText, 10) || 0;
-        const vincSaldo = parseInt(document.getElementById('valVincSaldo').innerText, 10) || 0;
+        const vincTotal = parseInt(document.getElementById('valVincQtd')?.innerText, 10) || 0;
+        const vincSaldo = parseInt(document.getElementById('valVincSaldo')?.innerText, 10) || 0;
         let vincStatus = "SEM PENDÊNCIAS";
         
         if (serprecStatusText.includes("Não carregado") || serprecStatusText.includes("Nao carregado")) {
             vincStatus = "NÃO CARREGADO";
         } else if (vincSaldo > 0) {
             vincStatus = vincSaldo === 1 ? "1 pendência!" : `${vincSaldo} pendências!`;
+        }
+
+        // 5. Erro de Fluxo / Sistema
+        const erroTotal = parseInt(document.getElementById('valErroQtd')?.innerText, 10) || 0;
+        const erroSaldo = parseInt(document.getElementById('valErroSaldo')?.innerText, 10) || 0;
+        let erroStatus = "SEM PENDÊNCIAS";
+        
+        if (serprecStatusText.includes("Não carregado") || serprecStatusText.includes("Nao carregado")) {
+            erroStatus = "NÃO CARREGADO";
+        } else if (erroSaldo > 0) {
+            erroStatus = erroSaldo === 1 ? "1 pendência!" : `${erroSaldo} pendências!`;
         }
 
         let texto = `--------------------------------------------\n`;
@@ -5157,13 +5179,17 @@
         texto += `Quantidade verificada: ${cancTotal}\n`;
         texto += `Status: ${cancStatus}\n\n`;
 
-        texto += `ERRO DE FLUXO/SISTEMA\n`;
-        texto += `Quantidade verificada: ${erroTotal}\n`;
-        texto += `Status: ${erroStatus}\n\n`;
+        texto += `TED DEVOLVIDA (PRIORIDADE)\n`;
+        texto += `Quantidade verificada: ${tedTotal}\n`;
+        texto += `Status: ${tedStatus}\n\n`;
 
         texto += `VINCULAÇÃO DE CONTA-SISCONDJ\n`;
         texto += `Quantidade verificada: ${vincTotal}\n`;
-        texto += `Status: ${vincStatus}\n`;
+        texto += `Status: ${vincStatus}\n\n`;
+
+        texto += `ERRO DE FLUXO/SISTEMA\n`;
+        texto += `Quantidade verificada: ${erroTotal}\n`;
+        texto += `Status: ${erroStatus}\n`;
 
         return texto;
     }
@@ -6488,42 +6514,58 @@
 
         function processarMatrizSerprec(matriz) {
             SERPREC_MASTER_LIST = [];
-            if (matriz.length < 2) {
+            if (!matriz || matriz.length < 1) {
                 atualizarStatus("warning", "Erro de fluxo/vinculação: Planilha vazia.", "Planilha vazia");
                 return;
             }
 
-            // Descobre índices das colunas pelo cabeçalho
-            const header = matriz[0].map(h => String(h || "").toUpperCase().trim());
-            
-            // Procura índices correspondentes
-            let idxOrigem = header.findIndex(h => h.includes("ORIGEM"));
-            let idxProcesso = header.findIndex(h => h.includes("PROCESSO") || h === "NPU" || h.includes("N.º"));
+            // Descobre se os cabeçalhos estão na linha 0 (Web App) ou linha 1 (GViz sem labels)
+            let headerRowIndex = 0;
+            let header = matriz[0].map(h => String(h || "").toUpperCase().trim());
+            let hasHeadersInRow0 = header.some(h => h.includes("PROCESSO") || h.includes("ORIGEM") || h.includes("VARA") || h.includes("SUPERVISOR"));
+
+            if (!hasHeadersInRow0 && matriz.length > 1) {
+                const header1 = matriz[1].map(h => String(h || "").toUpperCase().trim());
+                if (header1.some(h => h.includes("PROCESSO") || h.includes("ORIGEM") || h.includes("VARA") || h.includes("SUPERVISOR"))) {
+                    headerRowIndex = 1;
+                    header = header1;
+                }
+            }
+
+            // Procura índices correspondentes no cabeçalho
             let idxUnidade = header.findIndex(h => h.includes("UNIDADE") || h.includes("JUDICIAR") || h.includes("VARA") || h.includes("JUÍZO"));
+            let idxProcesso = header.findIndex(h => h.includes("PROCESSO") || h === "NPU" || h.includes("N.º") || h.includes("NUMERO"));
+            let idxOrigem = header.findIndex(h => h.includes("ORIGEM"));
             let idxSupervisor = header.findIndex(h => h.includes("SUPERVISOR") || h.includes("EQUIPE") || h.includes("GESTOR"));
             let idxSit = header.findIndex(h => h.includes("SITUAÇÃO") || h.includes("SITUACAO"));
-            let idxAna = header.findIndex(h => h.includes("ANALISADO"));
-            let idxObs = header.findIndex(h => h.includes("OBSERVA") || h.includes("OBS"));
+            let idxAna = header.findIndex(h => h.includes("ANALISADO") || h.includes("SISCONDJ"));
             let idxDataRetorno = header.findIndex(h => h.includes("RETORNO") || h.includes("DATA"));
+            let idxObs = header.findIndex(h => h.includes("OBSERVA") || h.includes("OBS"));
+            let idxTarefa = header.findIndex(h => h.includes("TAREFA") || h.includes("DIAS NA TAREFA"));
+            let idxDias = header.findIndex(h => (h.includes("DIAS") || h === "DIA") && !h.includes("NA TAREFA"));
 
-            // Fallback para posições fixas: A=0, B=1, C=2, D=3, E=4, F=5, G=6, I=8
-            if (idxOrigem < 0) idxOrigem = 0;
+            // Fallback para posições fixas padrão:
+            // A(0)=Vara, B(1)=Processo, C(2)=Origem, D(3)=Supervisor, E(4)=Situação, F(5)=Analisado, G(6)=DataRetorno, I(8)=Obs, J(9)=Tarefa, K(10)=Dias
+            if (idxUnidade < 0) idxUnidade = 0;
             if (idxProcesso < 0) idxProcesso = 1;
-            if (idxUnidade < 0) idxUnidade = 2;
+            if (idxOrigem < 0) idxOrigem = 2;
             if (idxSupervisor < 0) idxSupervisor = 3;
             if (idxSit < 0) idxSit = 4;
             if (idxAna < 0) idxAna = 5;
             if (idxDataRetorno < 0) idxDataRetorno = 6;
             if (idxObs < 0) idxObs = 8;
+            if (idxTarefa < 0) idxTarefa = 9;
+            if (idxDias < 0) idxDias = 10;
 
-            logDebug("Serprec - Colunas detectadas: Origem=" + idxOrigem + ", Processo=" + idxProcesso + ", Unidade=" + idxUnidade + ", Supervisor=" + idxSupervisor + ", Situação=" + idxSit + ", Analisado=" + idxAna + ", Obs=" + idxObs + ", Retorno=" + idxDataRetorno);
+            logDebug("Serprec - Cabeçalho detectado na linha " + headerRowIndex + ": Vara=" + idxUnidade + ", Processo=" + idxProcesso + ", Origem=" + idxOrigem + ", Supervisor=" + idxSupervisor + ", Situação=" + idxSit + ", Analisado=" + idxAna + ", Obs=" + idxObs + ", Retorno=" + idxDataRetorno + ", Tarefa=" + idxTarefa + ", Dias=" + idxDias);
 
-            for (let i = 1; i < matriz.length; i++) {
+            const startIdx = headerRowIndex + 1;
+            for (let i = startIdx; i < matriz.length; i++) {
                 const r = matriz[i];
                 const processo = String(r[idxProcesso] || "").trim();
                 
-                // Filtra linhas sem processo
-                if (!processo || processo.toUpperCase() === "NPU" || processo.toUpperCase() === "PROCESSO") continue;
+                // Filtra linhas sem processo ou linhas repetidas de cabeçalho
+                if (!processo || processo.toUpperCase() === "NPU" || processo.toUpperCase() === "PROCESSO" || processo.toUpperCase() === "VARA") continue;
 
                 let dataRet = r[idxDataRetorno];
                 if (/^\d+(\.\d+)?$/.test(dataRet)) {
@@ -6533,8 +6575,19 @@
                     }
                 }
 
+                const origemStr = String(r[idxOrigem] || "").trim();
+                const tarefaStr = String(r[idxTarefa] || "").trim();
+                const diasStr = String(r[idxDias] || "").trim();
+                const diasNum = parseFloat(diasStr.replace(/[^\d.-]/g, "")) || 0;
+
+                const isSiscondjVinculacao = (origemStr.toUpperCase().includes("SISCONDJ") || origemStr.toUpperCase().includes("VINCULA") || origemStr.toUpperCase().includes("CONTA")) && !origemStr.toUpperCase().includes("TED");
+                const isAguardarRespostaCD = tarefaStr.toUpperCase().includes("AGUARDAR RESPOSTA") && tarefaStr.toUpperCase().includes("[CD]");
+                const isCritico90Dias = isSiscondjVinculacao && isAguardarRespostaCD && (diasNum >= 90);
+
+                const sugestaoObs90Dias = isCritico90Dias ? "Processo crítico! Pêndencia de vinculação > 90 dias - certificar ( DC1-CERTIDÃO-CONCLUSÃO_VINCULAÇÃO-PENDENTE-90DIAS) e concluir" : "";
+
                 SERPREC_MASTER_LIST.push({
-                    origem: String(r[idxOrigem] || "").trim(),
+                    origem: origemStr,
                     processo: processo,
                     unidadeJudiciaria: String(r[idxUnidade] || "").trim(),
                     supervisor: String(r[idxSupervisor] || "").trim(),
@@ -6542,59 +6595,58 @@
                     analisado: String(r[idxAna] || "").trim(),
                     observacao: String(r[idxObs] || "").trim(),
                     dataRetorno: String(dataRet || "").trim(),
+                    tarefa: tarefaStr,
+                    dias: diasNum,
+                    isCritico90Dias: isCritico90Dias,
+                    sugestaoObs: sugestaoObs90Dias,
                     linhaOriginal: i
                 });
             }
 
-            atualizarStatus("success", "Erro de fluxo/vinculação carregado com sucesso", "Carregado com sucesso");
+            atualizarStatus("success", "Erro/Vinculação/TED carregado com sucesso", "Carregado com sucesso");
             logDebug("Total de registros Serprec carregados: " + SERPREC_MASTER_LIST.length);
             atualizarExibicaoSerprec();
             atualizarPainelMigracaoDiretoria();
         }
 
         function carregarSerprecViaGviz() {
-            const sheetNamePrimary = "ERRO / VINC./ TED DEV.";
-            const jsonpUrl = `https://docs.google.com/spreadsheets/d/${parsed.id}/gviz/tq?tqx=responseHandler:cbSerprec&sheet=${encodeURIComponent(sheetNamePrimary)}`;
-            logDebug("Buscando Serprec via GViz (aba: " + sheetNamePrimary + ")...");
-            carregarJsonp(jsonpUrl, "cbSerprec", function(data) {
-                try {
-                    if (data.status !== "ok") throw new Error(data.errors?.[0]?.message || data.status);
-                    const matriz = converterGvizParaMatriz(data);
-                    processarMatrizSerprec(matriz);
-                } catch (err) {
-                    const sheetNameFallback = "ERRO / VINC.";
-                    const jsonpUrlFallback = `https://docs.google.com/spreadsheets/d/${parsed.id}/gviz/tq?tqx=responseHandler:cbSerprecFallback&sheet=${encodeURIComponent(sheetNameFallback)}`;
-                    logDebug("Tentando fallback Serprec via GViz (aba: " + sheetNameFallback + ")...");
-                    carregarJsonp(jsonpUrlFallback, "cbSerprecFallback", function(dataFallback) {
-                        try {
-                            if (dataFallback.status !== "ok") throw new Error(dataFallback.errors?.[0]?.message || dataFallback.status);
-                            const matriz = converterGvizParaMatriz(dataFallback);
-                            processarMatrizSerprec(matriz);
-                        } catch (err2) {
-                            atualizarStatus("danger", "Erro de fluxo/vinculação: Erro ao processar.", "Erro ao processar");
-                            logDebug("Erro Serprec GViz: " + err.message + " | Fallback: " + err2.message);
-                        }
-                    }, function() {
-                        atualizarStatus("danger", "Erro de fluxo/vinculação: Erro ao processar ou aba não encontrada.", "Erro aba / processar");
-                        logDebug("Erro Serprec GViz: " + err.message);
-                    });
+            const candidateSheets = [
+                "ERRO / VINC./ TED DEV.",
+                "ERRO / VINC / TED DEV.",
+                "ERRO / VINC / TED DEV",
+                "ERRO / VINC.",
+                "ERRO / VINC",
+                "ERRO/VINC",
+                "SERPREC"
+            ];
+
+            function tentarAba(idx) {
+                if (idx >= candidateSheets.length) {
+                    atualizarStatus("danger", "Erro de fluxo/vinculação: Erro ao processar ou aba não encontrada.", "Erro aba / processar");
+                    return;
                 }
-            }, function() {
-                const sheetNameFallback = "ERRO / VINC.";
-                const jsonpUrlFallback = `https://docs.google.com/spreadsheets/d/${parsed.id}/gviz/tq?tqx=responseHandler:cbSerprecFallback&sheet=${encodeURIComponent(sheetNameFallback)}`;
-                carregarJsonp(jsonpUrlFallback, "cbSerprecFallback", function(dataFallback) {
+                const sheetName = candidateSheets[idx];
+                const cbName = `cbSerprecGviz_${Date.now()}_${idx}`;
+                const jsonpUrl = `https://docs.google.com/spreadsheets/d/${parsed.id}/gviz/tq?tqx=responseHandler:${cbName}&sheet=${encodeURIComponent(sheetName)}`;
+                logDebug("Buscando Serprec via GViz (aba: " + sheetName + ")...");
+                
+                carregarJsonp(jsonpUrl, cbName, function(data) {
                     try {
-                        if (dataFallback.status !== "ok") throw new Error(dataFallback.errors?.[0]?.message || dataFallback.status);
-                        const matriz = converterGvizParaMatriz(dataFallback);
+                        if (data.status !== "ok") throw new Error(data.errors?.[0]?.message || data.status);
+                        const matriz = converterGvizParaMatriz(data);
+                        if (!matriz || matriz.length < 2) throw new Error("Planilha vazia.");
                         processarMatrizSerprec(matriz);
-                    } catch (err2) {
-                        atualizarStatus("danger", "Erro de fluxo/vinculação: Erro CORS ou Link privado.", "Erro CORS / Link privado");
+                    } catch (err) {
+                        logDebug("Aba '" + sheetName + "' GViz falhou (" + err.message + "). Tentando próxima...");
+                        tentarAba(idx + 1);
                     }
                 }, function() {
-                    atualizarStatus("danger", "Erro de fluxo/vinculação: Erro CORS ou Link privado.", "Erro CORS / Link privado");
-                    logDebug("Erro de rede/CORS ao buscar Serprec.");
+                    logDebug("Erro de rede/CORS na aba '" + sheetName + "'. Tentando próxima...");
+                    tentarAba(idx + 1);
                 });
-            });
+            }
+
+            tentarAba(0);
         }
 
         if (webAppUrl) {
@@ -6958,9 +7010,17 @@
             }
         }
 
-        // Separação das situações em "VINCULAÇÃO DE CONTA" e "ERRO DE FLUXO/SISTEMA"
-        let vincItems = SERPREC_FILTRADAS.filter(s => s.origem.toUpperCase().includes("VINCULA") || s.origem.toUpperCase().includes("CONTA"));
-        let erroItems = SERPREC_FILTRADAS.filter(s => !s.origem.toUpperCase().includes("VINCULA") && !s.origem.toUpperCase().includes("CONTA"));
+        // Separação das situações em "TED DEVOLVIDA", "VINCULAÇÃO DE CONTA" e "ERRO DE FLUXO/SISTEMA"
+        function classificarOrigem(origem) {
+            const up = String(origem || "").toUpperCase();
+            if (up.includes("TED")) return "TED";
+            if (up.includes("VINCULA") || up.includes("CONTA")) return "VINCULACAO";
+            return "ERRO";
+        }
+
+        let tedItems = SERPREC_FILTRADAS.filter(s => classificarOrigem(s.origem) === "TED");
+        let vincItems = SERPREC_FILTRADAS.filter(s => classificarOrigem(s.origem) === "VINCULACAO");
+        let erroItems = SERPREC_FILTRADAS.filter(s => classificarOrigem(s.origem) === "ERRO");
 
         function calcularResumoSubtipo(items) {
             let total = items.length;
@@ -6988,10 +7048,30 @@
             return { total, cumpridos, saldo };
         }
 
+        const tedRes = calcularResumoSubtipo(tedItems);
         const vincRes = calcularResumoSubtipo(vincItems);
         const erroRes = calcularResumoSubtipo(erroItems);
 
-        // Preenche resumo
+        // Preenche resumo TED Devolvida
+        const elTedQtd = document.getElementById('valTedQtd');
+        const elTedCumprido = document.getElementById('valTedCumprido');
+        const elTedSaldo = document.getElementById('valTedSaldo');
+        const elTedStatus = document.getElementById('valTedStatus');
+
+        if (elTedQtd) elTedQtd.innerText = tedRes.total;
+        if (elTedCumprido) elTedCumprido.innerText = tedRes.cumpridos;
+        if (elTedSaldo) elTedSaldo.innerText = tedRes.saldo;
+        if (elTedStatus) {
+            if (tedRes.saldo === 0) {
+                elTedStatus.innerText = "SEM PENDÊNCIAS";
+                elTedStatus.style.color = "var(--accent-success)";
+            } else {
+                elTedStatus.innerText = tedRes.saldo === 1 ? "VERIFICAR PLANILHA: 1 pendência" : `VERIFICAR PLANILHA: ${tedRes.saldo} pendências`;
+                elTedStatus.style.color = "var(--accent-danger)";
+            }
+        }
+
+        // Preenche resumo Vinculação
         document.getElementById('valVincQtd').innerText = vincRes.total;
         document.getElementById('valVincCumprido').innerText = vincRes.cumpridos;
         document.getElementById('valVincSaldo').innerText = vincRes.saldo;
@@ -7005,6 +7085,7 @@
             valVincStatus.style.color = "var(--accent-danger)";
         }
 
+        // Preenche resumo Erro
         document.getElementById('valErroQtd').innerText = erroRes.total;
         document.getElementById('valErroCumprido').innerText = erroRes.cumpridos;
         document.getElementById('valErroSaldo').innerText = erroRes.saldo;
@@ -7019,23 +7100,36 @@
         }
 
         // Totais
-        const totalTotal = vincRes.total + erroRes.total;
-        const totalCumpridos = vincRes.cumpridos + erroRes.cumpridos;
-        const totalSaldo = vincRes.saldo + erroRes.saldo;
+        const totalTotal = tedRes.total + vincRes.total + erroRes.total;
+        const totalCumpridos = tedRes.cumpridos + vincRes.cumpridos + erroRes.cumpridos;
+        const totalSaldo = tedRes.saldo + vincRes.saldo + erroRes.saldo;
         
         document.getElementById('valSerprecTotal').innerText = totalTotal;
         document.getElementById('valSerprecCumprido').innerText = totalCumpridos;
         document.getElementById('valSerprecSaldo').innerText = totalSaldo;
 
+        const valSerprecStatus = document.getElementById('valSerprecStatus');
+        if (valSerprecStatus) {
+            if (totalSaldo === 0) {
+                valSerprecStatus.innerText = "SEM PENDÊNCIAS";
+                valSerprecStatus.style.color = "var(--accent-success)";
+            } else {
+                valSerprecStatus.innerText = totalSaldo === 1 ? "VERIFICAR PLANILHA: 1 pendência" : `VERIFICAR PLANILHA: ${totalSaldo} pendências`;
+                valSerprecStatus.style.color = "var(--accent-danger)";
+            }
+        }
+
         // Aplicação dos Filtros de Cabeçalho na Tabela de Detalhes
-        let listaExibicao = SERPREC_FILTRADAS;
+        let listaExibicao = [...SERPREC_FILTRADAS];
 
         // 2.4.2 Filtro Origem
         const filtroOrigem = document.getElementById('selectFiltroOrigemSerprec')?.value || "TODOS";
-        if (filtroOrigem === "VINCULACAO") {
-            listaExibicao = listaExibicao.filter(s => s.origem.toUpperCase().includes("VINCULA") || s.origem.toUpperCase().includes("CONTA"));
+        if (filtroOrigem === "TED") {
+            listaExibicao = listaExibicao.filter(s => classificarOrigem(s.origem) === "TED");
+        } else if (filtroOrigem === "VINCULACAO") {
+            listaExibicao = listaExibicao.filter(s => classificarOrigem(s.origem) === "VINCULACAO");
         } else if (filtroOrigem === "ERRO") {
-            listaExibicao = listaExibicao.filter(s => !s.origem.toUpperCase().includes("VINCULA") && !s.origem.toUpperCase().includes("CONTA"));
+            listaExibicao = listaExibicao.filter(s => classificarOrigem(s.origem) === "ERRO");
         }
 
         // 2.4.3 Filtro Unidade Judiciária
@@ -7083,6 +7177,21 @@
                 return isDataNaSemanaAtual(val);
             });
         }
+
+        // 3.1 Ordenação Padrão por Prioridade (1º SISCONDJ Crítico > 90d [Alta Prioridade], 2º TED Devolvida [Prioridade], 3º Vinculação, 4º Erro de Fluxo)
+        listaExibicao.sort((a, b) => {
+            const getPrio = (item) => {
+                if (item.isCritico90Dias) return 1; // Alta Prioridade
+                const t = classificarOrigem(item.origem);
+                if (t === "TED") return 2; // Prioridade
+                if (t === "VINCULACAO") return 3;
+                return 4;
+            };
+            const prioA = getPrio(a);
+            const prioB = getPrio(b);
+            if (prioA !== prioB) return prioA - prioB;
+            return (a.linhaOriginal || 0) - (b.linhaOriginal || 0);
+        });
 
         const lblSummary = document.getElementById('lblSummaryFilter_GestoresDetalhes');
         if (lblSummary) {
@@ -7136,7 +7245,7 @@
             const edit = SERPREC_MODIFIED[s.processo] || {};
             const sitVal = edit.situacao !== undefined ? edit.situacao : s.situacao;
             const anaVal = edit.analisado !== undefined ? edit.analisado : s.analisado;
-            const addObsVal = edit.adicionarObs !== undefined ? edit.adicionarObs : "";
+            const addObsVal = edit.adicionarObs !== undefined ? edit.adicionarObs : (s.sugestaoObs || "");
             const retVal = edit.dataRetorno !== undefined ? edit.dataRetorno : s.dataRetorno;
 
             const isLocalResolved = (sitVal && (
@@ -7151,16 +7260,60 @@
                 sitVal.toUpperCase().includes("MIGRAR SIMAP")
             )) || (anaVal && anaVal.trim() !== "" && anaVal !== "APAGAR");
 
+            const tipoOrigem = classificarOrigem(s.origem);
+            const isTed = tipoOrigem === "TED";
+            const isCritico = !!s.isCritico90Dias;
+
             const tr = document.createElement('tr');
             if (isLocalResolved) {
                 tr.style.backgroundColor = "rgba(16, 185, 129, 0.15)";
+                tr.style.borderLeft = isCritico || isTed ? "3px solid #10b981" : "none";
             } else if (Object.keys(edit).length > 0) {
                 tr.style.backgroundColor = "rgba(245, 158, 11, 0.1)";
+                tr.style.borderLeft = isCritico || isTed ? "3px solid #f59e0b" : "none";
+            } else if (isCritico) {
+                // Destaque visual de ALTA PRIORIDADE para SISCONDJ > 90 dias não resolvido (Item 1.2)
+                tr.style.backgroundColor = "rgba(239, 68, 68, 0.08)";
+                tr.style.borderLeft = "4px solid #ef4444";
+            } else if (isTed) {
+                // Destaque visual de PRIORIDADE para TED Devolvida não resolvida (Item 1.2)
+                tr.style.backgroundColor = "rgba(245, 158, 11, 0.06)";
+                tr.style.borderLeft = "3px solid #f59e0b";
             }
 
-            // Coluna Origem
+            // Coluna Origem com Destaque Visual de Prioridade (Item 1.2)
             const tdOrigem = document.createElement('td');
-            tdOrigem.innerText = s.origem || "-";
+            if (isCritico) {
+                tdOrigem.innerHTML = `
+                    <span class="badge" style="background: rgba(239, 68, 68, 0.25); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.5); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                        <span>🔥</span> ${s.origem || "SISCONDJ - VINCULAÇÃO"}
+                    </span>
+                    <div style="font-size: 9px; color: #ef4444; font-weight: 700; margin-top: 3px; display: flex; align-items: center; gap: 2px;">
+                        <span>🚨</span> Alta Prioridade (&ge;90 dias)
+                    </div>
+                `;
+            } else if (isTed) {
+                tdOrigem.innerHTML = `
+                    <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                        <span>⚡</span> ${s.origem || "TED DEVOLVIDA"}
+                    </span>
+                    <div style="font-size: 9px; color: #fbbf24; font-weight: 600; margin-top: 3px; display: flex; align-items: center; gap: 2px;">
+                        <span>🟡</span> Prioridade
+                    </div>
+                `;
+            } else if (tipoOrigem === "VINCULACAO") {
+                tdOrigem.innerHTML = `
+                    <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">
+                        ${s.origem || "VINCULAÇÃO DE CONTA"}
+                    </span>
+                `;
+            } else {
+                tdOrigem.innerHTML = `
+                    <span class="badge" style="background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">
+                        ${s.origem || "ERRO DE FLUXO"}
+                    </span>
+                `;
+            }
             tr.appendChild(tdOrigem);
 
             // Coluna Processo (NPU) + Botão Copiar NPU no padrão PJe
@@ -7237,7 +7390,7 @@
                 if (currentEdit.dataRetorno === undefined) currentEdit.dataRetorno = retVal;
                 SERPREC_MODIFIED[s.processo] = currentEdit;
 
-                if (selectSit.value === s.situacao && currentEdit.analisado === s.analisado && !currentEdit.adicionarObs && currentEdit.dataRetorno === s.dataRetorno) {
+                if (selectSit.value === s.situacao && currentEdit.analisado === s.analisado && currentEdit.adicionarObs === (s.sugestaoObs || "") && currentEdit.dataRetorno === s.dataRetorno) {
                     delete SERPREC_MODIFIED[s.processo];
                 }
                 atualizarExibicaoSerprec();
@@ -7265,7 +7418,7 @@
                 if (currentEdit.dataRetorno === undefined) currentEdit.dataRetorno = retVal;
                 SERPREC_MODIFIED[s.processo] = currentEdit;
 
-                if (currentEdit.situacao === s.situacao && selectAna.value === s.analisado && !currentEdit.adicionarObs && currentEdit.dataRetorno === s.dataRetorno) {
+                if (currentEdit.situacao === s.situacao && selectAna.value === s.analisado && currentEdit.adicionarObs === (s.sugestaoObs || "") && currentEdit.dataRetorno === s.dataRetorno) {
                     delete SERPREC_MODIFIED[s.processo];
                 }
                 atualizarExibicaoSerprec();
@@ -7278,7 +7431,8 @@
             const inputAddObs = document.createElement('textarea');
             inputAddObs.className = "form-control";
             inputAddObs.rows = 2;
-            inputAddObs.style.cssText = "padding:4px; font-size:11px; background:var(--bg-glass); color:var(--text-primary); border:1px solid var(--border-glass); min-width:180px; resize:vertical; height:45px; line-height:1.2; word-wrap:break-word; white-space:pre-wrap;";
+            const borderObsStyle = isCritico && (!edit.adicionarObs || edit.adicionarObs === s.sugestaoObs) ? "border:1px solid rgba(239, 68, 68, 0.5); background:rgba(239, 68, 68, 0.08);" : "border:1px solid var(--border-glass); background:var(--bg-glass);";
+            inputAddObs.style.cssText = `padding:4px; font-size:11px; ${borderObsStyle} color:var(--text-primary); min-width:180px; resize:vertical; height:45px; line-height:1.2; word-wrap:break-word; white-space:pre-wrap;`;
             inputAddObs.placeholder = "Nova observação...";
             inputAddObs.value = addObsVal;
             inputAddObs.onchange = () => {
@@ -7289,7 +7443,7 @@
                 if (currentEdit.dataRetorno === undefined) currentEdit.dataRetorno = retVal;
                 SERPREC_MODIFIED[s.processo] = currentEdit;
 
-                if (currentEdit.situacao === s.situacao && currentEdit.analisado === s.analisado && !inputAddObs.value && currentEdit.dataRetorno === s.dataRetorno) {
+                if (currentEdit.situacao === s.situacao && currentEdit.analisado === s.analisado && (!inputAddObs.value || inputAddObs.value === s.sugestaoObs) && currentEdit.dataRetorno === s.dataRetorno) {
                     delete SERPREC_MODIFIED[s.processo];
                 }
                 atualizarExibicaoSerprec();
@@ -7876,8 +8030,9 @@ for (const membroCompleto of membros) {
                 if (registrosExistentesSerprec.length > 0) {
                     const tiposUnicos = [...new Set(registrosExistentesSerprec.map(item => {
                         const orig = String(item.origem || "").toUpperCase();
-                        if (orig.includes("ERRO DE FLUXO")) return "ERRO DE FLUXO";
-                        if (orig.includes("SISCONDJ")) return "SISCONDJ";
+                        if (orig.includes("TED")) return "TED DEV";
+                        if (orig.includes("ERRO DE FLUXO") || orig.includes("ERRO")) return "ERRO DE FLUXO";
+                        if (orig.includes("SISCONDJ") || orig.includes("VINCULA")) return "SISCONDJ";
                         return "Outro";
                     }))];
                     fontes.push(`Gestores (${tiposUnicos.join(', ')})`);

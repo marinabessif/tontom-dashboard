@@ -127,9 +127,9 @@ function doGet(e) {
 
     // Rota: action=readSerprec (Leitura dos Erros/Vinculações)
     if (action === "readSerprec") {
-      var sheet = obterAbaResiliente(ss, "ERRO / VINC.");
+      var sheet = obterAbaResiliente(ss, "ERRO / VINC./ TED DEV.") || obterAbaResiliente(ss, "ERRO / VINC.");
       if (!sheet) {
-        return retornarJSONP(callback, { status: "error", message: "Aba 'ERRO / VINC.' não encontrada." });
+        return retornarJSONP(callback, { status: "error", message: "Aba 'ERRO / VINC./ TED DEV.' ou 'ERRO / VINC.' não encontrada." });
       }
       var values = sheet.getDataRange().getDisplayValues();
       return retornarJSONP(callback, { status: "ok", data: values });
@@ -141,9 +141,9 @@ function doGet(e) {
       if (!dataJson) throw new Error("Parâmetro 'data' ausente.");
       var updates = JSON.parse(decodeURIComponent(dataJson));
       
-      var sheet = obterAbaResiliente(ss, "ERRO / VINC.");
+      var sheet = obterAbaResiliente(ss, "ERRO / VINC./ TED DEV.") || obterAbaResiliente(ss, "ERRO / VINC.");
       if (!sheet) {
-        return retornarJSONP(callback, { status: "error", message: "Aba 'ERRO / VINC.' não encontrada." });
+        return retornarJSONP(callback, { status: "error", message: "Aba 'ERRO / VINC./ TED DEV.' ou 'ERRO / VINC.' não encontrada." });
       }
       
       var allData = sheet.getDataRange().getValues();
