@@ -6553,20 +6553,47 @@
         }
 
         function carregarSerprecViaGviz() {
-            const jsonpUrl = `https://docs.google.com/spreadsheets/d/${parsed.id}/gviz/tq?tqx=responseHandler:cbSerprec&sheet=ERRO%20%2F%20VINC.`;
-            logDebug("Buscando Serprec via GViz...");
+            const sheetNamePrimary = "ERRO / VINC./ TED DEV.";
+            const jsonpUrl = `https://docs.google.com/spreadsheets/d/${parsed.id}/gviz/tq?tqx=responseHandler:cbSerprec&sheet=${encodeURIComponent(sheetNamePrimary)}`;
+            logDebug("Buscando Serprec via GViz (aba: " + sheetNamePrimary + ")...");
             carregarJsonp(jsonpUrl, "cbSerprec", function(data) {
                 try {
                     if (data.status !== "ok") throw new Error(data.errors?.[0]?.message || data.status);
                     const matriz = converterGvizParaMatriz(data);
                     processarMatrizSerprec(matriz);
                 } catch (err) {
-                    atualizarStatus("danger", "Erro de fluxo/vinculação: Erro ao processar.", "Erro ao processar");
-                    logDebug("Erro Serprec GViz: " + err.message);
+                    const sheetNameFallback = "ERRO / VINC.";
+                    const jsonpUrlFallback = `https://docs.google.com/spreadsheets/d/${parsed.id}/gviz/tq?tqx=responseHandler:cbSerprecFallback&sheet=${encodeURIComponent(sheetNameFallback)}`;
+                    logDebug("Tentando fallback Serprec via GViz (aba: " + sheetNameFallback + ")...");
+                    carregarJsonp(jsonpUrlFallback, "cbSerprecFallback", function(dataFallback) {
+                        try {
+                            if (dataFallback.status !== "ok") throw new Error(dataFallback.errors?.[0]?.message || dataFallback.status);
+                            const matriz = converterGvizParaMatriz(dataFallback);
+                            processarMatrizSerprec(matriz);
+                        } catch (err2) {
+                            atualizarStatus("danger", "Erro de fluxo/vinculação: Erro ao processar.", "Erro ao processar");
+                            logDebug("Erro Serprec GViz: " + err.message + " | Fallback: " + err2.message);
+                        }
+                    }, function() {
+                        atualizarStatus("danger", "Erro de fluxo/vinculação: Erro ao processar ou aba não encontrada.", "Erro aba / processar");
+                        logDebug("Erro Serprec GViz: " + err.message);
+                    });
                 }
             }, function() {
-                atualizarStatus("danger", "Erro de fluxo/vinculação: Erro CORS ou Link privado.", "Erro CORS / Link privado");
-                logDebug("Erro de rede/CORS ao buscar Serprec.");
+                const sheetNameFallback = "ERRO / VINC.";
+                const jsonpUrlFallback = `https://docs.google.com/spreadsheets/d/${parsed.id}/gviz/tq?tqx=responseHandler:cbSerprecFallback&sheet=${encodeURIComponent(sheetNameFallback)}`;
+                carregarJsonp(jsonpUrlFallback, "cbSerprecFallback", function(dataFallback) {
+                    try {
+                        if (dataFallback.status !== "ok") throw new Error(dataFallback.errors?.[0]?.message || dataFallback.status);
+                        const matriz = converterGvizParaMatriz(dataFallback);
+                        processarMatrizSerprec(matriz);
+                    } catch (err2) {
+                        atualizarStatus("danger", "Erro de fluxo/vinculação: Erro CORS ou Link privado.", "Erro CORS / Link privado");
+                    }
+                }, function() {
+                    atualizarStatus("danger", "Erro de fluxo/vinculação: Erro CORS ou Link privado.", "Erro CORS / Link privado");
+                    logDebug("Erro de rede/CORS ao buscar Serprec.");
+                });
             });
         }
 
@@ -6933,7 +6960,7 @@
 
         // Separação das situações em "VINCULAÇÃO DE CONTA" e "ERRO DE FLUXO/SISTEMA"
         let vincItems = SERPREC_FILTRADAS.filter(s => s.origem.toUpperCase().includes("VINCULA") || s.origem.toUpperCase().includes("CONTA"));
-        let erroItems = SERPREC_FILTRADAS.filter(s => s.origem.toUpperCase().includes("ERRO") || s.origem.toUpperCase().includes("FLUXO") || s.origem.toUpperCase().includes("SISTEMA"));
+        let erroItems = SERPREC_FILTRADAS.filter(s => !s.origem.toUpperCase().includes("VINCULA") && !s.origem.toUpperCase().includes("CONTA"));
 
         function calcularResumoSubtipo(items) {
             let total = items.length;
@@ -6943,7 +6970,17 @@
                 const anaVal = edit ? edit.analisado : s.analisado;
                 
                 const temAnalise = (anaVal && anaVal.trim() !== "" && anaVal !== "APAGAR");
-                const temSituacaoResolvida = (sitVal && (sitVal.toUpperCase().includes("RESOLVIDO") || sitVal.toUpperCase().includes("EXPEDIR") || sitVal.toUpperCase().includes("NÃO SE APLICA") || sitVal.toUpperCase().includes("SISCON - NÃO É")));
+                const temSituacaoResolvida = (sitVal && (
+                    sitVal.toUpperCase().includes("RESOLVIDO") || 
+                    sitVal.toUpperCase().includes("EXPEDIR") || 
+                    sitVal.toUpperCase().includes("EXPEDID") || 
+                    sitVal.toUpperCase().includes("NÃO SE APLICA") || 
+                    sitVal.toUpperCase().includes("NAO SE APLICA") || 
+                    sitVal.toUpperCase().includes("SISCON - NÃO É") || 
+                    sitVal.toUpperCase().includes("SISCON - NAO E") || 
+                    sitVal.toUpperCase().includes("TED DEV") || 
+                    sitVal.toUpperCase().includes("MIGRAR SIMAP")
+                ));
                 
                 return temAnalise || temSituacaoResolvida;
             }).length;
@@ -6998,7 +7035,7 @@
         if (filtroOrigem === "VINCULACAO") {
             listaExibicao = listaExibicao.filter(s => s.origem.toUpperCase().includes("VINCULA") || s.origem.toUpperCase().includes("CONTA"));
         } else if (filtroOrigem === "ERRO") {
-            listaExibicao = listaExibicao.filter(s => s.origem.toUpperCase().includes("ERRO") || s.origem.toUpperCase().includes("FLUXO") || s.origem.toUpperCase().includes("SISTEMA"));
+            listaExibicao = listaExibicao.filter(s => !s.origem.toUpperCase().includes("VINCULA") && !s.origem.toUpperCase().includes("CONTA"));
         }
 
         // 2.4.3 Filtro Unidade Judiciária
@@ -7038,7 +7075,7 @@
         }
 
         // 2.4.5 Filtro Data de Retorno
-        const filtroRetorno = document.getElementById('selectFiltroRetornoSerprec')?.value || "TODAS";
+        const filtroRetorno = document.getElementById('selectFiltroRetornoSerprec')?.value || "TODOS";
         if (filtroRetorno === "ATENCAO") {
             listaExibicao = listaExibicao.filter(s => {
                 const edit = SERPREC_MODIFIED[s.processo];
@@ -7081,7 +7118,10 @@
             "ERRO DE FLUXO COM CHAMADO RESOLVIDO (para validação da coordenação)",
             "SISCONDJ - VINCULAÇÃO EM ANDAMENTO",
             "SISCONDJ - EXPEDIR (CONTROLE exclui)",
-            "SISCONDJ - NÃO SE APLICA (SUPER atuará)"
+            "SISCONDJ - NÃO SE APLICA (SUPER atuará)",
+            "TED DEV - Erro da Parte - Ordinatório expedido",
+            "TED DEV - Erro DC/GAB - Migrar SIMAP",
+            "TED DEV - Erro não identif. - Ordinatório expedido"
         ];
 
         const opcoesAnalisado = [
@@ -7099,8 +7139,17 @@
             const addObsVal = edit.adicionarObs !== undefined ? edit.adicionarObs : "";
             const retVal = edit.dataRetorno !== undefined ? edit.dataRetorno : s.dataRetorno;
 
-            const isLocalResolved = (sitVal && (sitVal.toUpperCase().includes("RESOLVIDO") || sitVal.toUpperCase().includes("EXPEDIR") || sitVal.toUpperCase().includes("NÃO SE APLICA") || sitVal.toUpperCase().includes("SISCON - NÃO É"))) ||
-                                   (anaVal && anaVal.trim() !== "" && anaVal !== "APAGAR");
+            const isLocalResolved = (sitVal && (
+                sitVal.toUpperCase().includes("RESOLVIDO") || 
+                sitVal.toUpperCase().includes("EXPEDIR") || 
+                sitVal.toUpperCase().includes("EXPEDID") || 
+                sitVal.toUpperCase().includes("NÃO SE APLICA") || 
+                sitVal.toUpperCase().includes("NAO SE APLICA") || 
+                sitVal.toUpperCase().includes("SISCON - NÃO É") || 
+                sitVal.toUpperCase().includes("SISCON - NAO E") || 
+                sitVal.toUpperCase().includes("TED DEV") || 
+                sitVal.toUpperCase().includes("MIGRAR SIMAP")
+            )) || (anaVal && anaVal.trim() !== "" && anaVal !== "APAGAR");
 
             const tr = document.createElement('tr');
             if (isLocalResolved) {
@@ -7173,6 +7222,13 @@
                 if (o === sitVal) opt.selected = true;
                 selectSit.appendChild(opt);
             });
+            if (sitVal && !opcoesSituacao.includes(sitVal)) {
+                const optCustom = document.createElement('option');
+                optCustom.value = sitVal;
+                optCustom.innerText = sitVal;
+                optCustom.selected = true;
+                selectSit.appendChild(optCustom);
+            }
             selectSit.onchange = () => {
                 const currentEdit = SERPREC_MODIFIED[s.processo] || {};
                 currentEdit.situacao = selectSit.value;
@@ -8189,7 +8245,7 @@ for (const membroCompleto of membros) {
             return;
         }
 
-        if (!confirm(`Deseja migrar ${chksChecked.length} processo(s) selecionado(s) para a aba ERRO / VINC. da Planilha Gestores?`)) {
+        if (!confirm(`Deseja migrar ${chksChecked.length} processo(s) selecionado(s) para a aba ERRO / VINC./ TED DEV. da Planilha Gestores?`)) {
             return;
         }
 
