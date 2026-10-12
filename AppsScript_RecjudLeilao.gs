@@ -568,6 +568,107 @@ function doGet(e) {
       return retornarJSONP(callback, { status: "ok", feriados: val });
     }
 
+    // ==========================================
+    // 11. MIGRAÇÃO CONTROLE SERPREC (PRECATÓRIO / RPV)
+    // ==========================================
+    if (action === "migrarControleSerprec") {
+      var targetSpreadsheetId = e.parameter.spreadsheetId || "1yOAupHFi0ERglZPTJ4yrXHPwBP8oemOfLAKFJ9zT9Po";
+      var dataStr = e.parameter.data;
+
+      if (!dataStr) {
+        throw new Error("Parâmetro de dados ausente (data).");
+      }
+
+      var payload = JSON.parse(decodeURIComponent(dataStr));
+      var ssTarget = SpreadsheetApp.openById(targetSpreadsheetId);
+      var sheet = obterAbaResiliente(ssTarget, "SERPREC");
+
+      if (!sheet) {
+        var nomesAbas = ssTarget.getSheets().map(function(s) { return "'" + s.getName() + "'"; }).join(", ");
+        throw new Error("Aba 'SERPREC' não encontrada. Abas existentes: " + nomesAbas);
+      }
+
+      // Encontra a próxima linha vazia com base na Coluna B (Processo),
+      // ignorando linhas que só têm fórmulas em G-J
+      var proximaLinha = obterProximaLinhaVaziaPorColuna(sheet, 2);
+
+      var hoje = new Date();
+      var hojeFormatado = Utilities.formatDate(hoje, Session.getScriptTimeZone(), "dd/MM/yyyy");
+
+      for (var j = 0; j < payload.length; j++) {
+        var item = payload[j];
+
+        // Coluna A (1): Vara
+        sheet.getRange(proximaLinha, 1).setValue(item.vara || "");
+        // Coluna B (2): Processo
+        sheet.getRange(proximaLinha, 2).setValue(item.processo || "");
+        // Coluna K (11): data_Tontom (data da migração)
+        sheet.getRange(proximaLinha, 11).setValue(hojeFormatado);
+
+        proximaLinha++;
+      }
+
+      return retornarJSONP(callback, {
+        status: "success",
+        message: payload.length + " processo(s) migrado(s) para a aba SERPREC com sucesso."
+      });
+    }
+
+    // ==========================================
+    // 12. MIGRAÇÃO PRAZO PARA PLANILHA SALDO (PRAZO_TONTOM)
+    // ==========================================
+    if (action === "migrarPrazoSaldo") {
+      var targetSpreadsheetId = e.parameter.spreadsheetId || "1toiSlIHFAZX0l_6JRPh4xQHQWJ1ZBXzDJP3wzDErVBA";
+      var nomePlanilhaOrigem = e.parameter.nomePlanilhaOrigem || "";
+      var dataStr = e.parameter.data;
+
+      if (!dataStr) {
+        throw new Error("Parâmetro de dados ausente (data).");
+      }
+
+      var payload = JSON.parse(decodeURIComponent(dataStr));
+      var ssTarget = SpreadsheetApp.openById(targetSpreadsheetId);
+      var sheet = obterAbaResiliente(ssTarget, "PRAZO_TONTOM");
+
+      if (!sheet) {
+        var nomesAbas = ssTarget.getSheets().map(function(s) { return "'" + s.getName() + "'"; }).join(", ");
+        throw new Error("Aba 'PRAZO_TONTOM' não encontrada. Abas existentes: " + nomesAbas);
+      }
+
+      // Encontra a próxima linha vazia com base na Coluna B (Processo)
+      var proximaLinha = obterProximaLinhaVaziaPorColuna(sheet, 2);
+
+      var hoje = new Date();
+      var hojeFormatado = Utilities.formatDate(hoje, Session.getScriptTimeZone(), "dd/MM/yyyy");
+      var hojeCompleto = Utilities.formatDate(hoje, Session.getScriptTimeZone(), "dd/MM/yy");
+      var horaCompleta = Utilities.formatDate(hoje, Session.getScriptTimeZone(), "HH:mm");
+
+      for (var j = 0; j < payload.length; j++) {
+        var item = payload[j];
+
+        // Coluna A (1): Vara
+        sheet.getRange(proximaLinha, 1).setValue(item.vara || "");
+        // Coluna B (2): Processo
+        sheet.getRange(proximaLinha, 2).setValue(item.processo || "");
+        // Coluna C (3): Data de Retorno
+        sheet.getRange(proximaLinha, 3).setValue(item.dataRetorno || "");
+        // Colunas D e E: FÓRMULAS — não tocar
+        // Coluna F (6): data_Tontom (data da migração)
+        sheet.getRange(proximaLinha, 6).setValue(hojeFormatado);
+
+        proximaLinha++;
+      }
+
+      // Atualiza A1 com a informação da última atualização
+      var infoA1 = "Última atualização da planilha " + nomePlanilhaOrigem + " em " + hojeCompleto + " às " + horaCompleta;
+      sheet.getRange(1, 1).setValue(infoA1);
+
+      return retornarJSONP(callback, {
+        status: "success",
+        message: payload.length + " processo(s) migrado(s) para a aba PRAZO_TONTOM com sucesso."
+      });
+    }
+
     throw new Error("Ação '" + action + "' não reconhecida.");
     
   } catch (error) {
