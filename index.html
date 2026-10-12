@@ -881,7 +881,7 @@
                     <label for="txtSupervisor">Dupla de Supervisão:</label>
                     <select class="form-control" id="txtSupervisor">
                         <option value="Ana Angélica / Ricardo Dias">Ana Angélica / Ricardo Dias (Equipe 1)</option>
-                        <option value="Roberto Gonçalves / Marina Bessi" selected>Roberto Gonçalves / Marina Bessi (Equipe 2)</option>
+                        <option value="Roberto Gonçalves" selected>Roberto Gonçalves (Equipe 2)</option>
                         <option value="Suziane Muniz / Janaina Freitas">Suziane Muniz / Janaina Freitas (Equipe 3)</option>
                         <option value="Andrea Freitas / Luciana Ferraz">Andrea Freitas / Luciana Ferraz (Equipe 4)</option>
                         <option value="Danielle Lucena / Denise Farache">Danielle Lucena / Denise Farache (Equipe 5)</option>
@@ -933,6 +933,17 @@
                 <div style="display: flex; align-items: center; gap: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px; margin-top: 4px;">
                     <span class="status-dot warning" id="resumosStatusDot"></span>
                     <span id="resumosStatusText" style="font-size: 11px;">Resumos: Desconectado. Configure o link.</span>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px; margin-top: 4px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="status-dot warning" id="xdiasStatusDot"></span>
+                        <span id="xdiasStatusText" style="font-size: 11px;">Xdias: Conectando...</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <button id="btnAtualizarXdias" class="btn-theme" style="padding: 3px 8px; font-size: 11px; height: 26px; border-radius: 4px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); display: flex; align-items: center; gap: 4px; cursor: pointer;" title="Atualizar base Xdias na planilha (intervalo mínimo de 30 min)">
+                            🔄 Atualizar Xdias
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -1073,12 +1084,15 @@
                 <option value="PRECATÓRIO/RPV">Observação: PRECATÓRIO/RPV</option>
                 <option value="CENTRAL DE AGILIZAÇÃO">Observação: CENTRAL DE AGILIZAÇÃO</option>
                 <option value="INTEGRALMENTE CUMPRIDO POR OUTRO SERVIDOR">Observação: CUMPRIDO OUTRO</option>
+                <option value="IMPEDIMENTO DO CUMPRIMENTO" id="optObsImpedimento" style="display: none;">Observação: IMPEDIMENTO DO CUMPRIMENTO</option>
                 <option value="outras">Observação: Sem Padrão / Outras</option>
             </select>
 
             <select class="form-control queue-filter" id="queueFilterObsPending">
                 <option value="todos" selected>Todos os processos (com e sem pendências)</option>
                 <option value="pendente">Mostrar todas as pendências</option>
+                <option value="pendente_pje">Mostrar inconsistências de cumprimento no PJe</option>
+                <option value="pendente_incon">Todos com INCON semana anterior</option>
                 <option value="pendente_extensao">Mostrar pendências de atualização</option>
                 <option value="pendente_complemento">Mostrar pendências de complemento</option>
                 <option value="pendente_status">Mostrar pendências de status</option>
@@ -2062,17 +2076,17 @@
         "Equipe 5": ["ADALBERTO DA SOLEDADE SILVA FILHO", "JANAINA FERRO DE SOUSA PORFIRIO LIMA", "JULIANA CARNEIRO DA MOTTA", "JULIANA PONTES A DE A LOPES TAVARES", "LIDIA SERRANO BARBOSA SANTOS", "MAYARA SIMONI LAET DE ANDRADE", "PATRICIA VIEIRA DE LIRA ALBUQUERQUE NOVAES", "SIMONE NANES VILELA", "LARISSA NOGUEIRA BESSA"],
         "Equipe 6": ["BERGSON DANTAS DE MOURA BARBOSA", "FERNANDA ALVES DA SILVA", "IAMANDA LEUSE CAMPOS DE LIMA", "ITALO JORGE CAVALCANTI DE ALBUQUERQUE NUNES", "NATALIA MARIA CATÃO VILELA", "ROBERTO FERREIRA DA SILVA", "SILVANA MARIA ROCHA PEREIRA FRAGOSO", "TASSIA REBECA RATIS DA SILVA", "TERCIA VANESSA MATIAS DE OLIVEIRA"],
         "Equipe 7": ["ANA CLAUDIA DE MELO MARQUES LUZ", "CARLOS DE LIMA RIBEIRO JUNIOR", "CHARLES TONY DE OLIVEIRA LIRA", "FRANCIELLE MARIA DA SILVA MACEDO DE ANDRADE", "IRACY CABRAL DAS NEVES", "JULIANA TAVARES CORDEIRO GALVÃO", "LADJANE FERREIRA GUIMARAES", "POLLYHANE MAYUMI ALMEIDA", "THAMYRIS FERREIRA SANTOS"],
-        "Equipe 8": ["ANDRE DA SILVA CORDOVILE", "CAIO LUIZ NEVES MAIA", "CHRISTIANE OLIVEIRA DE ALMEIDA GUIMARAES MOTA BARRETO", "LUCIANA FLÁVIA DO NASCIMENTO", "MUNIK LUCIENE DE FONTES", "ROSEANE SANTOS DE ANDRADE", "SHEILA CRISTINA RODRIGUES DE LIMA ARAUJO", "TARCISIO BATISTA DA SILVA JUNIOR", "THALLES SIZENANDO AZEVEDO DIAS"],
+        "Equipe 8": ["ANDRE DA SILVA CORDOVILE", "CAIO LUIZ NEVES MAIA", "CHRISTIANE OLIVEIRA DE ALMEIDA GUIMARAES MOTA BARRETO", "LUCIANA FLÁVIA DO NASCIMENTO", "MUNIK LUCIENE DE FONTES", "ROSEANE SANTOS DE ANDRADE", "ROSELYNE BEZERRA SMITH", "SHEILA CRISTINA RODRIGUES DE LIMA ARAUJO", "TARCISIO BATISTA DA SILVA JUNIOR", "THALLES SIZENANDO AZEVEDO DIAS"],
         "Equipe 9": ["ANA CRISTINA PEDROSA FREIRE DE SA","ALUSKA SUYANNE MARQUES DA SILVA", "ELISA CARLA CAMPOS TAVARES", "ERICKSON MOURA DE QUEIROZ", "FRANCISCO ELTOMAR MARTINS FERREIRA", "LILIAN AVELINO DE MORAIS", "OTIMAR ANTÔNIO DA SILVA", "SIMONE DE MEDEIROS TORRES", "SIMONE DOS PASSOS E SILVA LEITE", "TACIANA MARTINS AMORIM BARBOSA BARROS"],
         "Equipe 10": ["ALEXANDRE LINDOSO DE ARAÚJO", "DAYANE FERNANDES MESSIAS", "FABIO COSTA TAVARES DA SILVA", "KALENNE FRANMARRY B ALVES MIYAKAWA", "MARILIA DOHERTY AYRES", "SILVIO MUCIO DE MACEDO FILHO", "WAGNER JEFFERSON MEIRA FILHO"],
-        "Equipe 11": ["CAMILLA RODRIGUES MARQUES CARNEIRO", "DIEGO MOURA DA SILVA LOPES", "ELBA MARIA BARROS GALIZA PINHEIRO", "GUILHERME ALBERTI LUPCHINSKI", "GEMMA GONCALVES DE ARAUJO GONDIM", "JAQUELINE GONDIM SOTERO SIQUEIRA", "LAURA BUARQUE INACIO DE BARROS", "NILSON JOSE GONCALVES DOS SANTOS SILVA", "ROSELYNE BEZERRA SMITH", "MICHELLE MARIA NASCIMENTO FILGUEIRAS"],
+        "Equipe 11": ["CAMILLA RODRIGUES MARQUES CARNEIRO", "DIEGO MOURA DA SILVA LOPES", "ELBA MARIA BARROS GALIZA PINHEIRO", "GUILHERME ALBERTI LUPCHINSKI", "GEMMA GONCALVES DE ARAUJO GONDIM", "JAQUELINE GONDIM SOTERO SIQUEIRA", "LAURA BUARQUE INACIO DE BARROS", "NILSON JOSE GONCALVES DOS SANTOS SILVA", "MICHELLE MARIA NASCIMENTO FILGUEIRAS"],
         "Equipe SCGA (GT)": ["GUSTAVO GOMES DE OLIVEIRA", "MANOEL PORFIRIO DE ARAUJO FILHO", "BRENDA CRISTINE PACHECO DE OLIVEIRA", "NAYRA CELLE BELTRAO AGUIAR"]
     };
 
     // Mapeamento padrão de Duplas de Supervisores por Equipe
     const DEFAULT_SUPERVISORES = {
         "Equipe 1": "Ana Angélica / Ricardo Dias",
-        "Equipe 2": "Roberto Gonçalves / Marina Bessi",
+        "Equipe 2": "Roberto Gonçalves",
         "Equipe 3": "Suziane Muniz / Janaina Freitas",
         "Equipe 4": "Andrea Freitas / Luciana Ferraz",
         "Equipe 5": "Danielle Lucena / Denise Farache",
@@ -2264,6 +2278,163 @@
 
     // Map para decisões salvas de migração/dispensa: NPU (13 dígitos) -> { npu13, acao: 'NAO_MIGRAR'|'MIGRADO', data, card }
     const HISTORICO_DECISOES_MAP = new Map();
+
+    // Globais para Validação de Inconsistências de Cumprimento no PJe e Xdias
+    let DATA_ATUALIZACAO_XDIAS = null;
+    let DATA_HORA_XDIAS_STR = "";
+    let DATA_INICIO_VIGENCIA_SIMAP = null;
+    let DATA_INICIO_VIGENCIA_SIMAP_STR = "";
+    let INTERVALO_POLLING_XDIAS = null;
+
+    // Regra 1: Tarefas permitidas para Observação "PRAZO ABERTO FORA DO SISTEMA"
+    const TAREFAS_PERMITIDAS_PRAZO_ABERTO = [
+        "AGUARDAR RESPOSTA [CD]",
+        "AGUARDAR PERÍCIA [CD]",
+        "AGUARDANDO PAGAMENTO [B]",
+        "CONCLUSÃO (MINUTAR) [B]",
+        "CONCLUSÃO (MINUTAR) [MB]",
+        "CONFERÊNCIA INICIAL (JUSTIÇA GRATUITA) [B]",
+        "CONFERÊNCIA INICIAL (URGÊNCIA) [B]",
+        "CONFERÊNCIA INICIAL [B]",
+        "CONFIRMAR DECISÃO (INICIAL) [PAJP]",
+        "CONFIRMAR DECISÃO [PAJP]",
+        "CONFIRMAR DECISÃO DE TUTELA DE URGÊNCIA [PAJP]",
+        "CONFIRMAR DESPACHO (INICIAL) [PAJP]",
+        "CONFIRMAR DESPACHO [PAJP]",
+        "CONFIRMAR SENTENÇA (INICIAL) [PAJP]",
+        "CONFIRMAR SENTENÇA [PAJP]",
+        "MINUTAR DECISÃO (INICIAL) [PAJP]",
+        "MINUTAR DECISÃO [PAJP]",
+        "MINUTAR DECISÃO DE TUTELA DE URGÊNCIA [PAJP]",
+        "MINUTAR DECISÃO EM RECURSO",
+        "MINUTAR DESPACHO (INICIAL) [PAJP]",
+        "MINUTAR DESPACHO [PAJP]",
+        "MINUTAR SENTENÇA (INICIAL) [PAJP]",
+        "MINUTAR SENTENÇA [PAJP]",
+        "AGUARDAR RESPOSTA DE BLOQUEIO",
+        "AVALIAR RESPOSTA DE BLOQUEIO",
+        "ENVIAR ORDEM DE BLOQUEIO",
+        "ENVIAR ORDEM DE LIBERAÇÃO",
+        "PREPARAR ORDEM DE BLOQUEIO",
+        "PREPARAR ORDEM DE LIBERAÇÃO",
+        "ASSINAR ATO DE CARTÓRIO",
+        "ASSINAR ATO DE CARTÓRIO [PRATCARTREV]",
+        "ATO ASSINADO PELO MAGISTRADO [PVAM]",
+        "ASSINAR ATO EM CARTÓRIO",
+        "ASSINAR ATO EM CARTÓRIO [PRATCARTREV]",
+        "ANALISAR PROCESSO [CONT]",
+        "ASSINAR ATO DE CONTADORIA [CONT]",
+        "PREPARAR ATO DE CONTADORIA [CONT]",
+        "AGUARDANDO APRECIAÇÃO PELA INSTÂNCIA SUPERIOR",
+        "ASSINAR NO SISCONDJ [SISCONDJ]",
+        "EXPEDIR NO SISCONDJ [SISCONDJ]"
+    ];
+
+    // Regra 2: Tarefas permitidas para Observação "PROCESSO SUSPENSO"
+    const TAREFAS_PERMITIDAS_SUSPENSAO = [
+        "PROCESSOS SUSPENSOS [VC_SUSP]",
+        "PROCESSOS SUSPENSOS [CD]",
+        "PROCESSOS SUSPENSOS [MIG_SUSP]",
+        "PROCESSOS SUSPENSOS (MIGRAÇÃO) [MB]"
+    ];
+
+    // Regra 3: Observações isentas da Regra 5 (Tempo)
+    // NOTA: "SERVIDOR" foi REMOVIDO — deve sim ser verificado quanto ao tempo parado
+    const OBS_ISENTAS_REGRA_TEMPO = [
+        "SUPERVISÃO/DÚVIDA",
+        "SUPERVISAO/DUVIDA",
+        "ERRO DE FLUXO",
+        "ERRO FLUXO",
+        "ERRO DE FLUXO/SISTEMA",
+        "SISCONDJ (ALVARÁ GRAVADO)",
+        "SISCONDJ (VINCULAÇÃO DE CONTA)",
+        "SISCONDJ (ALVARA GRAVADO)",
+        "SISCONDJ (VINCULACAO DE CONTA)",
+        "LEILÃO",
+        "LEILAO",
+        "REC. JUD./FALÊNCIA",
+        "REC. JUD.",
+        "PRECATÓRIO/RPV",
+        "PRECATÓRIO",
+        "PRECADORIO",
+        "CENTRAL DE AGILIZAÇÃO (SEM FLUXO)",
+        "CENTRAL DE AGILIZACAO (SEM FLUXO)",
+        "CENTRAL DE AGILIZAÇÃO",
+        "CENTRAL DE AGILIZACAO",
+        "INTEGRALMENTE CUMPRIDO POR OUTRO SERVIDOR",
+        "CUMPRIDO POR OUTRO SERVIDOR",
+        "IMPEDIMENTO DO CUMPRIMENTO"
+    ];
+
+    // Regra 4: Tarefas isentas da Regra 5 (Tempo)
+    // Inclui tarefas de cartório / passivas (servidor não controla movimentação)
+    const TAREFAS_ISENTAS_REGRA_TEMPO = [
+        // Tarefas de suspensão: processo fica parado por definição até a data de retorno
+        "PROCESSOS SUSPENSOS [VC_SUSP]",
+        "PROCESSOS SUSPENSOS [CD]",
+        "PROCESSOS SUSPENSOS [MIG_SUSP]",
+        "PROCESSOS SUSPENSOS (MIGRAÇÃO) [MB]",
+        "PROCESSOS SUSPENSOS",
+        // Demais isentas
+        "AGUARDANDO PAGAMENTO [B]",
+        "AGUARDANDO APRECIAÇÃO PELA INSTÂNCIA SUPERIOR",
+        "PROCESSO COM PRAZO EM CURSO",
+        // Tarefas de cartório / passivas (servidor não consegue movimentar)
+        "PREPARAR COMUNICAÇÃO",
+        "PREPARAR CERTIDÃO",
+        "PREPARAR MANDADO",
+        "PREPARAR CARTA PRECATÓRIA",
+        "PREPARAR OFÍCIO",
+        "EXPEDIR COMUNICAÇÃO",
+        "EXPEDIR CERTIDÃO",
+        "EXPEDIR MANDADO",
+        "EXPEDIR OFÍCIO",
+        "EXPEDIR CARTA PRECATÓRIA",
+        "AGUARDAR CARGA [SERV]",
+        "AGUARDAR DEVOLUÇÃO",
+        "AGUARDAR JUNTADA",
+        "AGUARDAR PUBLICAÇÃO",
+        "AGUARDAR DECURSO DE PRAZO",
+        "AGUARDAR DECURSO",
+        // Tarefas de minutar/confirmar (magistrado/diretor)
+        "CONCLUSÃO (MINUTAR) [B]",
+        "CONCLUSÃO (MINUTAR) [MB]",
+        "CONFERÊNCIA INICIAL (JUSTIÇA GRATUITA) [B]",
+        "CONFERÊNCIA INICIAL (URGÊNCIA) [B]",
+        "CONFERÊNCIA INICIAL [B]",
+        "CONFIRMAR DECISÃO (INICIAL) [PAJP]",
+        "CONFIRMAR DECISÃO [PAJP]",
+        "CONFIRMAR DECISÃO DE TUTELA DE URGÊNCIA [PAJP]",
+        "CONFIRMAR DESPACHO (INICIAL) [PAJP]",
+        "CONFIRMAR DESPACHO [PAJP]",
+        "CONFIRMAR SENTENÇA (INICIAL) [PAJP]",
+        "CONFIRMAR SENTENÇA [PAJP]",
+        "MINUTAR DECISÃO (INICIAL) [PAJP]",
+        "MINUTAR DECISÃO [PAJP]",
+        "MINUTAR DECISÃO DE TUTELA DE URGÊNCIA [PAJP]",
+        "MINUTAR DECISÃO EM RECURSO",
+        "MINUTAR DESPACHO (INICIAL) [PAJP]",
+        "MINUTAR DESPACHO [PAJP]",
+        "MINUTAR SENTENÇA (INICIAL) [PAJP]",
+        "MINUTAR SENTENÇA [PAJP]",
+        "AGUARDAR RESPOSTA DE BLOQUEIO",
+        "AVALIAR RESPOSTA DE BLOQUEIO",
+        "ENVIAR ORDEM DE BLOQUEIO",
+        "ENVIAR ORDEM DE LIBERAÇÃO",
+        "PREPARAR ORDEM DE BLOQUEIO",
+        "PREPARAR ORDEM DE LIBERAÇÃO",
+        "ASSINAR ATO DE CARTÓRIO",
+        "ASSINAR ATO DE CARTÓRIO [PRATCARTREV]",
+        "ATO ASSINADO PELO MAGISTRADO [PVAM]",
+        "ASSINAR ATO EM CARTÓRIO",
+        "ASSINAR ATO EM CARTÓRIO [PRATCARTREV]",
+        "ANALISAR PROCESSO [CONT]",
+        "ASSINAR ATO DE CONTADORIA [CONT]",
+        "PREPARAR ATO DE CONTADORIA [CONT]",
+        "ASSINAR NO SISCONDJ [SISCONDJ]",
+        "EXPEDIR NO SISCONDJ [SISCONDJ]"
+    ];
+
 
     function carregarHistoricoDecisoesLocal() {
         try {
@@ -2657,6 +2828,28 @@
             selectEq.value = currentVal;
         } else if (selectEq.options.length > 0) {
             selectEq.selectedIndex = 0;
+        }
+
+        atualizarVisibilidadeFiltroImpedimento();
+    }
+
+    function atualizarVisibilidadeFiltroImpedimento() {
+        const selectEq = document.getElementById('selectEquipe');
+        const optImp = document.getElementById('optObsImpedimento');
+        const filterObs = document.getElementById('queueFilterObsType');
+        if (!optImp || !selectEq) return;
+
+        const eq = selectEq.value;
+        const deveExibir = (eq === "Equipe 7" || eq === "Todas" || eq === "Todas as Equipes");
+
+        optImp.hidden = !deveExibir;
+        optImp.style.display = deveExibir ? "" : "none";
+        optImp.disabled = !deveExibir;
+
+        if (!deveExibir && filterObs && filterObs.value === "IMPEDIMENTO DO CUMPRIMENTO") {
+            filterObs.value = "todas";
+            if (typeof QUEUE_PAGINA_ATUAL !== 'undefined') QUEUE_PAGINA_ATUAL = 1;
+            if (typeof atualizarFilaTrabalho === 'function') atualizarFilaTrabalho();
         }
     }
 
@@ -3104,6 +3297,18 @@
         if (idxTipo < 0) {
             idxTipo = header.findIndex(h => h.includes("ORIGEM") || h.includes("PRIO"));
         }
+
+        // Detecção das colunas M (TAREFA ATUAL) e K (DIAS PARADOS NA TAREFA)
+        // ATENÇÃO: busca "TAREFA ATUAL" primeiro para não confundir com "DIAS PARADOS NA TAREFA"
+        let idxTarefaAtual = header.findIndex(h => h.includes("TAREFA ATUAL"));
+        if (idxTarefaAtual < 0) {
+            // Segundo passo: busca por "TAREFA" mas exclui colunas que também contêm "PARADOS" ou "DIAS"
+            idxTarefaAtual = header.findIndex(h => h.includes("TAREFA") && !h.includes("PARADOS") && !h.includes("DIAS"));
+        }
+        if (idxTarefaAtual < 0) idxTarefaAtual = 12; // fallback coluna M (índice 12)
+
+        let idxDiasParados = header.findIndex(h => h.includes("DIAS PARADOS") || h.includes("DIAS PARADO") || h.includes("PARADOS NA TAREFA"));
+        if (idxDiasParados < 0) idxDiasParados = 10; // fallback coluna K (índice 10)
         
         BANCO_PRIORIDADES.clear();
 
@@ -3124,11 +3329,17 @@
             }
             const dataStr = idxData >= 0 ? row[idxData] : null;
             const origemRaw = idxTipo >= 0 ? row[idxTipo] : null;
+
+            // Extração de Tarefa Atual e Dias Parados (índices com fallback já definidos acima)
+            const tarefaAtualVal = String(row[idxTarefaAtual] ?? "").trim();
+            const diasParadosVal = parseFloat(row[idxDiasParados]) || 0;
             
             const info = {
                 prioridade: prioridadeIdentificada,
                 data: dataStr,
-                origem: origemRaw
+                origem: origemRaw,
+                tarefaAtual: tarefaAtualVal,
+                diasParados: diasParadosVal
             };
 
             // Armazena com a chave completa limpa se disponível (evita colisões de NPUs com mesma sequência em anos diferentes)
@@ -3345,6 +3556,250 @@
             logDebug("Erro de rede/CORS ao buscar Prioridades via JSONP. Verifique se o link está público.");
         });
     }
+
+    // Processa a data e hora da célula A1 do Xdias e atualiza o estado do botão
+    function processarTimestampXdias(celulaA1) {
+        const txtA1 = String(celulaA1 || "").trim();
+        const dot = document.getElementById('xdiasStatusDot');
+        const txt = document.getElementById('xdiasStatusText');
+        const btn = document.getElementById('btnAtualizarXdias');
+
+        // Padrões de data/hora: "xdias_27-08-2026_18h12_B" ou "27/08/2026 18:12" ou "27-08-2026 18h12"
+        const matchData = txtA1.match(/(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+        const matchHora = txtA1.match(/(\d{1,2})[h:](\d{2})/);
+
+        if (matchData) {
+            const [, d, m, y] = matchData;
+            let hh = 0, mm = 0;
+            if (matchHora) {
+                hh = parseInt(matchHora[1], 10);
+                mm = parseInt(matchHora[2], 10);
+            }
+            const dateObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d), hh, mm);
+            DATA_ATUALIZACAO_XDIAS = dateObj;
+            DATA_HORA_XDIAS_STR = `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y} às ${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+
+            const diffMin = Math.floor((new Date() - dateObj) / 60000);
+            if (dot) dot.className = "status-dot success";
+
+            if (btn) {
+                if (diffMin >= 0 && diffMin < 30) {
+                    btn.disabled = true;
+                    btn.style.opacity = "0.55";
+                    btn.style.cursor = "not-allowed";
+                    const minRestantes = 30 - diffMin;
+                    const horaLiberacao = new Date(dateObj.getTime() + 30 * 60000);
+                    const horaLibStr = `${String(horaLiberacao.getHours()).padStart(2, '0')}:${String(horaLiberacao.getMinutes()).padStart(2, '0')}`;
+                    if (txt) txt.innerText = `Xdias: ${DATA_HORA_XDIAS_STR} (há ${diffMin} min - bloqueado até ${horaLibStr})`;
+                    btn.title = `Xdias atualizado recentemente (há ${diffMin} min). Próxima atualização permitida às ${horaLibStr}.`;
+                } else {
+                    btn.disabled = false;
+                    btn.style.opacity = "1";
+                    btn.style.cursor = "pointer";
+                    const tempoStr = diffMin >= 60 ? `${Math.floor(diffMin / 60)}h${diffMin % 60}m` : `${diffMin} min`;
+                    if (txt) txt.innerText = `Xdias: ${DATA_HORA_XDIAS_STR} (há ${tempoStr} - liberado)`;
+                    btn.title = `Clique para atualizar a base Xdias na planilha.`;
+                }
+            }
+        } else {
+            if (dot) dot.className = "status-dot warning";
+            if (txt) txt.innerText = txtA1 ? `Xdias: ${txtA1}` : "Xdias: Sem informação.";
+        }
+    }
+
+    // Carregar data/hora da aba xdias via GViz
+    function carregarDataAtualizacaoXdias(callback) {
+        const url = document.getElementById('txtPrioSheetUrl')?.value.trim() || URL_PLANILHA;
+        const parsed = extrairSpreadsheetIdEGid(url);
+        const dot = document.getElementById('xdiasStatusDot');
+        const txt = document.getElementById('xdiasStatusText');
+
+        if (!parsed || !parsed.id) {
+            if (dot) dot.className = "status-dot danger";
+            if (txt) txt.innerText = "Xdias: Link inválido.";
+            if (typeof callback === 'function') callback(false);
+            return;
+        }
+
+        const jsonpUrl = `https://docs.google.com/spreadsheets/d/${parsed.id}/gviz/tq?sheet=${encodeURIComponent('xdias')}&range=A1:B2&tqx=responseHandler:cbXdias`;
+
+        carregarJsonp(jsonpUrl, "cbXdias", function(data) {
+            try {
+                if (data.status !== "ok") {
+                    throw new Error("Erro no Sheets: " + (data.errors?.[0]?.message || data.status));
+                }
+                const matriz = converterGvizParaMatriz(data);
+                // converterGvizParaMatriz insere a linha de cabeçalhos como [0], então os dados começam em [1]
+                const celulaA1 = String(matriz?.[1]?.[0] || "").trim();
+
+                processarTimestampXdias(celulaA1);
+                if (typeof callback === 'function') callback(true, celulaA1);
+            } catch (err) {
+                console.error("Erro ao processar xdias:", err);
+                if (dot) dot.className = "status-dot danger";
+                if (txt) txt.innerText = "Xdias: Erro ao carregar.";
+                if (typeof callback === 'function') callback(false, err);
+            }
+        }, function() {
+            if (dot) dot.className = "status-dot danger";
+            if (txt) txt.innerText = "Xdias: Erro CORS/Link privado.";
+            if (typeof callback === 'function') callback(false, "CORS/Network");
+        });
+    }
+
+    // Auxiliar: Compara se uma tarefa está contida em uma lista de tarefas permitidas/isentas (normalizando acentuação e espaços)
+    function tarefaMatchesLista(tarefa, lista) {
+        if (!tarefa || !Array.isArray(lista)) return false;
+        const tNorm = normalizar(tarefa).replace(/\s+/g, " ").trim();
+        return lista.some(item => {
+            const itemNorm = normalizar(item).replace(/\s+/g, " ").trim();
+            return tNorm === itemNorm || tNorm.includes(itemNorm) || itemNorm.includes(tNorm);
+        });
+    }
+
+    // Extrai apenas a parte da observação inserida ESTA semana pelo servidor.
+    // O campo obs pode conter múltiplos blocos:
+    //   - Blocos COM "| INCON": gerados pelo robô (semana anterior) — ignorar para avaliação de regras
+    //   - Blocos SEM "| INCON": inseridos pelo servidor esta semana — usar para avaliação
+    // Cada bloco ocupa normalmente uma linha (separator = \n).
+    // Fallback: se não há nova obs (todos os blocos têm INCON), usa a parte antes do | INCON.
+    function extrairObsServidor(obsRaw) {
+        if (!obsRaw) return "";
+
+        // Divide em linhas (formato principal: cada bloco em sua própria linha)
+        let linhas = obsRaw.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+
+        // Se não há quebra de linha, tenta dividir usando "*" como início de bloco
+        if (linhas.length <= 1) {
+            const porAsterisco = obsRaw.split(/(?=\*[A-Za-zÀ-ú])/).map(l => l.trim()).filter(l => l);
+            if (porAsterisco.length > 1) linhas = porAsterisco;
+        }
+
+        // Separa blocos com e sem INCON
+        const blocosSemIncon = linhas.filter(l => !l.includes("| INCON") && !l.includes("|INCON"));
+        const blocosComIncon = linhas.filter(l => l.includes("| INCON") || l.includes("|INCON"));
+
+        // Prioridade: blocos desta semana (sem INCON)
+        if (blocosSemIncon.length > 0) {
+            return blocosSemIncon.join("\n").trim();
+        }
+
+        // Fallback: extrair parte antes do | INCON (obs da semana anterior)
+        // Usado quando servidor ainda não inseriu obs nova
+        const obsAnterior = blocosComIncon.map(l => {
+            const idx = l.indexOf("| INCON");
+            if (idx >= 0) return l.substring(0, idx).replace(/\|\s*$/, "").trim();
+            return l.trim();
+        }).filter(l => l);
+
+        return obsAnterior.join("\n").trim();
+    }
+
+    // Motor de Validação de Inconsistências de Cumprimento no PJe
+    function verificarInconsistenciasPJe(p) {
+        if (!p) return null;
+
+        // 1. Obter info do NPU no BANCO_PRIORIDADES
+        const npuLimpo = limparNPU(p.npu);
+        const chaveSequencial = obterNumeroSequencialNPU(p.npu);
+        let infoPrio = null;
+        if (npuLimpo.length >= 14 && BANCO_PRIORIDADES.has(npuLimpo)) {
+            infoPrio = BANCO_PRIORIDADES.get(npuLimpo);
+        } else if (BANCO_PRIORIDADES.has(chaveSequencial)) {
+            infoPrio = BANCO_PRIORIDADES.get(chaveSequencial);
+        }
+
+        // Se o processo não estiver na planilha base ou se for #N/A (arquivado), não acusa inconsistência
+        if (!infoPrio) return null;
+        const tarefaAtual = (infoPrio.tarefaAtual || "").trim();
+        if (!tarefaAtual || tarefaAtual.toUpperCase() === "#N/A" || tarefaAtual.toUpperCase() === "N/A") {
+            return null;
+        }
+
+        // Usa APENAS a parte da observação escrita pelo servidor (sem o sufixo | INCON - do robô)
+        const obsServidor = extrairObsServidor(p.obs || "");
+        const obsNorm = normalizar(obsServidor);
+
+        // --- REGRA 1: PRAZO ABERTO FORA DO SISTEMA ---
+        // Verifica match preciso para não confundir com outras observações
+        if (obsNorm.includes("PRAZO ABERTO FORA DO SISTEMA") || obsNorm.includes("PRAZO ABERTO FORA")) {
+            const isPermitida = tarefaMatchesLista(tarefaAtual, TAREFAS_PERMITIDAS_PRAZO_ABERTO);
+            if (!isPermitida) {
+                return {
+                    regra: 1,
+                    tipo: "PRAZO_ABERTO_TAREFA_INCORRETA",
+                    tarefaAtual: tarefaAtual,
+                    mensagem: "Orientar servidor a movimentar processo para AGUARDAR RESPOSTA ou AGUARDAR PERÍCIA",
+                    detalhe: `Tarefa no PJe: "${tarefaAtual}" (não permitida para Prazo Aberto Fora)`
+                };
+            }
+        }
+
+        // --- REGRA 2: PROCESSO SUSPENSO ---
+        // ATENÇÃO: match preciso para não confundir com SUPERVISÃO/DÚVIDA ou outros
+        // "PROCESSO SUSPENSO" é distinto de "SUPERVISÃO" — mas após normalização ambos diferem
+        // A verificação usa termos específicos de suspensão para evitar falsos positivos
+        const ehSuspenso = obsNorm.includes("PROCESSO SUSPENSO") ||
+                           obsNorm.includes("SUSPENSAO (DETERMINACAO") ||
+                           obsNorm.includes("SUSPENSAO (PEDIDO") ||
+                           obsNorm.includes("SUSPENSAO DO PROCESSO") ||
+                           (obsNorm.includes("SUSPENSO") && !obsNorm.includes("SUPERVISAO"));
+        if (ehSuspenso) {
+            const isPermitidaSusp = tarefaMatchesLista(tarefaAtual, TAREFAS_PERMITIDAS_SUSPENSAO);
+            if (!isPermitidaSusp) {
+                return {
+                    regra: 2,
+                    tipo: "SUSPENSAO_TAREFA_INCORRETA",
+                    tarefaAtual: tarefaAtual,
+                    mensagem: "Orientar servidor para movimentar processo para uma das tarefas de suspensão no PJE",
+                    detalhe: `Tarefa no PJe: "${tarefaAtual}" (não é uma tarefa de suspensão)`
+                };
+            }
+        }
+
+        // --- REGRA 3: Isenções por Observação para Regra 5 (Tempo) ---
+        const isObsIsenta = OBS_ISENTAS_REGRA_TEMPO.some(kw => obsNorm.includes(normalizar(kw)));
+        if (isObsIsenta) return null;
+
+        // --- REGRA 4: Isenções por Tarefa para Regra 5 (Tempo) ---
+        // Usa match parcial para capturar variações de nome de tarefa (ex: "PREPARAR COMUNICAÇÃO [CART]")
+        const tarefaNorm = normalizar(tarefaAtual);
+        const isTarefaIsenta = TAREFAS_ISENTAS_REGRA_TEMPO.some(tarIsenta => {
+            const itemNorm = normalizar(tarIsenta).replace(/\s+/g, " ").trim();
+            return tarefaNorm.includes(itemNorm) || itemNorm.includes(tarefaNorm.replace(/\s+/g, " ").trim());
+        });
+        if (isTarefaIsenta) return null;
+
+        // --- REGRA 5: REGRA DO TEMPO (Processo Finalizado parado no PJe) ---
+        if (p.status === "Finalizado") {
+            let diasTolerancia = 0;
+            if (DATA_ATUALIZACAO_XDIAS && DATA_INICIO_VIGENCIA_SIMAP) {
+                const dtX = new Date(DATA_ATUALIZACAO_XDIAS.getFullYear(), DATA_ATUALIZACAO_XDIAS.getMonth(), DATA_ATUALIZACAO_XDIAS.getDate());
+                const dtV = new Date(DATA_INICIO_VIGENCIA_SIMAP.getFullYear(), DATA_INICIO_VIGENCIA_SIMAP.getMonth(), DATA_INICIO_VIGENCIA_SIMAP.getDate());
+                diasTolerancia = Math.max(0, Math.round((dtX - dtV) / (1000 * 60 * 60 * 24)));
+            } else {
+                const hoje = new Date();
+                const diaSem = hoje.getDay();
+                diasTolerancia = Math.max(0, (diaSem === 0 ? 6 : diaSem - 1));
+            }
+
+            const diasParados = parseFloat(infoPrio.diasParados) || 0;
+            if (diasParados > diasTolerancia) {
+                return {
+                    regra: 5,
+                    tipo: "PROCESSO_PARADO_FINALIZADO",
+                    tarefaAtual: tarefaAtual,
+                    diasParados: diasParados,
+                    diasTolerancia: diasTolerancia,
+                    mensagem: `Processo parado há ${diasParados} dias na tarefa ${tarefaAtual}`,
+                    detalhe: `Status Finalizado no SIMAP, mas processo parado no PJe há ${diasParados} dias (tolerância vigência: ${diasTolerancia} dias)`
+                };
+            }
+        }
+
+        return null;
+    }
+
 
     // Auxiliar para detectar pendências de status incorreto no SIMAP
     function verificarPendenciaStatus(p) {
@@ -4182,6 +4637,36 @@
 
     // Processar planilha exportada do SIMAP (identifica colunas dinamicamente)
     function processarPlanilhaSIMAP(rawRows) {
+        // Captura a data inicial da vigência da planilha SIMAP (célula B4 -> linha index 3, col index 1)
+        DATA_INICIO_VIGENCIA_SIMAP = null;
+        DATA_INICIO_VIGENCIA_SIMAP_STR = "";
+
+        if (rawRows.length >= 4 && rawRows[3] && rawRows[3][1]) {
+            const b4Text = String(rawRows[3][1]).trim();
+            const matchData = b4Text.match(/(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})/);
+            if (matchData) {
+                const [, d, m, y] = matchData;
+                DATA_INICIO_VIGENCIA_SIMAP = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+                DATA_INICIO_VIGENCIA_SIMAP_STR = `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+            }
+        }
+        if (!DATA_INICIO_VIGENCIA_SIMAP) {
+            for (let r = 0; r < Math.min(10, rawRows.length); r++) {
+                if (!rawRows[r]) continue;
+                for (let c = 0; c < Math.min(5, rawRows[r].length); c++) {
+                    const txt = String(rawRows[r][c] || "");
+                    const matchData = txt.match(/(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})/);
+                    if (matchData && (txt.includes("à") || txt.includes("a") || txt.includes("-"))) {
+                        const [, d, m, y] = matchData;
+                        DATA_INICIO_VIGENCIA_SIMAP = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+                        DATA_INICIO_VIGENCIA_SIMAP_STR = `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+                        break;
+                    }
+                }
+                if (DATA_INICIO_VIGENCIA_SIMAP) break;
+            }
+        }
+
         let headerIdx = -1;
         
         // Localiza a linha do cabeçalho de forma segura
@@ -5019,6 +5504,17 @@
                 ],
                 exigeExtra: false,
                 label: "CUMPRIDO OUTRO"
+            },
+            {
+                key: "IMPEDIMENTO DO CUMPRIMENTO",
+                aliases: [
+                    "*IMPEDIMENTO DO CUMPRIMENTO (selecionar tipo)",
+                    "IMPEDIMENTO DO CUMPRIMENTO (selecionar tipo)",
+                    "*IMPEDIMENTO DO CUMPRIMENTO",
+                    "IMPEDIMENTO DO CUMPRIMENTO"
+                ],
+                exigeExtra: false,
+                label: "IMPEDIMENTO DO CUMPRIMENTO"
             }
         ];
 
@@ -5448,6 +5944,35 @@
             texto += `✅ TONTOM SERVIDOR - Sem pendência de atualização.\n\n`;
         }
 
+        // 1.1.3 Inconsistências de Cumprimento no PJe
+        const procsInconsistenciaPJe = [];
+        todosProcsEquipe.forEach(p => {
+            const inc = verificarInconsistenciasPJe(p);
+            if (inc) {
+                procsInconsistenciaPJe.push({
+                    servidor: p.servidor,
+                    npu: p.npu,
+                    vara: p.vara || "Não informada",
+                    obs: p.obs,
+                    inc: inc
+                });
+            }
+        });
+
+        texto += `--------------------------------------------------\n`;
+        texto += `📌 VERIFICAÇÃO DE CUMPRIMENTO NO PJE (TAREFAS E TEMPO)\n`;
+        texto += `--------------------------------------------------\n\n`;
+
+        if (procsInconsistenciaPJe.length > 0) {
+            texto += `⚠️ ATENÇÃO: HÁ PROCESSOS COM INCONSISTÊNCIA DE CUMPRIMENTO NO PJE:\n`;
+            procsInconsistenciaPJe.forEach(item => {
+                texto += `❌ Servidor: ${item.servidor} / NPU: ${item.npu} / Vara: ${item.vara} / Observação: ${item.obs} / Inconsistência PJe: ${item.inc.mensagem}\n`;
+            });
+            texto += `\n`;
+        } else {
+            texto += `✅ CUMPRIMENTO NO PJE - Sem inconsistências de tarefas ou movimentação no PJe.\n\n`;
+        }
+
         // Acopla a análise da planilha gestores de forma dinâmica
         texto += construirPlanilhaGestoresTextoDinamico() + "\n";
 
@@ -5517,8 +6042,6 @@
             } else {
                 filtrados = filtrados.filter(p => {
                     const analises = analisarObservacaoCompleta(p.obs);
-                    // Compara obsTypeFiltro com a.tipo: o filtro usa o label (ou prefixo do label)
-                    // retornado por analisarObservacaoCompleta, não a key do padrão.
                     return analises.some(a => a.tipo.toUpperCase().includes(obsTypeFiltro.toUpperCase()));
                 });
             }
@@ -5529,9 +6052,16 @@
             filtrados = filtrados.filter(p => {
                 const analises = analisarObservacaoCompleta(p.obs);
                 const temStatusPrio = verificarPendenciaStatus(p);
+                const temInconsistenciaPJe = Boolean(verificarInconsistenciasPJe(p));
 
                 if (obsPendingFiltro === "pendente") {
-                    return analises.some(a => a.pendente || a.extensaoDesatualizada) || temStatusPrio;
+                    return analises.some(a => a.pendente || a.extensaoDesatualizada) || temStatusPrio || temInconsistenciaPJe;
+                } else if (obsPendingFiltro === "pendente_pje") {
+                    return temInconsistenciaPJe;
+                } else if (obsPendingFiltro === "pendente_incon") {
+                    // Mostra processos cujo campo de observação contém texto de INCON do robô
+                    const obsText = (p.obs || "");
+                    return obsText.includes("| INCON") || obsText.includes("|INCON");
                 } else if (obsPendingFiltro === "pendente_extensao") {
                     return analises.some(a => a.extensaoDesatualizada);
                 } else if (obsPendingFiltro === "pendente_status") {
@@ -5604,6 +6134,7 @@
             // Analisa observação para formatar badges e pendências
             const analises = analisarObservacaoCompleta(p.obs);
             const temPendStatus = verificarPendenciaStatus(p);
+            const inconsistenciaPJe = verificarInconsistenciasPJe(p);
 
             let obsHtml = "-";
             if (analises && analises.length > 0) {
@@ -5632,6 +6163,9 @@
                     } else if (analise.tipo.includes("PRAZO ABERTO")) {
                         badgeCor = "rgba(245, 158, 11, 0.15)";
                         badgeTextoCor = "#fbbf24";
+                    } else if (analise.tipo.includes("IMPEDIMENTO")) {
+                        badgeCor = "rgba(249, 115, 22, 0.18)";
+                        badgeTextoCor = "#fb923c";
                     }
                     
                     const badgeStyle = `background: ${badgeCor}; color: ${badgeTextoCor}; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; display: inline-block; margin-right: 5px; border: 1px solid rgba(255,255,255,0.05);`;
@@ -5662,6 +6196,18 @@
                     obsHtml = statusBadgeHtml;
                 } else {
                     obsHtml += statusBadgeHtml;
+                }
+            }
+
+            if (inconsistenciaPJe) {
+                const pjeBadgeHtml = `<div style="margin-top: 6px; border-top: 1px dashed rgba(249, 115, 22, 0.35); padding-top: 6px;">
+                    <span style="background: rgba(249, 115, 22, 0.18); color: #fb923c; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; display: inline-block; margin-right: 5px; border: 1px solid rgba(249, 115, 22, 0.4);" title="${inconsistenciaPJe.detalhe}">⚠️ INCONSISTÊNCIA PJE</span>
+                    <span style="color: #fb923c; font-weight: bold; font-size: 11px;" title="${inconsistenciaPJe.detalhe}">${inconsistenciaPJe.mensagem}</span>
+                </div>`;
+                if (obsHtml === "-") {
+                    obsHtml = pjeBadgeHtml;
+                } else {
+                    obsHtml += pjeBadgeHtml;
                 }
             }
 
@@ -5801,6 +6347,40 @@
         QUEUE_PAGINA_ATUAL = 1;
         atualizarFilaTrabalho();
     };
+
+    // Ação do Botão Atualizar Xdias (com checagem relâmpago de segurança e trava de 30 min)
+    const btnXdiasEl = document.getElementById('btnAtualizarXdias');
+    if (btnXdiasEl) {
+        btnXdiasEl.onclick = () => {
+            btnXdiasEl.disabled = true;
+            btnXdiasEl.innerText = "⏳ Checando...";
+
+            carregarDataAtualizacaoXdias(function(sucesso) {
+                // Restaura o botão imediatamente após a checagem (o estado visual é controlado por processarTimestampXdias)
+                btnXdiasEl.disabled = false;
+                btnXdiasEl.innerText = "🔄 Atualizar Xdias";
+
+                if (!sucesso) {
+                    alert("Não foi possível verificar o horário do Xdias na planilha. Verifique a conexão.");
+                    return;
+                }
+
+                const diffMin = DATA_ATUALIZACAO_XDIAS ? Math.floor((new Date() - DATA_ATUALIZACAO_XDIAS) / 60000) : 999;
+
+                if (diffMin >= 0 && diffMin < 30) {
+                    const horaLiberacao = new Date(DATA_ATUALIZACAO_XDIAS.getTime() + 30 * 60000);
+                    const horaLibStr = `${String(horaLiberacao.getHours()).padStart(2, '0')}:${String(horaLiberacao.getMinutes()).padStart(2, '0')}`;
+                    alert(`⚠️ O Xdias foi atualizado recentemente às ${DATA_HORA_XDIAS_STR.split('às')[1]?.trim() || ''} (há ${diffMin} min).\n\nAguarde até ${horaLibStr} antes de solicitar uma nova atualização, para não travar a planilha.`);
+                    return;
+                }
+
+                // Se passou de 30 min: orienta o usuário
+                const tempoStr = diffMin >= 60 ? `${Math.floor(diffMin / 60)}h${diffMin % 60}m` : `${diffMin} min`;
+                alert(`ℹ️ O Xdias está liberado para atualização (última atualização há ${tempoStr}).\n\nPara colar o Xdias na planilha base:\n1. Abra a Planilha Base de Prioridades no Google Sheets\n2. Clique no menu Extensões → "DIRCIV - Gestão"\n3. Selecione a opção "colar Xdias"\n\nApós colar, aguarde alguns segundos e o painel atualizará automaticamente.`);
+            });
+        };
+    }
+
 
     // Paginação
     document.getElementById('btnPagePrev').onclick = () => {
@@ -5945,6 +6525,8 @@
         
         const equipeSel = selectEquipe.value;
         localStorage.setItem('tontom_selected_equipe', equipeSel);
+        
+        atualizarVisibilidadeFiltroImpedimento();
         
         txtSupervisor.value = supervisoresMap[equipeSel] || "";
         localStorage.setItem('tontom_supervisor_name', txtSupervisor.value);
@@ -7703,6 +8285,7 @@
         "LUCIANA FLAVIA DO NASCIMENTO": "Luciana Flávia",
         "MUNIK LUCIENE DE FONTES": "Munik Fontes",
         "ROSEANE SANTOS DE ANDRADE": "Roseane Andrade",
+        "ROSELYNE BEZERRA SMITH": "Roselyne Smith",
         "SHEILA CRISTINA RODRIGUES DE LIMA ARAUJO": "Sheila Araújo",
         "TARCISIO BATISTA DA SILVA JUNIOR": "Tarcísio Batista",
         "THALLES SIZENANDO AZEVEDO DIAS": "Thalles Dias",
@@ -7739,7 +8322,6 @@
         "JAQUELINE GONDIM SOTERO SIQUEIRA": "Jaqueline Gondim",
         "LAURA BUARQUE INACIO DE BARROS": "Laura Buarque",
         "NILSON JOSE GONCALVES DOS SANTOS SILVA": "Nilson Silva",
-        "ROSELYNE BEZERRA SMITH": "Roselyne Smith",
         "MICHELLE MARIA NASCIMENTO FILGUEIRAS": "Michelle Filgueiras",
 
         // SCGA (GT)
@@ -9296,6 +9878,13 @@ for (const membroCompleto of membros) {
     carregarFeriadosPlanilha();
     carregarListaGestoresServidores();
     carregarPrioridadesPlanilha();
+    carregarDataAtualizacaoXdias();
+    // Auto-polling silencioso do Xdias a cada 2 minutos
+    if (INTERVALO_POLLING_XDIAS) clearInterval(INTERVALO_POLLING_XDIAS);
+    INTERVALO_POLLING_XDIAS = setInterval(() => {
+        carregarDataAtualizacaoXdias();
+    }, 120000);
+
     carregarResumosPlanilha();
     carregarAudienciasCentral();
     carregarCancelamentosCentral();
