@@ -1062,10 +1062,12 @@
                 <option value="SERVIDOR">Observação: SERVIDOR</option>
                 <option value="SISCONDJ (Alvará gravado)">Observação: SISCONDJ (Alvará gravado)</option>
                 <option value="SISCONDJ (Vinculação de Conta)">Observação: SISCONDJ (Vinculação de Conta)</option>
+                <option value="SISCONDJ (Valor Indisp. SISBAJUD)">Observação: SISCONDJ (Valor Indisp. SISBAJUD)</option>
                 <option value="SISCONDJ (Alvará ou Vinculação)">Observação: SISCONDJ (Versão Antiga)</option>
                 <option value="PRAZO ABERTO FORA">Observação: PRAZO ABERTO</option>
                 <option value="PRAZO EM CURSO">Observação: PRAZO EM CURSO</option>
-                <option value="SUSPENSO">Observação: PROCESSO SUSPENSO</option>
+                <option value="SUSPENSO">Observação: PROCESSO SUSPENSO (Todos)</option>
+                <option value="SUSPENSO (Sem data de retorno)">Observação: PROCESSO SUSPENSO (Sem data de retorno)</option>
                 <option value="ARQUIVO PROVISÓRIO">Observação: ARQUIVO PROVISÓRIO</option>
                 <option value="ERRO DE FLUXO">Observação: ERRO DE FLUXO</option>
                 <option value="LEILÃO">Observação: LEILÃO</option>
@@ -3301,25 +3303,60 @@
         });
     }
 
-    // Auxiliar para detectar pendências de status incorreto no SIMAP
-    function verificarPendenciaStatus(p) {
-        if (!p || !p.obs || p.status === "Finalizado") return false;
-        
+    // Auxiliar para detectar e obter detalhes de pendências de status no SIMAP
+    function obterPendenciaStatus(p) {
+        if (!p || !p.obs) return null;
+
         const obsUpper = p.obs.toUpperCase().trim();
-        
-        // 1. "ERRO DE FLUXO/SISTEMA (informar nº do chamado)"
-        const erroKeywords = ["ERRO DE FLUXO", "ERRO FLUXO", "ERRO DE FLUXO/SISTEMA"];
-        const contemErro = erroKeywords.some(kw => obsUpper.includes(kw));
-        
-        // 2. "integralmente cumprido por outro servidor"
-        const cumpridoKeywords = ["INTEGRALMENTE CUMPRIDO POR OUTRO SERVIDOR", "CUMPRIDO POR OUTRO SERVIDOR", "CUMPRIDO OUTRO SERVIDOR"];
-        const contemCumpridoOutro = cumpridoKeywords.some(kw => obsUpper.includes(kw));
-        
-        // 3. "CENTRAL DE AGILIZAÇÃO (SEM FLUXO)"
-        const centralKeywords = ["CENTRAL DE AGILIZAÇÃO (SEM FLUXO)", "CENTRAL DE AGILIZACAO (SEM FLUXO)", "CENTRAL DE AGILIZAÇÃO", "CENTRAL DE AGILIZACAO"];
-        const contemCentralSemFluxo = centralKeywords.some(kw => obsUpper.includes(kw));
-        
-        return contemErro || contemCumpridoOutro || contemCentralSemFluxo;
+        const statusNorm = String(p.status || "").trim().toLowerCase();
+
+        // 1. "SISCONDJ - valor indisponível SISBAJUD" exige status "Em andamento"
+        const ehSiscondjIndisponivel = obsUpper.includes("SISCONDJ") && 
+            (obsUpper.includes("VALOR INDISPONÍVEL") || obsUpper.includes("VALOR INDISPONIVEL") || 
+             obsUpper.includes("INDISPONIVEL SISBAJUD") || obsUpper.includes("INDISPONÍVEL SISBAJUD"));
+
+        if (ehSiscondjIndisponivel) {
+            // Se o servidor tiver colocado como Finalizado ou Pendente (ou qualquer outro diferente de 'Em andamento')
+            if (statusNorm !== "em andamento") {
+                return {
+                    tipo: "SISCONDJ_INDISPONIVEL",
+                    statusEsperado: "Em andamento",
+                    textoTabela: "status do processo deve ser em andamento",
+                    tooltip: "Esta observação exige que o status do processo seja alterado para Em andamento!",
+                    mensagemAuditoria: "status do processo deve ser em andamento"
+                };
+            }
+            return null;
+        }
+
+        // 2. Observações que exigem status "Finalizado"
+        if (p.status !== "Finalizado") {
+            const erroKeywords = ["ERRO DE FLUXO", "ERRO FLUXO", "ERRO DE FLUXO/SISTEMA"];
+            const contemErro = erroKeywords.some(kw => obsUpper.includes(kw));
+
+            const cumpridoKeywords = ["INTEGRALMENTE CUMPRIDO POR OUTRO SERVIDOR", "CUMPRIDO POR OUTRO SERVIDOR", "CUMPRIDO OUTRO SERVIDOR"];
+            const contemCumpridoOutro = cumpridoKeywords.some(kw => obsUpper.includes(kw));
+
+            const centralKeywords = ["CENTRAL DE AGILIZAÇÃO (SEM FLUXO)", "CENTRAL DE AGILIZACAO (SEM FLUXO)", "CENTRAL DE AGILIZAÇÃO", "CENTRAL DE AGILIZACAO"];
+            const contemCentralSemFluxo = centralKeywords.some(kw => obsUpper.includes(kw));
+
+            if (contemErro || contemCumpridoOutro || contemCentralSemFluxo) {
+                return {
+                    tipo: "EXIGE_FINALIZADO",
+                    statusEsperado: "Finalizado",
+                    textoTabela: "Deveria estar Finalizado",
+                    tooltip: "Esta observação exige que o status do processo seja alterado para Finalizado!",
+                    mensagemAuditoria: "Alterar Status: para Finalizado"
+                };
+            }
+        }
+
+        return null;
+    }
+
+    // Auxiliar para detectar pendências de status incorreto no SIMAP (booleano)
+    function verificarPendenciaStatus(p) {
+        return obterPendenciaStatus(p) !== null;
     }
 
     // Auxiliar para converter número de data do Excel
@@ -4828,6 +4865,29 @@
                 label: "SISCONDJ (Vinculação de Conta)"
             },
             {
+                key: "SISCONDJ - valor indisponível SISBAJUD",
+                aliases: [
+                    "*SISCONDJ - valor indisponível SISBAJUD",
+                    "SISCONDJ - valor indisponível SISBAJUD",
+                    "*SISCONDJ - valor indisponivel SISBAJUD",
+                    "SISCONDJ - valor indisponivel SISBAJUD",
+                    "*SISCONDJ (valor indisponível SISBAJUD)",
+                    "SISCONDJ (valor indisponível SISBAJUD)",
+                    "*SISCONDJ (valor indisponivel SISBAJUD)",
+                    "SISCONDJ (valor indisponivel SISBAJUD)",
+                    "*SISCONDJ (Valor Indisp. SISBAJUD)",
+                    "SISCONDJ (Valor Indisp. SISBAJUD)",
+                    "*SISCONDJ - VALOR INDISPONÍVEL SISBAJUD",
+                    "SISCONDJ - VALOR INDISPONÍVEL SISBAJUD",
+                    "*SISCONDJ - VALOR INDISPONIVEL SISBAJUD",
+                    "SISCONDJ - VALOR INDISPONIVEL SISBAJUD",
+                    "SISCONDJ - VALOR INDISPONIVEL",
+                    "SISCONDJ - VALOR INDISPONÍVEL"
+                ],
+                exigeExtra: false,
+                label: "SISCONDJ (Valor Indisp. SISBAJUD)"
+            },
+            {
                 key: "PRAZO ABERTO FORA DO SISTEMA",
                 aliases: [
                     "*PRAZO ABERTO FORA DO SISTEMA (Data de Retorno)", "PRAZO ABERTO FORA DO SISTEMA (Data de Retorno)",
@@ -4900,6 +4960,25 @@
                 exigeExtra: true,
                 tipoExigido: "texto",
                 label: "SUSPENSO (Agravo/Conflito)"
+            },
+            {
+                key: "PROCESSO SUSPENSO (Até ulterior deliberação - Sem data de retorno)",
+                aliases: [
+                    "*PROCESSO SUSPENSO (Até ulterior deliberação - Sem data de retorno)",
+                    "PROCESSO SUSPENSO (Até ulterior deliberação - Sem data de retorno)",
+                    "*PROCESSO SUSPENSO (Ate ulterior deliberacao - Sem data de retorno)",
+                    "PROCESSO SUSPENSO (Ate ulterior deliberacao - Sem data de retorno)",
+                    "*PROCESSO SUSPENSO (Até ulterior deliberação)",
+                    "PROCESSO SUSPENSO (Até ulterior deliberação)",
+                    "*PROCESSO SUSPENSO (Ate ulterior deliberacao)",
+                    "PROCESSO SUSPENSO (Ate ulterior deliberacao)",
+                    "*PROCESSO SUSPENSO (Sem data de retorno)",
+                    "PROCESSO SUSPENSO (Sem data de retorno)",
+                    "*PROCESSO SUSPENSO (Até ulterior deliberação - Sem retorno)",
+                    "PROCESSO SUSPENSO (Até ulterior deliberação - Sem retorno)"
+                ],
+                exigeExtra: false,
+                label: "SUSPENSO (Sem data de retorno)"
             },
             {
                 key: "PROCESSO SUSPENSO",
@@ -5318,12 +5397,14 @@
         // 1.1.1 Erro de Status
         const statusErros = [];
         todosProcsEquipe.forEach(p => {
-            if (verificarPendenciaStatus(p)) {
+            const pendStatus = obterPendenciaStatus(p);
+            if (pendStatus) {
                 statusErros.push({
                     servidor: p.servidor,
                     npu: p.npu,
                     vara: p.vara || "Não informada",
-                    obs: p.obs
+                    obs: p.obs,
+                    mensagem: pendStatus.mensagemAuditoria
                 });
             }
         });
@@ -5331,7 +5412,7 @@
         if (statusErros.length > 0) {
             texto += `⚠️ ATENÇÃO: HÁ ERRO DE STATUS:\n`;
             statusErros.forEach(item => {
-                texto += `❌ Servidor: ${item.servidor} / NPU: ${item.npu} / Vara: ${item.vara} / Observação: ${item.obs} / Alterar Status: para Finalizado\n`;
+                texto += `❌ Servidor: ${item.servidor} / NPU: ${item.npu} / Vara: ${item.vara} / Observação: ${item.obs} / ${item.mensagem}\n`;
             });
             texto += `\n`;
         } else {
@@ -5420,7 +5501,10 @@
                     const analises = analisarObservacaoCompleta(p.obs);
                     // Compara obsTypeFiltro com a.tipo: o filtro usa o label (ou prefixo do label)
                     // retornado por analisarObservacaoCompleta, não a key do padrão.
-                    return analises.some(a => a.tipo.toUpperCase().includes(obsTypeFiltro.toUpperCase()));
+                    return analises.some(a => 
+                        a.tipo.toUpperCase().includes(obsTypeFiltro.toUpperCase()) ||
+                        (a.original && a.original.toUpperCase().includes(obsTypeFiltro.toUpperCase()))
+                    );
                 });
             }
         }
@@ -5504,7 +5588,8 @@
 
             // Analisa observação para formatar badges e pendências
             const analises = analisarObservacaoCompleta(p.obs);
-            const temPendStatus = verificarPendenciaStatus(p);
+            const pendStatus = obterPendenciaStatus(p);
+            const temPendStatus = pendStatus !== null;
 
             let obsHtml = "-";
             if (analises && analises.length > 0) {
@@ -5518,6 +5603,9 @@
                     } else if (analise.extensaoDesatualizada || analise.tipo.includes("Versão Antiga") || analise.tipo.includes("Alvará ou Vinculação")) {
                         badgeCor = "rgba(239, 68, 68, 0.15)";
                         badgeTextoCor = "#f87171";
+                    } else if (analise.tipo.includes("SISCONDJ")) {
+                        badgeCor = "rgba(14, 165, 233, 0.15)";
+                        badgeTextoCor = "#38bdf8";
                     } else if (analise.tipo.includes("SUSPENSO")) {
                         badgeCor = "rgba(59, 130, 246, 0.15)";
                         badgeTextoCor = "#60a5fa";
@@ -5557,7 +5645,7 @@
             if (temPendStatus) {
                 const statusBadgeHtml = `<div style="margin-top: 6px; border-top: 1px dashed rgba(239,68,68,0.25); padding-top: 6px;">
                     <span style="background: rgba(239, 68, 68, 0.15); color: #f87171; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; display: inline-block; margin-right: 5px; border: 1px solid rgba(239, 68, 68, 0.35);">⚠️ STATUS INCORRETO</span>
-                    <span style="color: #f87171; font-weight: bold;" title="Esta observação exige que o status do processo seja alterado para Finalizado!">Deveria estar Finalizado</span>
+                    <span style="color: #f87171; font-weight: bold;" title="${pendStatus.tooltip}">${pendStatus.textoTabela}</span>
                 </div>`;
                 if (obsHtml === "-") {
                     obsHtml = statusBadgeHtml;
@@ -8454,6 +8542,7 @@ for (const membroCompleto of membros) {
             const ehSuspensoDet = obsNorm.includes("PROCESSO SUSPENSO") && (obsNorm.includes("DETERMINACAO JUDICIAL") || obsNorm.includes("DATA DE RETORNO"));
             const ehSuspensoResp = obsNorm.includes("PROCESSO SUSPENSO") && (obsNorm.includes("RESPOSTA DE PRECATORIA") || obsNorm.includes("PC 03/2021") || obsNorm.includes("PC 03/21"));
             const ehSuspensoAgravo = obsNorm.includes("PROCESSO SUSPENSO") && (obsNorm.includes("AGRAVO") || obsNorm.includes("CONFLITO DE COMPETENCIA"));
+            const ehSuspensoSemRetorno = obsNorm.includes("PROCESSO SUSPENSO") && (obsNorm.includes("ULTERIOR DELIBERACAO") || obsNorm.includes("SEM DATA DE RETORNO"));
             const ehSuspensoGeral = obsNorm.includes("PROCESSO SUSPENSO");
             const ehArquivoProv = obsNorm.includes("ARQUIVO PROVISORIO");
 
@@ -8492,6 +8581,8 @@ for (const membroCompleto of membros) {
                         situacaoDestino = "SUSPENSO - RESPOSTA DE PRECATÓRIA (PC 03/21)";
                     } else if (ehSuspensoAgravo) {
                         situacaoDestino = "SUSPENSO - JULG. AGRAVO/CONFLITO DE COMP. (PC 03/21)";
+                    } else if (ehSuspensoSemRetorno) {
+                        situacaoDestino = "PROCESSO SUSPENSO (Até ulterior deliberação - Sem data de retorno)";
                     } else if (ehArquivoProv) {
                         situacaoDestino = "ARQUIVO PROVISÓRIO (informar data de retorno ou motivo na obs)";
                         if (!dataRetorno && infoExtra) {
