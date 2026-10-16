@@ -263,11 +263,11 @@ function doGet(e) {
       if (!dataJson) throw new Error("Parâmetro 'data' ausente.");
       
       var registros = JSON.parse(decodeURIComponent(dataJson));
-      var sheet = obterAbaResiliente(ss, "ERRO / VINC.");
+      var sheet = obterAbaResiliente(ss, "ERRO / VINC./ TED DEV.") || obterAbaResiliente(ss, "ERRO / VINC / TED DEV.") || obterAbaResiliente(ss, "ERRO / VINC.");
       
       if (!sheet) {
         var nomesAbas = ss.getSheets().map(function(s) { return "'" + s.getName() + "'"; }).join(", ");
-        throw new Error("Aba 'ERRO / VINC.' não encontrada na planilha. Abas existentes no arquivo: " + nomesAbas);
+        throw new Error("Aba 'ERRO / VINC./ TED DEV.' não encontrada na planilha. Abas existentes no arquivo: " + nomesAbas);
       }
       
       registros.forEach(function(reg) {
@@ -277,30 +277,59 @@ function doGet(e) {
         }
         
         var origemFormatada = "";
-        var obsFormatada = "";
+        var obsBase = "";
         
         if (tipo === "ERRO DE FLUXO") {
           origemFormatada = "ERRO DE FLUXO/SISTEMA (informar nº do chamado na obs)";
-          obsFormatada = "ERRO DE FLUXO (Nº do Chamado) - " + (reg.obsDestino || "");
+          obsBase = "ERRO DE FLUXO (Nº do Chamado) - " + (reg.obsDestino || "");
         } else {
           origemFormatada = "SISCONDJ - VINCULAÇÃO DE CONTA";
-          obsFormatada = "SISCONDJ - VINCULAÇÃO DE CONTA";
+          obsBase = "SISCONDJ - VINCULAÇÃO DE CONTA";
         }
+
+        // Tag de migração Tontom no topo da observação
+        var tagMigracao = reg.tagMigracao || "";
+        var textoObsCompleto = tagMigracao ? (obsBase ? tagMigracao + "\n" + obsBase : tagMigracao) : obsBase;
         
         sheet.appendRow([
           reg.vara || "",                   // Col A (VARA)
           reg.processo || "",               // Col B (PROCESSO)
           origemFormatada,                  // Col C (ORIGEM)
-          reg.duplaGestores || "",          // Col D (DUPLA GESTORES)
+          "",                               // Col D (SUPERVISOR - deixada vazia para a fórmula da planilha atuar)
           "",                               // Col E (SITUAÇÃO)
           "",                               // Col F (ANALISADO)
           "",                               // Col G (DATA DE RETORNO)
           reg.servidor || "",               // Col H (SERVIDOR QUE CUMPRIU)
-          obsFormatada,                     // Col I (OBS)
+          textoObsCompleto,                 // Col I (OBS)
           "=VLOOKUP(B:B, xdias!B:D, 3, 0)", // Col J (TAREFA - Fórmula)
           "=VLOOKUP(B:B, xdias!B:F, 5, 0)", // Col K (DIAS - Fórmula)
           reg.dataInclusao || ""            // Col L (DATA DE INCLUSÃO)
         ]);
+
+        var newRow = sheet.getLastRow();
+
+        // 1. Limpa Coluna D para permitir expansão de fórmula da planilha
+        try {
+          sheet.getRange(newRow, 4).clearContent();
+        } catch (eD) {}
+
+        // 2. Formata Coluna I com RichText para a parte 2 (nome planilha e data de modificação) vir com fonte menor
+        var part1 = reg.tagMigracaoParte1 || "";
+        var part2 = reg.tagMigracaoParte2 || "";
+        if (part1 && part2 && textoObsCompleto.indexOf(part1) === 0) {
+          try {
+            var startIndex = part1.length;
+            var endIndex = part1.length + part2.length;
+            var styleMenor = SpreadsheetApp.newTextStyle().setFontSize(8).build();
+            var richText = SpreadsheetApp.newRichTextValue()
+              .setText(textoObsCompleto)
+              .setTextStyle(startIndex, endIndex, styleMenor)
+              .build();
+            sheet.getRange(newRow, 9).setRichTextValue(richText);
+          } catch (eRich) {
+            // Se falhar o RichText, o texto já foi gravado pelo appendRow
+          }
+        }
       });
       
       return retornarJSONP(callback, { status: "success", message: registros.length + " registros migrados com sucesso." });
@@ -341,6 +370,9 @@ function doGet(e) {
         }
 
         var proximaLinha = cacheProximaLinha[destAba];
+
+        // Garante que a linha e as 5 colunas existam na aba antes de gravar
+        garantirDimensoes(sheet, proximaLinha, 5);
 
         // Grava especificamente nas Colunas A a E (1 a 5) daquela linha sem interferir nas colunas G, J, K...
         var rangeAlvo = sheet.getRange(proximaLinha, 1, 1, 5);
@@ -598,6 +630,8 @@ function doGet(e) {
       for (var j = 0; j < payload.length; j++) {
         var item = payload[j];
 
+        garantirDimensoes(sheet, proximaLinha, 11);
+
         // Coluna A (1): Vara
         sheet.getRange(proximaLinha, 1).setValue(item.vara || "");
         // Coluna B (2): Processo
@@ -646,6 +680,8 @@ function doGet(e) {
       for (var j = 0; j < payload.length; j++) {
         var item = payload[j];
 
+        garantirDimensoes(sheet, proximaLinha, 6);
+
         // Coluna A (1): Vara
         sheet.getRange(proximaLinha, 1).setValue(item.vara || "");
         // Coluna B (2): Processo
@@ -677,18 +713,45 @@ function doGet(e) {
 }
 
 /**
+ * Garante que a aba possua dimensões suficientes para a linha e coluna solicitadas.
+ */
+function garantirDimensoes(sheet, minRow, minCol) {
+  var maxRows = sheet.getMaxRows();
+  var maxCols = sheet.getMaxColumns();
+  if (minRow > maxRows) {
+    sheet.insertRowsAfter(maxRows, Math.max(minRow - maxRows, 20));
+  }
+  if (minCol > maxCols) {
+    sheet.insertColumnsAfter(maxCols, minCol - maxCols);
+  }
+}
+
+/**
  * Encontra a primeira linha vazia de uma aba com base em uma coluna específica (ex: Coluna B = 2),
  * evitando ignorar linhas por conta de fórmulas em colunas distantes (ex: Colunas G, J, K...).
+ * Lê apenas as linhas que já existem no intervalo da planilha, evitando erro de coordenadas fora das dimensões.
  */
 function obterProximaLinhaVaziaPorColuna(sheet, colIndex) {
-  var colValues = sheet.getRange(1, colIndex, sheet.getLastRow() + 50, 1).getValues();
-  for (var i = 0; i < colValues.length; i++) {
+  var lastRow = sheet.getLastRow();
+  var maxCols = sheet.getMaxColumns();
+  
+  if (colIndex > maxCols) {
+    sheet.insertColumnsAfter(maxCols, colIndex - maxCols);
+  }
+
+  if (lastRow <= 1) {
+    return 2;
+  }
+
+  // Lê apenas as linhas existentes até lastRow (nunca ultrapassa getMaxRows)
+  var colValues = sheet.getRange(1, colIndex, lastRow, 1).getValues();
+  for (var i = 1; i < colValues.length; i++) { // i = 1 pula o cabeçalho na linha 1
     var val = String(colValues[i][0] || "").trim();
-    if (val === "" && i > 0) { // i > 0 pula o cabeçalho na linha 1
+    if (val === "") {
       return i + 1;
     }
   }
-  return colValues.length + 1;
+  return lastRow + 1;
 }
 
 /**

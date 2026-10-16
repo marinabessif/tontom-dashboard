@@ -2452,6 +2452,57 @@
         return nameWithoutExt.substring(0, 12).trim();
     }
 
+    // Helper: Formata nome limpo da planilha para o cabeçalho de migração (ex: "OUT 02 - Plan Cível e GT (4).xlsx" -> "OUT 02-Plan Cível e GT")
+    function formatarNomePlanilhaParaMigracao(filename) {
+        if (!filename) return "Plan Cível e GT";
+        let clean = filename.replace(/\.[^/.]+$/, "").trim();
+        clean = clean.replace(/\s*\(\d+\)$/, "").trim();
+        clean = clean.replace(/\s*-\s*/g, "-");
+        return clean || "Plan Cível e GT";
+    }
+
+    // Helper: Monta as informações de auditoria de migração do Tontom
+    function obterInfoMigracaoPlanilha() {
+        const hoje = new Date();
+        const diaHoje = String(hoje.getDate()).padStart(2, '0');
+        const mesHoje = String(hoje.getMonth() + 1).padStart(2, '0');
+        const anoHoje = hoje.getFullYear();
+        const dataMigracaoStr = `${diaHoje}/${mesHoje}/${anoHoje}`;
+
+        let nomeArquivo = window.PLANILHA_SIMAP_NOME_ARQUIVO || localStorage.getItem('PLANILHA_SIMAP_NOME_ARQUIVO') || "";
+        let lastMod = window.PLANILHA_SIMAP_LAST_MODIFIED || localStorage.getItem('PLANILHA_SIMAP_LAST_MODIFIED');
+
+        let nomePlanilhaFormatado = formatarNomePlanilhaParaMigracao(nomeArquivo);
+
+        let dataHoraModStr = "";
+        if (lastMod && !isNaN(Number(lastMod))) {
+            const dMod = new Date(Number(lastMod));
+            const diaMod = String(dMod.getDate()).padStart(2, '0');
+            const mesMod = String(dMod.getMonth() + 1).padStart(2, '0');
+            const anoMod = dMod.getFullYear();
+            const horaMod = String(dMod.getHours()).padStart(2, '0');
+            const minMod = String(dMod.getMinutes()).padStart(2, '0');
+            dataHoraModStr = `${diaMod}/${mesMod}/${anoMod} às ${horaMod}:${minMod}`;
+        } else {
+            const horaH = String(hoje.getHours()).padStart(2, '0');
+            const minH = String(hoje.getMinutes()).padStart(2, '0');
+            dataHoraModStr = `${dataMigracaoStr} às ${horaH}:${minH}`;
+        }
+
+        const tagParte1 = `[Migrado Tontom em ${dataMigracaoStr}`;
+        const tagParte2 = `-${nomePlanilhaFormatado}-${dataHoraModStr}]`;
+        const tagCompleta = `${tagParte1}${tagParte2}`;
+
+        return {
+            dataMigracao: dataMigracaoStr,
+            nomePlanilha: nomePlanilhaFormatado,
+            dataHoraModificacao: dataHoraModStr,
+            tagParte1: tagParte1,
+            tagParte2: tagParte2,
+            tagCompleta: tagCompleta
+        };
+    }
+
     // Helper: Verifica se há sobreposição de supervisores (ex: Ligia e Rianne vs Rianne/Ligia, ordem inversa ou subnomes)
     function verificarOverlapSupervisor(supPlanilha, supDashboard) {
         if (!supPlanilha || !supDashboard) return false;
@@ -4165,6 +4216,11 @@
                     
                     window.NOME_ARQUIVO_SIMAP_CURTO = formatarNomeCurtoPlanilha(file.name);
                     localStorage.setItem('NOME_ARQUIVO_SIMAP_CURTO', window.NOME_ARQUIVO_SIMAP_CURTO);
+
+                    window.PLANILHA_SIMAP_NOME_ARQUIVO = file.name;
+                    window.PLANILHA_SIMAP_LAST_MODIFIED = file.lastModified;
+                    localStorage.setItem('PLANILHA_SIMAP_NOME_ARQUIVO', file.name);
+                    localStorage.setItem('PLANILHA_SIMAP_LAST_MODIFIED', String(file.lastModified));
 
                     processarPlanilhaSIMAP(rawRows);
                     
@@ -5907,6 +5963,10 @@
             localStorage.setItem('tontom_webapp_url', savedWebAppUrl);
         }
         document.getElementById('txtWebAppUrl').value = savedWebAppUrl;
+
+        // Metadados da Planilha SIMAP salva
+        window.PLANILHA_SIMAP_NOME_ARQUIVO = localStorage.getItem('PLANILHA_SIMAP_NOME_ARQUIVO') || "";
+        window.PLANILHA_SIMAP_LAST_MODIFIED = localStorage.getItem('PLANILHA_SIMAP_LAST_MODIFIED') || "";
 
         // Planilha e Lista de Feriados
         let savedFeriadosUrl = localStorage.getItem('tontom_feriados_sheet_url');
@@ -8470,6 +8530,7 @@ for (const membroCompleto of membros) {
         const payload = [];
         const npusRemover = [];
         const hojeStr = new Date().toLocaleDateString('pt-BR');
+        const infoMigracao = obterInfoMigracaoPlanilha();
 
         chksChecked.forEach(chk => {
             const idx = parseInt(chk.getAttribute('data-idx'), 10);
@@ -8479,11 +8540,14 @@ for (const membroCompleto of membros) {
                 vara: cand.vara,
                 processo: cand.processo,
                 origem: cand.tipo === "SISCONDJ" ? "VINCULAÇÃO DE CONTA-SISCONDJ" : cand.origem,
-                duplaGestores: cand.duplaGestores,
+                duplaGestores: "", // Não migra mais Dupla Gestores para a coluna D (fórmula na planilha de destino)
                 servidor: cand.servidor,
                 obsDestino: cand.obsDestino,
                 tipo: cand.tipo,
-                dataInclusao: hojeStr
+                dataInclusao: hojeStr,
+                tagMigracao: infoMigracao.tagCompleta,
+                tagMigracaoParte1: infoMigracao.tagParte1,
+                tagMigracaoParte2: infoMigracao.tagParte2
             });
 
             npusRemover.push(cand.npuChave);
