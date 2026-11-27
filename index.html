@@ -2962,7 +2962,7 @@
         "Equipe 4": ["ANA ELISABETE PROCOPIO DE ALMEIDA", "CAROLINA JORDAN", "CLAUDIA LOBO DA COSTA CARVALHO AMORIM", "EUDALIA MARIA ALVES FONSECA", "JOSE AUGUSTO BRAGA", "JULIANA DE SOUSA AMORIM", "KAREN SAVANNA BRILHANTE ALVES MIYAKAWA", "LUCIANA CARMONA BOTELHO", "ROSELYNE BEZERRA SMITH"],
         "Equipe 5": ["JANAINA FERRO DE SOUSA PORFIRIO LIMA", "JULIANA CARNEIRO DA MOTTA", "LIDIA SERRANO BARBOSA SANTOS", "MAYARA SIMONI LAET DE ANDRADE", "PATRICIA VIEIRA DE LIRA ALBUQUERQUE NOVAES", "SIMONE NANES VILELA", "LARISSA NOGUEIRA BESSA", "JULIANA PONTES ATHAYDE DE ALMEIDA LOPES", "ADALBERTO DA SOLEDADE SILVA FILHO", "MUNIK LUCIENE DE FONTES"],
         "Equipe 6": ["FERNANDA ALVES DA SILVA", "IAMANDA LEUSE CAMPOS DE LIMA", "ITALO JORGE CAVALCANTI DE ALBUQUERQUE NUNES", "NATALIA MARIA CATÃO VILELA", "ROBERTO FERREIRA DA SILVA", "SILVANA MARIA ROCHA PEREIRA FRAGOSO", "TASSIA REBECA RATIS DA SILVA", "TERCIA VANESSA MATIAS DE OLIVEIRA", "LUCIANA FLÁVIA DO NASCIMENTO", "TARCISIO BATISTA DA SILVA JUNIOR"],
-        "Equipe 7": ["ANA CLAUDIA DE MELO MARQUES LUZ", "CARLOS DE LIMA RIBEIRO JUNIOR", "CHARLES TONY DE OLIVEIRA LIRA", "FRANCIELLE MARIA DA SILVA MACEDO DE ANDRADE", "IRACY CABRAL DAS NEVES", "JULIANA TAVARES CORDEIRO GALVÃO", "LADJANE FERREIRA GUIMARAES", "POLLYHANE MAYUMI ALMEIDA", "THAMYRIS FERREIRA SANTOS", "ROSEANE SANTOS DE ANDRADE"],
+        "Equipe 7": ["ANA CLAUDIA DE MELO MARQUES LUZ", "CARLOS DE LIMA RIBEIRO JUNIOR", "CHARLES TONY DE OLIVEIRA LIRA", "FRANCIELLE MARIA DA SILVA MACEDO DE ANDRADE", "IRACY CABRAL DAS NEVES", "JULIANA TAVARES CORDEIRO GALVÃO", "LADJANE FERREIRA GUIMARAES", "POLLYHANE MAYUMI ALMEIDA", "THAMYRIS FERREIRA SANTOS", "THAMYRIS SANTOS", "ROSEANE SANTOS DE ANDRADE"],
         "Equipe 8": [],
         "Equipe 9": ["ALUSKA SUYANNE MARQUES DA SILVA", "ELISA CARLA CAMPOS TAVARES", "ERICKSON MOURA DE QUEIROZ", "FRANCISCO ELTOMAR MARTINS FERREIRA", "LILIAN AVELINO DE MORAIS", "OTIMAR ANTÔNIO DA SILVA", "SIMONE DE MEDEIROS TORRES", "SIMONE DOS PASSOS E SILVA LEITE", "SHEILA CRISTINA RODRIGUES DE LIMA ARAUJO"],
         "Equipe 10": ["ALEXANDRE LINDOSO DE ARAÚJO", "DAYANE FERNANDES MESSIAS", "MARILIA DOHERTY AYRES", "SILVIO MUCIO DE MACEDO FILHO", "WAGNER JEFFERSON MEIRA FILHO", "KALENNE FRANMARRY BRILHANTE ALVES MIYAKAWA", "ANDRE DA SILVA CORDOVILE", "CHRISTIANE OLIVEIRA DE ALMEIDA GUIMARAES MOTA BARRETO", "GRISSA ALCANTARA SABIA"],
@@ -2997,6 +2997,10 @@
                 if (parsed && typeof parsed === 'object') {
                     parsed["Todas"] = [];
                     if (parsed["Equipe SCGA (GT)"]) parsed["SCGA (GT)"] = parsed["Equipe SCGA (GT)"];
+                    if (parsed["Equipe 7"]) {
+                        if (!parsed["Equipe 7"].includes("THAMYRIS FERREIRA SANTOS")) parsed["Equipe 7"].push("THAMYRIS FERREIRA SANTOS");
+                        if (!parsed["Equipe 7"].includes("THAMYRIS SANTOS")) parsed["Equipe 7"].push("THAMYRIS SANTOS");
+                    }
                     return parsed;
                 }
             }
@@ -3079,7 +3083,10 @@
         const novasVarasPerm = {};
 
         // Cria mapa reverso de nomes resumidos -> completos a partir do fallback, para enriquecimento
-        const mapaCurtoParaCompleto = {};
+        const mapaCurtoParaCompleto = {
+            "THAMYRIS SANTOS": "THAMYRIS FERREIRA SANTOS",
+            "THAMYRIS FERREIRA": "THAMYRIS FERREIRA SANTOS"
+        };
         if (typeof CORRELACAO_SERVIDORES_FALLBACK !== 'undefined') {
             for (let completo in CORRELACAO_SERVIDORES_FALLBACK) {
                 const curto = normalizar(CORRELACAO_SERVIDORES_FALLBACK[completo]);
@@ -3138,6 +3145,10 @@
                                 servidoresList.push(fullUpper);
                             }
                         }
+                        if (srvNorm.includes("THAMYRIS")) {
+                            if (!servidoresList.includes("THAMYRIS FERREIRA SANTOS")) servidoresList.push("THAMYRIS FERREIRA SANTOS");
+                            if (!servidoresList.includes("THAMYRIS SANTOS")) servidoresList.push("THAMYRIS SANTOS");
+                        }
                     }
                 }
             }
@@ -3175,6 +3186,9 @@
 
         salvarEquipesESupervisoresLocal();
         atualizarSelecioneEquipesUI();
+        if (typeof processarDadosGerais === 'function' && typeof SIMAP_PROCESS_LIST !== 'undefined' && SIMAP_PROCESS_LIST.length > 0) {
+            processarDadosGerais();
+        }
         if (typeof atualizarAcompanhamentoAssinaturas === 'function') {
             atualizarAcompanhamentoAssinaturas();
         }
@@ -3484,6 +3498,25 @@
     function normalizar(texto) {
         if (!texto) return "";
         return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
+    }
+
+    // Helper: Checagem robusta de equivalência de nomes de servidores (suporta variações com/sem sobrenomes do meio, ex: "Thamyris Santos" e "Thamyris Ferreira Santos")
+    function servidoresSaoCompativeis(srv1, srv2) {
+        if (!srv1 || !srv2) return false;
+        const n1 = normalizar(srv1);
+        const n2 = normalizar(srv2);
+        if (n1 === n2 || n1.includes(n2) || n2.includes(n1)) return true;
+        
+        const p1 = n1.split(/\s+/).filter(w => w.length > 2);
+        const p2 = n2.split(/\s+/).filter(w => w.length > 2);
+        if (p1.length > 0 && p2.length > 0 && p1[0] === p2[0]) {
+            const resto1 = p1.slice(1);
+            const resto2 = p2.slice(1);
+            if (resto1.some(w => resto2.includes(w))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Helper: Formata nome curto da planilha de alimentação SIMAP (ex: "Nov 03")
@@ -6238,13 +6271,8 @@
         if (equipe === "Todas") {
             processosFiltrados = SIMAP_PROCESS_LIST;
         } else {
-            processosFiltrados = SIMAP_PROCESS_LIST.filter(p => 
-                integrantes.some(nome => {
-                    const srvNorm = normalizar(p.servidor);
-                    const nomeNorm = normalizar(nome);
-                    // Mapeamento bidirecional para dar match mesmo com nomes reduzidos na planilha
-                    return srvNorm.includes(nomeNorm) || nomeNorm.includes(srvNorm);
-                })
+            processosFiltrados = SIMAP_PROCESS_LIST.filter(p =>
+                integrantes.some(nome => servidoresSaoCompativeis(p.servidor, nome))
             );
         }
 
@@ -6675,11 +6703,9 @@
         sex.setDate(seg.getDate() + 4);
         sex.setHours(23, 59, 59, 999);
 
-        // Filtra afastamentos do servidor
-        const srvNorm = normalizar(nomeServidor);
+        // Filtrar afastamentos do servidor
         const doServidor = BANCO_AUSENCIAS.filter(a => {
-            const aNorm = normalizar(a.servidor);
-            return aNorm === srvNorm || aNorm.includes(srvNorm) || srvNorm.includes(aNorm);
+            return servidoresSaoCompativeis(a.servidor, nomeServidor);
         });
 
         const resultados = [];
@@ -6817,10 +6843,8 @@
         hojeMid.setHours(12, 0, 0, 0);
 
         // Filtrar afastamentos do servidor
-        const srvNorm = normalizar(nomeServidor);
         const doServidor = BANCO_AUSENCIAS.filter(a => {
-            const aNorm = normalizar(a.servidor);
-            return aNorm === srvNorm || aNorm.includes(srvNorm) || srvNorm.includes(aNorm);
+            return servidoresSaoCompativeis(a.servidor, nomeServidor);
         });
 
         // Verificar se está afastado HOJE
@@ -7932,7 +7956,7 @@
                 const srvPend = srvProcs.filter(p => p.status === "Pendente").length;
                 const srvAnd = srvProcs.filter(p => p.status === "Em andamento").length;
                 
-                const srvData = DADOS_SUPERVISAO_SERVIDORES.find(s => s.nome === srvNome || normalizar(s.nome) === normalizar(srvNome));
+                const srvData = DADOS_SUPERVISAO_SERVIDORES.find(s => s.nome === srvNome || servidoresSaoCompativeis(s.nome, srvNome));
                 const srvPrimeiroNome = srvNome.split(" ")[0];
                 texto += `\n👤 ${srvPrimeiroNome} (${srvNome})\n`;
 
@@ -10575,6 +10599,7 @@
         "LADJANE FERREIRA GUIMARAES": "Ladjane Guimarães",
         "POLLYHANE MAYUMI ALMEIDA": "Pollyhane Mayumi",
         "THAMYRIS FERREIRA SANTOS": "Thamyris Ferreira",
+        "THAMYRIS SANTOS": "Thamyris Ferreira",
 
         // Equipe 8
         "ANDRE DA SILVA CORDOVILE": "André Cordovile",
@@ -10717,6 +10742,11 @@
         // 1. Tenta correspondência exata no fallback primeiro
         if (CORRELACAO_SERVIDORES_FALLBACK[completoNorm]) {
             return CORRELACAO_SERVIDORES_FALLBACK[completoNorm];
+        }
+        for (let k in CORRELACAO_SERVIDORES_FALLBACK) {
+            if (servidoresSaoCompativeis(k, nomeCompleto)) {
+                return CORRELACAO_SERVIDORES_FALLBACK[k];
+            }
         }
 
         // 2. Se a lista dinâmica estiver carregada, faz busca inteligente por pontuação de palavras
